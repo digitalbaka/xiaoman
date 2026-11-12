@@ -7,6 +7,8 @@ import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -21,6 +23,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -53,6 +56,7 @@ fun ChatScreen(graph: AppGraph, onOpenSettings: () -> Unit) {
     val notificationsGranted = rememberNotificationPermission()
     var draft by rememberSaveable { mutableStateOf("") }
     val rows = remember(items) { chatTimeline(items) }
+    val avatar = rememberFileImage(settings.avatarPath)
     val listState = rememberLazyListState()
     LaunchedEffect(rows.size) {
         if (rows.isNotEmpty()) listState.animateScrollToItem(rows.lastIndex)
@@ -62,25 +66,38 @@ fun ChatScreen(graph: AppGraph, onOpenSettings: () -> Unit) {
     }
     Column(Modifier.fillMaxSize()) {
         ChatHeader(ready = settings.configured && service != null, busy = busy,
-            attention = approval != null || question != null)
+            attention = approval != null || question != null,
+            assistantName = settings.assistantName, avatarPath = settings.avatarPath)
         if (service == null) {
-            Banner(stringResource(R.string.banner_accessibility), stringResource(R.string.banner_accessibility_action)) {
+            Banner(stringResource(R.string.banner_accessibility, settings.assistantName), stringResource(R.string.banner_accessibility_action)) {
                 context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
             }
         }
         if (!settings.configured) Banner(stringResource(R.string.banner_models), stringResource(R.string.banner_models_action), onOpenSettings)
         if (!notificationsGranted.granted) Banner(stringResource(R.string.banner_notifications), stringResource(R.string.banner_notifications_action), notificationsGranted.request)
-        LazyColumn(
-            state = listState,
-            modifier = Modifier.weight(1f).fillMaxWidth(),
-            contentPadding = PaddingValues(horizontal = 18.dp, vertical = 18.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            if (items.isEmpty()) item { ChatWelcome { draft = it } }
-            items(rows, key = { it.id }) { row ->
-                when (row) {
-                    is TimelineRow.Message -> ChatMessage(row.item)
-                    is TimelineRow.Process -> ProcessCard(row.entries)
+        Box(Modifier.weight(1f).fillMaxWidth()) {
+            val background = rememberFileImage(settings.chatBackgroundPath)
+            if (background != null) {
+                Image(
+                    background,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize(),
+                )
+                Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background.copy(alpha = 0.45f)))
+            }
+            LazyColumn(
+                state = listState,
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(horizontal = 18.dp, vertical = 18.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                if (items.isEmpty()) item { ChatWelcome { draft = it } }
+                items(rows, key = { it.id }) { row ->
+                    when (row) {
+                        is TimelineRow.Message -> ChatMessage(row.item, settings.assistantName, avatar)
+                        is TimelineRow.Process -> ProcessCard(row.entries)
+                    }
                 }
             }
         }

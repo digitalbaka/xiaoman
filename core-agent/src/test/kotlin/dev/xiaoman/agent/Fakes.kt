@@ -166,10 +166,15 @@ class Harness(
     val users: FakeUsers = FakeUsers(),
     val reminders: FakeReminderScheduler = FakeReminderScheduler(),
     val config: AgentConfig = AgentConfig(),
+    mcp: dev.xiaoman.api.McpHub? = null,
+    mcpConfirm: dev.xiaoman.api.McpConfirmPolicy = dev.xiaoman.api.McpConfirmPolicy.MUTATING,
     val clock: () -> Long = { 1000L },
 ) {
     private var ids = 0
-    val agent = XiaomanAgent(chat, operator, device, memory, skills, sentinel, users, reminders, config, clock = clock, idFactory = { "t${++ids}" })
+    val agent = XiaomanAgent(
+        chat, operator, device, memory, skills, sentinel, users, reminders, config,
+        mcp = mcp, mcpConfirm = mcpConfirm, clock = clock, idFactory = { "t${++ids}" },
+    )
     val events = Events()
     val stop = Stop()
 }

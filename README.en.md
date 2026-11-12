@@ -1,4 +1,4 @@
-# Xiaoman
+# Xiaoman Extra
 
 [中文](README.md)
 
@@ -6,8 +6,10 @@ An open-source personal agent that lives on an Android phone. You chat with it i
 remembers what you tell it and operates the other apps on the phone for you (打车、点外卖、改设置 ...).
 New scenarios are **skills**: small `SKILL.md` + `flow.yaml` folders you can push without rebuilding
 the APK.
+This project based on [Original Project](https://github.com/aduoge/phonepal) , the project for the MIT license, add some custom functions, welcome new Issues.
 
-- Android 11 (API 30) or newer. It uses an accessibility service to read the screen and act.
+- Requires Android 7.1 (API 25) or newer. Xiaoman reads the screen and acts through an accessibility
+  service; below Android 11 it can only read the node tree and cannot take screenshots.
 - iOS is not supported: iOS does not let one app read or operate other apps.
 - Models: any OpenAI-compatible endpoint (Volcano Ark, Bailian, OpenRouter, vLLM, Ollama ...). You
   configure a chat model and a screen ("operator") model that accepts images.

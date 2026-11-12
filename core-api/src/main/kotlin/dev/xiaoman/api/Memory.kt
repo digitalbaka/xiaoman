@@ -44,6 +44,9 @@ data class Relation(val type: String, val target: String, val context: String? =
 
 data class SearchHit(val permalink: String, val title: String, val snippet: String, val score: Double)
 
+/** An immediate child folder of the memory tree, with counts including nested notes. */
+data class MemoryFolder(val path: String, val name: String, val noteCount: Int, val childCount: Int)
+
 interface MemoryStore {
     /** Creates or replaces the note at [Note.permalink]; returns the stored note. */
     suspend fun write(note: Note): Note
@@ -61,4 +64,22 @@ interface MemoryStore {
     suspend fun delete(identifier: String): Boolean
 
     suspend fun list(folder: String? = null): List<Note>
+
+    /** Immediate child folders of [parent] (null or blank for the root), sorted by name. */
+    suspend fun listFolders(parent: String? = null): List<MemoryFolder> = emptyList()
+
+    /** Creates a folder path such as `生活/健康`; false when it already exists. */
+    suspend fun createFolder(path: String): Boolean = false
+
+    /** Renames the last segment of [path]; false when the name is taken or the folder is missing. */
+    suspend fun renameFolder(path: String, newName: String): Boolean = false
+
+    /** Moves [path] under [newParent] (null for root); false on collision. */
+    suspend fun moveFolder(path: String, newParent: String?): Boolean = false
+
+    /** Deletes a folder and every note inside it. */
+    suspend fun deleteFolder(path: String): Boolean = false
+
+    /** Moves one note into [targetFolder] (null for root), keeping its title; null when not found. */
+    suspend fun moveNote(identifier: String, targetFolder: String?): Note? = null
 }

@@ -11,12 +11,15 @@ import dev.xiaoman.api.ContentPart
 import dev.xiaoman.api.Device
 import dev.xiaoman.api.LlmClient
 import dev.xiaoman.api.LlmException
+import dev.xiaoman.api.McpConfirmPolicy
+import dev.xiaoman.api.McpHub
 import dev.xiaoman.api.MemoryStore
 import dev.xiaoman.api.Note
 import dev.xiaoman.api.Observation
 import dev.xiaoman.api.ReminderScheduler
 import dev.xiaoman.api.Sentinel
 import dev.xiaoman.api.Skill
+import dev.xiaoman.api.SkillInstaller
 import dev.xiaoman.api.SkillRepository
 import dev.xiaoman.api.StopSignal
 import dev.xiaoman.api.UserChannel
@@ -38,10 +41,13 @@ class XiaomanAgent(
     private val memory: MemoryStore,
     private val skills: SkillRepository,
     sentinel: Sentinel,
-    users: UserChannel,
+    private val users: UserChannel,
     private val reminders: ReminderScheduler,
     private val config: AgentConfig = AgentConfig(),
     private val persona: String = Prompts.DEFAULT_PERSONA,
+    private val installer: SkillInstaller? = null,
+    private val mcp: McpHub? = null,
+    private val mcpConfirm: McpConfirmPolicy = McpConfirmPolicy.MUTATING,
     private val clock: () -> Long = System::currentTimeMillis,
     private val idFactory: () -> String = { UUID.randomUUID().toString() },
 ) : Agent {
@@ -53,7 +59,10 @@ class XiaomanAgent(
     override suspend fun handle(userMessage: String, listener: AgentListener, stop: StopSignal) {
         val taskId = idFactory()
         val emit: (AgentEvent) -> Unit = listener::onEvent
-        val tools = ChatTools(memory, skills, clock, reminders) { goal, skill -> runPhoneTask(goal, skill, listener, stop) }
+        val tools = ChatTools(memory, skills, clock, reminders, { goal, skill ->
+            runPhoneTask(goal, skill, listener, stop)
+        }, installer, mcp, users, mcpConfirm)
+        val mcpSpecs = quietly(emptyList()) { tools.mcpSpecs() }
         try {
             val system = ChatMessage.system(systemPrompt(userMessage))
             val past = historyLock.withLock { history.toList() }
@@ -63,7 +72,7 @@ class XiaomanAgent(
             for (round in 0..MAX_TOOL_ROUNDS) {
                 val offerTools = round < MAX_TOOL_ROUNDS
                 val response = chat.complete(
-                    ChatRequest(listOf(system) + past + turn, tools = if (offerTools) AgentTools.specs else emptyList()),
+                    ChatRequest(listOf(system) + past + turn, tools = if (offerTools) AgentTools.specs + mcpSpecs else emptyList()),
                 )
                 val text = response.text.trim()
                 if (response.toolCalls.isEmpty() || !offerTools) {

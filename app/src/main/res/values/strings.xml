@@ -1,26 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">小满</string>
+    <string name="app_name">小满Extra</string>
+    <string name="assistant_default_name">小满Extra</string>
 
     <!-- Navigation -->
     <string name="nav_chat">聊天</string>
     <string name="nav_skills">技能</string>
     <string name="nav_memory">记忆</string>
     <string name="nav_settings">设置</string>
+    <string name="close">关闭</string>
     <string name="back">返回</string>
 
     <!-- Chat -->
-    <string name="chat_input_hint">和小满说点什么</string>
-    <string name="chat_answer_hint">回答小满的问题</string>
+    <string name="chat_input_hint">和小满Extra说点什么</string>
+    <string name="chat_answer_hint">回答小满Extra的问题</string>
     <string name="chat_send">发送</string>
     <string name="chat_stop">停止</string>
-    <string name="chat_busy">小满正在处理上一条消息</string>
+    <string name="chat_busy">小满Extra正在处理上一条消息</string>
     <string name="chat_empty">告诉我你想做什么，比如「打车回家」或「记住我家在北京市海淀区」。</string>
-    <string name="chat_question_label">小满问</string>
+    <string name="chat_question_label">小满Extra问</string>
     <string name="chat_takeover_label">需要你接管</string>
     <string name="chat_takeover_hint">请在手机上完成操作（登录、验证码或安全页面），完成后在这里回复「好了」。</string>
     <string name="chat_error_label">出错了</string>
-    <string name="banner_accessibility">无障碍服务未开启，小满还不能操作其他 App。</string>
+    <string name="banner_accessibility">无障碍服务未开启，%1$s还不能操作其他 App。</string>
     <string name="banner_accessibility_action">去开启</string>
     <string name="banner_models">还没有配置聊天模型和操作模型。</string>
     <string name="banner_models_action">去设置</string>
@@ -57,6 +59,101 @@
 
     <!-- Settings -->
     <string name="settings_title">设置</string>
+    <string name="settings_manage_models">管理模型</string>
+    <string name="settings_selected_model">当前默认：%1$s</string>
+    <string name="settings_no_model">还没有添加聊天模型</string>
+    <string name="settings_personalize">个性化</string>
+    <string name="settings_assistant_name">助手名字</string>
+    <string name="settings_avatar">助手头像</string>
+    <string name="settings_avatar_pick">选择图片</string>
+    <string name="settings_avatar_reset">恢复默认</string>
+    <string name="settings_theme_color">主题色</string>
+    <string name="settings_background">聊天背景</string>
+    <string name="settings_background_pick">选择图片</string>
+    <string name="settings_background_reset">恢复默认</string>
+    <string name="settings_name_save">保存名字</string>
+    <string name="crop_title">裁剪图片</string>
+    <string name="crop_use">使用</string>
+    <string name="crop_hint">双指缩放、拖动调整位置</string>
+    <string name="image_load_failed">图片读取失败，请换一张试试</string>
+
+    <!-- Models -->
+    <string name="models_title">模型</string>
+    <string name="models_add">添加模型</string>
+    <string name="models_empty">还没有添加模型。添加一个 OpenAI 兼容接口就能在聊天里使用。</string>
+    <string name="models_default">默认</string>
+    <string name="models_edit">编辑</string>
+    <string name="models_delete">删除</string>
+    <string name="models_name">名称</string>
+    <string name="models_name_hint">例如：火山方舟</string>
+    <string name="models_model_id">模型 ID</string>
+    <string name="models_max_tokens">最大输出 Token（可选）</string>
+    <string name="models_test">测试连接</string>
+    <string name="models_testing">正在测试…</string>
+    <string name="models_test_ok">连接成功</string>
+    <string name="models_test_failed">连接失败：%1$s</string>
+    <string name="models_delete_title">删除模型？</string>
+    <string name="models_delete_message">「%1$s」将从列表中移除，不影响其它模型。</string>
+    <string name="models_required">请填写 Base URL 和模型 ID</string>
+    <string name="models_key_required">请填写 API Key</string>
+    <string name="models_save_failed">保存失败，请检查填写内容</string>
+
+    <!-- Skills install -->
+    <string name="skills_install">安装技能</string>
+    <string name="skills_install_title">安装技能</string>
+    <string name="skills_install_url">从链接安装</string>
+    <string name="skills_install_zip">从本地 zip 安装</string>
+    <string name="skills_install_url_hint">https://example.com/skill.zip</string>
+    <string name="skills_install_hint">zip 里需要包含 SKILL.md。可以是一个技能，也可以是包含多个技能的仓库压缩包。</string>
+    <string name="skills_install_action">安装</string>
+    <string name="skills_installing">正在安装…</string>
+    <string name="skills_install_ok">已安装：%1$s</string>
+    <string name="skills_install_failed">安装失败：%1$s</string>
+    <string name="skills_pick_zip">选择 zip 文件</string>
+    <string name="skills_installed">已安装</string>
+    <string name="skills_bundled">内置</string>
+    <string name="skills_enable">启用</string>
+    <string name="skills_disable">停用</string>
+    <string name="skills_delete">删除</string>
+    <string name="skills_delete_title">删除技能？</string>
+    <string name="skills_delete_message">「%1$s」将从应用内删除。</string>
+    <string name="skills_no_installed">还没有安装技能，内置技能仍然可用。</string>
+    <string name="skills_disabled">已停用</string>
+    <string name="skills_user_skills">已安装</string>
+    <string name="skills_origin">来源：%1$s</string>
+    <string name="skills_shop_entry">商店</string>
+    <string name="skills_shop_back">返回</string>
+    <string name="skills_shop_title">SkillHub 商店</string>
+    <string name="skills_shop_search_hint">搜索技能</string>
+    <string name="skills_shop_search">搜索</string>
+    <string name="skills_shop_install">安装</string>
+    <string name="skills_shop_installing">安装中…</string>
+    <string name="skills_shop_downloads">下载 %1$d</string>
+    <string name="skills_shop_footer">技能来自 skillhub.cn，安装到应用内技能目录；装好后可在技能列表启用、停用或删除。</string>
+
+    <!-- Memory folders -->
+    <string name="memory_all">全部</string>
+    <string name="memory_subtitle">按文件夹整理你的记忆</string>
+    <string name="memory_notes">笔记</string>
+    <string name="memory_new_folder">新建文件夹</string>
+    <string name="memory_folder_name">文件夹名称</string>
+    <string name="memory_create">新建</string>
+    <string name="memory_rename">重命名</string>
+    <string name="memory_move">移动</string>
+    <string name="memory_move_note">移动笔记</string>
+    <string name="memory_move_to">移动到</string>
+    <string name="memory_root">根目录</string>
+    <string name="memory_delete_folder_title">删除文件夹？</string>
+    <string name="memory_delete_folder_message">「%1$s」及其中的笔记会永久删除。</string>
+    <string name="memory_items">%1$d 项</string>
+    <string name="memory_back_root">全部记忆</string>
+    <string name="memory_empty_folder">这个文件夹还没有笔记。</string>
+    <string name="memory_folder_exists">同名文件夹已存在</string>
+    <string name="memory_rename_folder">重命名文件夹</string>
+    <string name="memory_name_empty">名称不能为空</string>
+    <string name="memory_folder_error">操作失败：%1$s</string>
+    <string name="memory_unfiled">未分类</string>
+
     <string name="settings_chat_model">聊天模型</string>
     <string name="settings_operator_model">操作模型（需支持图片）</string>
     <string name="settings_base_url">Base URL</string>
@@ -72,6 +169,9 @@
     <string name="settings_saved">已保存</string>
     <string name="settings_invalid_number">请输入有效的数字</string>
     <string name="settings_copy_chat">与聊天模型相同</string>
+    <string name="settings_same_as_chat_hint">勾选后直接使用聊天模型的 Base URL、模型名称、Key 和参数，下方输入框不可编辑</string>
+    <string name="settings_mcp_entry">外部服务 / MCP 服务</string>
+    <string name="settings_mcp_enabled">已启用 %1$d 个</string>
     <string name="settings_folders">文件夹</string>
     <string name="settings_folder_skills">技能：%1$s</string>
     <string name="settings_folder_memory">记忆：%1$s</string>
@@ -79,13 +179,13 @@
 
     <!-- Service and notifications -->
     <string name="channel_status">任务状态</string>
-    <string name="channel_status_description">小满正在运行任务时显示</string>
+    <string name="channel_status_description">小满Extra正在运行任务时显示</string>
     <string name="channel_attention">需要你处理</string>
-    <string name="channel_attention_description">小满需要你确认或回答问题时提醒</string>
+    <string name="channel_attention_description">小满Extra需要你确认或回答问题时提醒</string>
     <string name="channel_reminders">定时提醒</string>
     <string name="channel_reminders_description">你设置的提醒到点时通知</string>
-    <string name="notification_running">小满正在工作</string>
-    <string name="notification_question">小满有问题要问你</string>
+    <string name="notification_running">小满Extra正在工作</string>
+    <string name="notification_question">小满Extra有问题要问你</string>
     <string name="reminder_title">提醒</string>
 
     <!-- Session messages -->

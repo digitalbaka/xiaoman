@@ -37,7 +37,7 @@ android {
     compileSdk = 35
     defaultConfig {
         applicationId = "dev.xiaoman.app"
-        minSdk = 30
+        minSdk = 25
         targetSdk = 35
         versionCode = 1
         versionName = "0.1.0"
@@ -50,6 +50,8 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        // java.time / java.util.Base64 on Android 7.1 (API 25).
+        isCoreLibraryDesugaringEnabled = true
     }
     buildFeatures {
         compose = true
@@ -89,6 +91,8 @@ dependencies {
     implementation(libs.compose.material3)
     implementation(libs.compose.material.icons)
     debugImplementation(libs.compose.ui.tooling)
+
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
 
     testImplementation(libs.kotlin.test)
     testImplementation(libs.kotlinx.coroutines.test)

@@ -12,6 +12,7 @@ lifecycle = "2.8.7"
 coreKtx = "1.15.0"
 securityCrypto = "1.1.0-alpha06"
 robolectric = "4.14.1"
+desugarJdkLibs = "2.1.5"
 
 [libraries]
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
@@ -36,6 +37,7 @@ compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 compose-material3 = { module = "androidx.compose.material3:material3" }
 compose-material-icons = { module = "androidx.compose.material:material-icons-extended" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+desugar-jdk-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugarJdkLibs" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

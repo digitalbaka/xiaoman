@@ -88,7 +88,9 @@ internal class FlowRunner(
     }
 
     companion object {
-        private val PLACEHOLDER = Regex("\\{([A-Za-z0-9_\\-\\p{IsHan}]+)\\}")
+        // `\p{IsHan}` is unsupported by the regex engine of Android 8.x (PatternSyntaxException),
+        // so the CJK range is written out explicitly.
+        private val PLACEHOLDER = Regex("\\{([A-Za-z0-9_\\-\\u3400-\\u4dbf\\u4e00-\\u9fa5]+)\\}")
         private val YES_ZH = listOf("是", "好", "确认", "确定", "可以", "行", "对", "嗯")
         private val YES_EN = listOf("yes", "ok", "okay", "y", "sure", "yeah")
         private const val SINGLE_STEP_TRIES = 3

@@ -2,13 +2,16 @@ package dev.xiaoman.app
 
 import android.content.Context
 import android.util.Log
+import dev.xiaoman.agent.Prompts
 import dev.xiaoman.agent.XiaomanAgent
 import dev.xiaoman.api.Agent
 import dev.xiaoman.api.ModelRole
+import dev.xiaoman.app.mcp.McpRegistry
 import dev.xiaoman.app.session.AgentSession
 import dev.xiaoman.app.session.SessionTexts
 import dev.xiaoman.app.settings.AppSettings
 import dev.xiaoman.app.settings.SettingsStore
+import dev.xiaoman.app.skills.SkillHubClient
 import dev.xiaoman.app.trace.RecordingDevice
 import dev.xiaoman.app.trace.TraceWriter
 import dev.xiaoman.hands.AccessibilityDevice
@@ -18,6 +21,7 @@ import dev.xiaoman.llm.LlmClientFactory
 import dev.xiaoman.llm.LlmClients
 import dev.xiaoman.memory.FileMemoryStore
 import dev.xiaoman.sentinel.PolicySentinel
+import dev.xiaoman.skills.DirectorySkillInstaller
 import dev.xiaoman.skills.DirectorySkillRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -37,7 +41,7 @@ import java.io.IOException
  * `memory/`, `skills/` (user skills, override bundled ones), `traces/`; bundled skills are
  * extracted to `<files>/bundled-skills/`.
  */
-class AppGraph(context: Context, private val llm: LlmClientFactory = LlmClients.default) {
+class AppGraph(context: Context, val llm: LlmClientFactory = LlmClients.default) {
     private val app: Context = context.applicationContext
 
     /** Process-wide scope; the session runs agent work here. */
@@ -54,6 +58,15 @@ class AppGraph(context: Context, private val llm: LlmClientFactory = LlmClients.
     val memory by lazy { FileMemoryStore(memoryDir) }
 
     val skills by lazy { DirectorySkillRepository(listOf(bundledSkillsDir, skillsDir)) }
+
+    /** Installs user skills into [skillsDir]; the Skills tab and the chat `skill_install` tool share it. */
+    val skillInstaller by lazy { DirectorySkillInstaller(skillsDir) }
+
+    /** Read-only client for the SkillHub store shown in the Skills tab. */
+    val skillHub by lazy { SkillHubClient() }
+
+    /** Enabled external MCP services; the agent discovers their tools on every chat turn. */
+    val mcpRegistry by lazy { McpRegistry { settings.current } }
 
     val notifier by lazy { Notifier(app) }
 
@@ -111,7 +124,7 @@ class AppGraph(context: Context, private val llm: LlmClientFactory = LlmClients.
         cachedAgent?.let { (s, agent) -> if (s == current) return agent }
         val agent = XiaomanAgent(
             chat = llm.create(current.chat.toModelConfig(ModelRole.CHAT)),
-            operator = llm.create(current.operator.toModelConfig(ModelRole.OPERATOR)),
+            operator = llm.create(current.effectiveOperator.toModelConfig(ModelRole.OPERATOR)),
             device = device,
             memory = memory,
             skills = skills,
@@ -119,6 +132,10 @@ class AppGraph(context: Context, private val llm: LlmClientFactory = LlmClients.
             users = session,
             reminders = reminderScheduler,
             config = current.agentConfig(),
+            persona = Prompts.persona(current.assistantName),
+            installer = skillInstaller,
+            mcp = mcpRegistry,
+            mcpConfirm = current.mcp.confirmPolicy,
             idFactory = runIds::next,
         )
         cachedAgent = current to agent

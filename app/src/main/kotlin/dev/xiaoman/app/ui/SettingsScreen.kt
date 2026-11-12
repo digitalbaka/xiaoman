@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -36,6 +37,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.xiaoman.app.AppGraph
 import dev.xiaoman.app.R
 import dev.xiaoman.app.settings.SettingsForm
@@ -43,9 +45,20 @@ import dev.xiaoman.app.settings.SettingsForm
 @Composable
 fun SettingsScreen(graph: AppGraph) {
     val store = graph.settings
+    val settings by store.settings.collectAsStateWithLifecycle()
+    var showModels by remember { mutableStateOf(false) }
+    if (showModels) {
+        ModelScreen(graph) { showModels = false }
+        return
+    }
     var form by remember { mutableStateOf(SettingsForm.of(store.current)) }
     var saved by remember { mutableStateOf(false) }
-    val parsed = form.toSettings()
+    var showMcp by remember { mutableStateOf(false) }
+    if (showMcp) {
+        McpScreen(graph) { showMcp = false }
+        return
+    }
+    val parsed = form.toSettings(settings)
 
     Column(
         Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
@@ -53,19 +66,53 @@ fun SettingsScreen(graph: AppGraph) {
     ) {
         Text(stringResource(R.string.settings_title), style = MaterialTheme.typography.titleLarge)
 
-        ModelSection(stringResource(R.string.settings_chat_model), form.chat) {
-            form = form.copy(chat = it)
-            saved = false
+        Text(stringResource(R.string.settings_chat_model), style = MaterialTheme.typography.titleMedium)
+        Text(
+            settings.selectedChatModel?.displayName?.let { stringResource(R.string.settings_selected_model, it) }
+                ?: stringResource(R.string.settings_no_model),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        TextButton(onClick = { showModels = true }) { Text(stringResource(R.string.settings_manage_models)) }
+        TextButton(onClick = { showMcp = true }, modifier = Modifier.fillMaxWidth()) {
+            Column(Modifier.weight(1f), horizontalAlignment = Alignment.Start) {
+                Text(stringResource(R.string.settings_mcp_entry))
+                Text(
+                    stringResource(R.string.settings_mcp_enabled, settings.mcp.enabledCount),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Text("›", style = MaterialTheme.typography.titleMedium)
         }
         HorizontalDivider()
-        ModelSection(stringResource(R.string.settings_operator_model), form.operator) {
-            form = form.copy(operator = it)
-            saved = false
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+            Checkbox(
+                checked = form.operatorSameAsChat,
+                onCheckedChange = {
+                    form = form.copy(operatorSameAsChat = it)
+                    saved = false
+                },
+            )
+            Column(Modifier.weight(1f)) {
+                Text(stringResource(R.string.settings_copy_chat))
+                Text(
+                    stringResource(R.string.settings_same_as_chat_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
-        TextButton(onClick = {
-            form = form.copy(operator = form.operator.copy(baseUrl = form.chat.baseUrl, apiKey = form.chat.apiKey))
-            saved = false
-        }) { Text(stringResource(R.string.settings_copy_chat)) }
+        ModelSection(
+            title = stringResource(R.string.settings_operator_model),
+            model = if (form.operatorSameAsChat) form.chat else form.operator,
+            enabled = !form.operatorSameAsChat,
+        ) {
+            if (!form.operatorSameAsChat) {
+                form = form.copy(operator = it)
+                saved = false
+            }
+        }
         HorizontalDivider()
 
         Text(stringResource(R.string.settings_agent), style = MaterialTheme.typography.titleMedium)
@@ -94,6 +141,7 @@ fun SettingsScreen(graph: AppGraph) {
             Button(enabled = parsed != null, onClick = {
                 parsed?.let {
                     store.save(it)
+                    form = SettingsForm.of(it)
                     saved = true
                 }
             }) { Text(stringResource(R.string.settings_save)) }
@@ -106,6 +154,12 @@ fun SettingsScreen(graph: AppGraph) {
         }
 
         HorizontalDivider()
+        PersonalizationSection(settings) { updated ->
+            store.save(updated)
+            saved = false
+        }
+
+        HorizontalDivider()
         Text(stringResource(R.string.settings_folders), style = MaterialTheme.typography.titleMedium)
         Text(stringResource(R.string.settings_folder_skills, graph.skillsDir.path), style = MaterialTheme.typography.bodySmall)
         Text(stringResource(R.string.settings_folder_memory, graph.memoryDir.path), style = MaterialTheme.typography.bodySmall)
@@ -114,7 +168,12 @@ fun SettingsScreen(graph: AppGraph) {
 }
 
 @Composable
-private fun ModelSection(title: String, model: SettingsForm.ModelForm, onChange: (SettingsForm.ModelForm) -> Unit) {
+private fun ModelSection(
+    title: String,
+    model: SettingsForm.ModelForm,
+    enabled: Boolean = true,
+    onChange: (SettingsForm.ModelForm) -> Unit,
+) {
     var showKey by remember { mutableStateOf(false) }
     Text(title, style = MaterialTheme.typography.titleMedium)
     OutlinedTextField(
@@ -123,6 +182,7 @@ private fun ModelSection(title: String, model: SettingsForm.ModelForm, onChange:
         label = { Text(stringResource(R.string.settings_base_url)) },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
         singleLine = true,
+        enabled = enabled,
         modifier = Modifier.fillMaxWidth(),
     )
     OutlinedTextField(
@@ -130,6 +190,7 @@ private fun ModelSection(title: String, model: SettingsForm.ModelForm, onChange:
         onValueChange = { onChange(model.copy(model = it)) },
         label = { Text(stringResource(R.string.settings_model)) },
         singleLine = true,
+        enabled = enabled,
         modifier = Modifier.fillMaxWidth(),
     )
     OutlinedTextField(
@@ -137,10 +198,11 @@ private fun ModelSection(title: String, model: SettingsForm.ModelForm, onChange:
         onValueChange = { onChange(model.copy(apiKey = it)) },
         label = { Text(stringResource(R.string.settings_api_key)) },
         singleLine = true,
+        enabled = enabled,
         visualTransformation = if (showKey) VisualTransformation.None else PasswordVisualTransformation(),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, autoCorrectEnabled = false),
         trailingIcon = {
-            IconButton(onClick = { showKey = !showKey }) {
+            IconButton(enabled = enabled, onClick = { showKey = !showKey }) {
                 Icon(
                     if (showKey) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
                     contentDescription = stringResource(if (showKey) R.string.settings_hide_key else R.string.settings_show_key),
@@ -157,6 +219,7 @@ private fun ModelSection(title: String, model: SettingsForm.ModelForm, onChange:
         supportingText = { if (!model.temperatureValid) Text(stringResource(R.string.settings_invalid_number)) },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
         singleLine = true,
+        enabled = enabled,
         modifier = Modifier.fillMaxWidth(),
     )
 }

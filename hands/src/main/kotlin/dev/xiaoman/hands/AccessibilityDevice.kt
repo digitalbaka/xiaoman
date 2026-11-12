@@ -10,6 +10,7 @@ import android.graphics.Path
 import android.hardware.display.DisplayManager
 import android.net.Uri
 import android.os.Bundle
+import android.os.Build
 import android.os.SystemClock
 import android.util.DisplayMetrics
 import android.util.Log
@@ -89,6 +90,8 @@ class AccessibilityDevice(
     private class Shot(val png: ByteArray?, val secure: Boolean)
 
     private suspend fun captureScreenshot(service: XiaomanAccessibilityService): Shot {
+        // AccessibilityService.takeScreenshot needs Android 11; older phones work from the node tree alone.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return Shot(null, secure = false)
         repeat(SCREENSHOT_ATTEMPTS) {
             // Android allows one takeScreenshot per second per service.
             val wait = lastScreenshotAt + SCREENSHOT_INTERVAL_MS - SystemClock.uptimeMillis()

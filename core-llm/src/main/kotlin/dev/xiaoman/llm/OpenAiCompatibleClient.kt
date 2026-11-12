@@ -32,7 +32,6 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
-import java.util.Base64
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -130,7 +129,7 @@ class OpenAiCompatibleClient(
                             is ContentPart.ImagePng -> {
                                 put("type", "image_url")
                                 putJsonObject("image_url") {
-                                    put("url", "data:image/png;base64," + Base64.getEncoder().encodeToString(part.bytes))
+                                    put("url", "data:image/png;base64," + encodeBase64(part.bytes))
                                 }
                             }
                         }
@@ -255,5 +254,24 @@ class OpenAiCompatibleClient(
         fun isRetryable(code: Int) = code == 408 || code == 409 || code == 429 || code in 500..599
         fun JsonObject.string(key: String) = (this[key] as? JsonPrimitive)?.contentOrNull
         fun JsonObject.int(key: String) = (this[key] as? JsonPrimitive)?.intOrNull
+
+        private const val BASE64_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+
+        /** android.util.Base64 does not exist on a plain JVM and java.util.Base64 needs API 26, so encode here. */
+        fun encodeBase64(bytes: ByteArray): String {
+            val out = StringBuilder((bytes.size + 2) / 3 * 4)
+            var i = 0
+            while (i < bytes.size) {
+                val b0 = bytes[i].toInt() and 0xff
+                val b1 = if (i + 1 < bytes.size) bytes[i + 1].toInt() and 0xff else 0
+                val b2 = if (i + 2 < bytes.size) bytes[i + 2].toInt() and 0xff else 0
+                out.append(BASE64_CHARS[b0 shr 2])
+                out.append(BASE64_CHARS[((b0 and 0x03) shl 4) or (b1 shr 4)])
+                out.append(if (i + 1 < bytes.size) BASE64_CHARS[((b1 and 0x0f) shl 2) or (b2 shr 6)] else '=')
+                out.append(if (i + 2 < bytes.size) BASE64_CHARS[b2 and 0x3f] else '=')
+                i += 3
+            }
+            return out.toString()
+        }
     }
 }

@@ -1,20 +1,31 @@
 package dev.xiaoman.agent
 
 import dev.xiaoman.api.AgentEvent
+import dev.xiaoman.api.McpConfirmPolicy
+import dev.xiaoman.api.McpException
+import dev.xiaoman.api.McpHub
+import dev.xiaoman.api.McpServerConnection
+import dev.xiaoman.api.McpTool
 import dev.xiaoman.api.MemoryStore
 import dev.xiaoman.api.Note
 import dev.xiaoman.api.Observation
 import dev.xiaoman.api.Relation
 import dev.xiaoman.api.ReminderScheduler
 import dev.xiaoman.api.Skill
+import dev.xiaoman.api.SkillInstaller
 import dev.xiaoman.api.SkillRepository
 import dev.xiaoman.api.ToolCall
+import dev.xiaoman.api.ToolSpec
+import dev.xiaoman.api.UserChannel
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.add
 import kotlinx.serialization.json.addJsonObject
+import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.intOrNull
@@ -30,17 +41,89 @@ internal class ChatTools(
     private val clock: () -> Long,
     private val reminders: ReminderScheduler,
     private val phoneTask: suspend (goal: String, skill: String?) -> AgentEvent.PhoneTaskFinished,
+    private val installer: SkillInstaller? = null,
+    private val mcp: McpHub? = null,
+    private val users: UserChannel? = null,
+    private val confirmPolicy: McpConfirmPolicy = McpConfirmPolicy.MUTATING,
 ) {
+    private val mcpTools = LinkedHashMap<String, McpBinding>()
+    private val emptySchema = buildJsonObject { put("type", "object") }
+
+    private data class McpBinding(val server: McpServerConnection, val tool: McpTool)
+
+    /**
+     * Discovers the tools of the user's enabled MCP servers. Call once per chat turn, before
+     * [execute]; the discovered names are remembered so their calls can be routed back.
+     */
+    suspend fun mcpSpecs(): List<ToolSpec> {
+        val hub = mcp ?: return emptyList()
+        val servers = try {
+            hub.servers()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            return emptyList()
+        }
+        if (servers.isEmpty()) return emptyList()
+        val discovered = coroutineScope {
+            servers.map { server ->
+                async {
+                    try {
+                        server.listTools().map { server to it }
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        emptyList()
+                    }
+                }
+            }.map { it.await() }.flatten()
+        }
+        val specs = mutableListOf<ToolSpec>()
+        for ((server, tool) in discovered) {
+            val name = mcpToolName(server, tool)
+            if (mcpTools.containsKey(name)) continue
+            mcpTools[name] = McpBinding(server, tool)
+            specs += ToolSpec(name, mcpDescription(server, tool), tool.inputSchema ?: emptySchema)
+        }
+        return specs
+    }
+
+    private fun mcpToolName(server: McpServerConnection, tool: McpTool): String {
+        val base = MCP_PREFIX + sanitize(server.id) + "_" + sanitize(tool.name)
+        var name = base.take(60)
+        var i = 2
+        while (mcpTools.containsKey(name)) {
+            name = base.take(56) + "_" + i
+            i++
+        }
+        return name
+    }
+
+    private fun sanitize(raw: String): String = raw.trim()
+        .map { c -> if (c.isLetterOrDigit() && c.code < 128 || c == '_' || c == '-') c else '_' }
+        .joinToString("")
+        .trim('_')
+        .ifEmpty { "server" }
+
+    private fun mcpDescription(server: McpServerConnection, tool: McpTool): String {
+        val prefix = "【${server.title}】"
+        val rest = tool.description.trim().ifEmpty { tool.name }
+        return (prefix + rest).take(600)
+    }
+
     suspend fun execute(call: ToolCall, taskId: String, emit: (AgentEvent) -> Unit): String = try {
         val args = parseArgs(call.argumentsJson)
-        when (call.name) {
-            AgentTools.MEMORY_SEARCH -> search(args)
-            AgentTools.MEMORY_READ -> read(args)
-            AgentTools.MEMORY_WRITE -> write(args, taskId, emit)
-            AgentTools.MEMORY_FORGET -> forget(args, taskId, emit)
-            AgentTools.LIST_SKILLS -> listSkills()
-            AgentTools.REMINDER_SET -> reminder(args)
-            AgentTools.PHONE_TASK -> phone(args)
+        when {
+            call.name.startsWith(MCP_PREFIX) -> mcpCall(call.name, args, taskId)
+            call.name == AgentTools.MEMORY_SEARCH -> search(args)
+            call.name == AgentTools.MEMORY_READ -> read(args)
+            call.name == AgentTools.MEMORY_WRITE -> write(args, taskId, emit)
+            call.name == AgentTools.MEMORY_FORGET -> forget(args, taskId, emit)
+            call.name == AgentTools.MEMORY_FOLDER -> folder(args)
+            call.name == AgentTools.LIST_SKILLS -> listSkills()
+            call.name == AgentTools.SKILL_INSTALL -> installSkill(args)
+            call.name == AgentTools.REMINDER_SET -> reminder(args)
+            call.name == AgentTools.PHONE_TASK -> phone(args)
             else -> error("未知工具 ${call.name}")
         }
     } catch (e: CancellationException) {
@@ -49,6 +132,56 @@ internal class ChatTools(
         error("参数错误：${e.message}")
     } catch (e: Exception) {
         error("工具执行失败：${e.message ?: e::class.simpleName}")
+    }
+
+    private suspend fun mcpCall(name: String, args: JsonObject, taskId: String): String {
+        val binding = mcpTools[name] ?: return error("MCP 服务已不可用，请重新发起请求")
+        if (needsConfirm(binding.tool)) {
+            val channel = users ?: return error("调用 ${binding.server.title} 需要用户确认，但当前没有可用的确认通道")
+            val prompt = buildString {
+                append("是否允许调用「").append(binding.server.title).append("」的 ")
+                append(binding.tool.name).append(" 工具？")
+                val preview = args.toString()
+                if (preview != "{}") append("\n参数：").append(preview.take(300))
+                append("\n回复「确认」执行，其他回复视为取消。")
+            }
+            val answer = channel.ask(taskId, prompt, takeover = false)
+            if (!confirmed(answer)) {
+                return buildJsonObject {
+                    put("ok", false)
+                    put("cancelled", true)
+                    put("reason", "用户没有确认，工具没有执行")
+                }.toString()
+            }
+        }
+        return try {
+            binding.server.callTool(binding.tool.name, args)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: McpException) {
+            error("MCP 调用失败：${e.message}")
+        } catch (e: Exception) {
+            error("MCP 调用失败：${e.message ?: e::class.simpleName}")
+        }
+    }
+
+    private fun needsConfirm(tool: McpTool): Boolean = when (confirmPolicy) {
+        McpConfirmPolicy.NEVER -> false
+        McpConfirmPolicy.ALWAYS -> true
+        McpConfirmPolicy.MUTATING -> tool.readOnly != true && looksMutating(tool)
+    }
+
+    /** Uses the MCP `readOnlyHint` when present, otherwise guesses from the tool name and description. */
+    private fun looksMutating(tool: McpTool): Boolean {
+        val text = (tool.name + " " + tool.description).lowercase()
+        return MUTATING_WORDS.any { text.contains(it) }
+    }
+
+    private fun confirmed(answer: String): Boolean {
+        val text = answer.trim().lowercase().replace(Regex("[\\s,，。.!！、~～]"), "")
+        if (text.isEmpty()) return false
+        if (NEGATIVE_WORDS.any { text.contains(it) }) return false
+        return AFFIRMATIVE_WORDS.any { text.contains(it) }
     }
 
     private fun error(message: String) = buildJsonObject { put("error", message) }.toString()
@@ -68,10 +201,54 @@ internal class ChatTools(
     private suspend fun search(args: JsonObject): String {
         val query = required(args, "query")
         val limit = ((args["limit"] as? JsonPrimitive)?.intOrNull ?: 5).coerceIn(1, 20)
-        val hits = memory.search(query, limit)
+        val folder = JsonText.string(args, "folder")?.trim()?.replace('\\', '/')?.trim('/')?.takeIf { it.isNotEmpty() }
+        val hits = if (folder == null) {
+            memory.search(query, limit)
+        } else {
+            memory.search(query, (limit * 5).coerceAtMost(100))
+                .filter { it.permalink.startsWith("$folder/") }
+                .take(limit)
+        }
         return buildJsonObject {
+            folder?.let { put("folder", it) }
             putJsonArray("hits") {
                 hits.forEach { h -> addJsonObject { put("permalink", h.permalink); put("title", h.title); put("snippet", h.snippet) } }
+            }
+        }.toString()
+    }
+
+    private suspend fun folder(args: JsonObject): String {
+        val folder = JsonText.string(args, "folder")?.trim()?.replace('\\', '/')?.trim('/')?.takeIf { it.isNotEmpty() }
+        val includeNotes = (args["include_notes"] as? JsonPrimitive)?.booleanOrNull ?: true
+        val limit = ((args["limit"] as? JsonPrimitive)?.intOrNull ?: 20).coerceIn(1, 100)
+        val folders = memory.listFolders(folder)
+        val notes = if (includeNotes) memory.list(folder).take(limit) else emptyList()
+        return buildJsonObject {
+            put("folder", folder ?: "")
+            putJsonArray("folders") {
+                folders.forEach { f ->
+                    addJsonObject {
+                        put("path", f.path)
+                        put("name", f.name)
+                        put("noteCount", f.noteCount)
+                        put("childCount", f.childCount)
+                    }
+                }
+            }
+            putJsonArray("notes") {
+                notes.forEach { n ->
+                    addJsonObject {
+                        put("permalink", n.permalink)
+                        put("title", n.title)
+                        put("type", n.type)
+                        put(
+                            "summary",
+                            n.observations.joinToString("；") { NoteText.observationLine(it) }
+                                .ifBlank { NoteText.preamble(n.body) }
+                                .take(500),
+                        )
+                    }
+                }
             }
         }.toString()
     }
@@ -101,7 +278,9 @@ internal class ChatTools(
         if (observations.isEmpty() && relations.isEmpty()) throw ToolArgumentException("observations 不能为空")
 
         val existing = memory.read(JsonText.string(args, "permalink") ?: title)
-        val permalink = JsonText.string(args, "permalink") ?: existing?.permalink ?: title
+        val folder = JsonText.string(args, "folder")?.trim()?.replace('\\', '/')?.trim('/')?.takeIf { it.isNotEmpty() }
+        val permalink = JsonText.string(args, "permalink") ?: existing?.permalink
+            ?: (if (folder == null) title else "$folder/$title")
         val mergedObs = ((existing?.observations ?: emptyList()) + observations).distinctBy { it.category to it.content }
         val mergedRels = ((existing?.relations ?: emptyList()) + relations).distinctBy { it.type to it.target }
         val note = Note(
@@ -145,6 +324,18 @@ internal class ChatTools(
         return listSkillsJson(list)
     }
 
+    private suspend fun installSkill(args: JsonObject): String {
+        val installer = installer ?: return error("当前版本不支持安装技能")
+        val result = installer.installFromUrl(required(args, "url"))
+        if (result.ok) runCatching { skills.reload() }
+        return buildJsonObject {
+            put("ok", result.ok)
+            put("message", result.message)
+            putJsonArray("installed") { result.installed.forEach { add(it) } }
+            putJsonArray("replaced") { result.replaced.forEach { add(it) } }
+        }.toString()
+    }
+
     private fun listSkillsJson(list: List<Skill>): String = buildJsonObject {
         putJsonArray("skills") {
             list.forEach { s ->
@@ -179,5 +370,25 @@ internal class ChatTools(
             put("summary", finished.summary)
             put("steps", finished.steps)
         }.toString()
+    }
+
+    companion object {
+        const val MCP_PREFIX = "mcp_"
+
+        /** Tool-name fragments that usually mean the tool changes something on the server. */
+        private val MUTATING_WORDS = listOf(
+            "create", "add", "insert", "update", "set", "edit", "modify", "delete", "remove",
+            "clear", "send", "post", "put", "patch", "write", "upload", "book", "order", "buy",
+            "pay", "purchase", "cancel", "submit", "revoke", "invite", "move", "rename",
+            "schedule", "reserve", "transfer", "publish", "save", "comment",
+            "创建", "新增", "添加", "修改", "更新", "删除", "移除", "发送", "提交", "下单",
+            "购买", "支付", "预订", "预约", "取消", "清空", "写入", "上传", "编辑", "保存",
+            "移动", "重命名", "发布", "评论",
+        )
+        private val AFFIRMATIVE_WORDS = listOf(
+            "确认", "确定", "可以", "允许", "同意", "继续", "执行", "好", "是", "行", "嗯",
+            "yes", "ok", "sure", "go",
+        )
+        private val NEGATIVE_WORDS = listOf("不", "取消", "别", "算了", "停止", "拒绝", "no")
     }
 }

@@ -14,14 +14,21 @@ object AgentTools {
     const val MEMORY_READ = "memory_read"
     const val MEMORY_WRITE = "memory_write"
     const val MEMORY_FORGET = "memory_forget"
+    const val MEMORY_FOLDER = "memory_folder"
     const val LIST_SKILLS = "list_skills"
+    const val SKILL_INSTALL = "skill_install"
     const val REMINDER_SET = "reminder_set"
     const val PHONE_TASK = "phone_task"
 
     val specs: List<ToolSpec> = listOf(
         ToolSpec(
             MEMORY_SEARCH, "在用户的记忆笔记中全文搜索（支持中文）。",
-            schema(listOf("query"), "query" to str("搜索词"), "limit" to int("最多返回条数，默认 5")),
+            schema(
+                listOf("query"),
+                "query" to str("搜索词"),
+                "limit" to int("最多返回条数，默认 5"),
+                "folder" to str("可选，只在这个文件夹内搜索，如 生活/健康"),
+            ),
         ),
         ToolSpec(
             MEMORY_READ, "读取一条记忆笔记的全文。",
@@ -34,6 +41,7 @@ object AgentTools {
                 listOf("title", "observations"),
                 "title" to str("笔记标题，如 家"),
                 "permalink" to str("可选，路径形式的唯一键，如 places/家；默认用标题"),
+                "folder" to str("可选，要归档到的记忆文件夹，如 生活/健康；没有 permalink 时拼在标题前"),
                 "type" to str("可选，笔记类型，如 place、person、preference；默认 note"),
                 "observations" to arr(
                     "观察条目",
@@ -55,10 +63,25 @@ object AgentTools {
             MEMORY_FORGET, "删除一条记忆笔记（真正删除文件）。仅在用户明确要求忘记时使用。",
             schema(listOf("identifier"), "identifier" to str("笔记的 permalink 或标题")),
         ),
+        ToolSpec(
+            MEMORY_FOLDER,
+            "读取记忆文件夹：列出指定文件夹下的子文件夹和笔记（按文件夹检索记忆时使用）。不传 folder 时看根目录。",
+            schema(
+                emptyList(),
+                "folder" to str("可选，文件夹路径，如 生活/健康；不传表示根目录"),
+                "include_notes" to bool("可选，是否返回笔记内容，默认 true"),
+                "limit" to int("可选，最多返回多少条笔记，默认 20"),
+            ),
+        ),
         ToolSpec(LIST_SKILLS, "列出所有可用的手机操作技能。", schema(emptyList())),
         ToolSpec(
+            SKILL_INSTALL,
+            "从 https 链接下载 zip 技能包并安装到应用的「技能」页。用户发来安装技能的链接时调用。",
+            schema(listOf("url"), "url" to str("技能 zip 包的 https 链接")),
+        ),
+        ToolSpec(
             REMINDER_SET,
-            "设置一条定时提醒：到点后小满会在手机上弹出通知。",
+            "设置一条定时提醒：到点后小满Extra会在手机上弹出通知。",
             schema(
                 listOf("text", "at"),
                 "text" to str("提醒内容，如 喝水、带伞"),
@@ -83,6 +106,7 @@ object AgentTools {
 
     private fun str(description: String) = buildJsonObject { put("type", "string"); put("description", description) }
     private fun int(description: String) = buildJsonObject { put("type", "integer"); put("description", description) }
+    private fun bool(description: String) = buildJsonObject { put("type", "boolean"); put("description", description) }
     private fun arr(description: String, items: JsonObject) = buildJsonObject {
         put("type", "array"); put("description", description); put("items", items)
     }

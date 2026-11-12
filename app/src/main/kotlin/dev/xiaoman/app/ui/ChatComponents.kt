@@ -13,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.SpanStyle
@@ -24,13 +25,25 @@ import androidx.compose.ui.unit.dp
 import dev.xiaoman.app.session.ChatItem
 
 @Composable
-internal fun ChatHeader(ready: Boolean, busy: Boolean, attention: Boolean) {
+internal fun ChatHeader(ready: Boolean, busy: Boolean, attention: Boolean, assistantName: String, avatarPath: String?) {
+    val avatar = rememberFileImage(avatarPath)
     Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
         Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.size(38.dp)) {
-            Box(contentAlignment = Alignment.Center) { Icon(Icons.Outlined.AutoAwesome, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(21.dp)) }
+            Box(contentAlignment = Alignment.Center) {
+                if (avatar != null) {
+                    androidx.compose.foundation.Image(
+                        avatar,
+                        contentDescription = null,
+                        contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize().clip(CircleShape),
+                    )
+                } else {
+                    Icon(Icons.Outlined.AutoAwesome, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(21.dp))
+                }
+            }
         }
         Column(Modifier.weight(1f).padding(start = 10.dp)) {
-            Text("小满", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(assistantName, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Text("你的手机小助手", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer) {
@@ -101,7 +114,7 @@ internal fun ProcessCard(entries: List<ChatItem.Progress>) {
 }
 
 @Composable
-internal fun ChatMessage(item: ChatItem) {
+internal fun ChatMessage(item: ChatItem, assistantName: String = "小满Extra", avatar: androidx.compose.ui.graphics.ImageBitmap? = null) {
     when (item) {
         is ChatItem.User -> Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
             Surface(color = MaterialTheme.colorScheme.primaryContainer, shape = RoundedCornerShape(20.dp, 20.dp, 5.dp, 20.dp),
@@ -110,7 +123,24 @@ internal fun ChatMessage(item: ChatItem) {
             }
         }
         is ChatItem.Assistant -> Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("小满", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold)
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                Box(
+                    Modifier.size(20.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primaryContainer),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    if (avatar != null) {
+                        androidx.compose.foundation.Image(
+                            avatar,
+                            contentDescription = null,
+                            contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize().clip(CircleShape),
+                        )
+                    } else {
+                        Icon(Icons.Outlined.AutoAwesome, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(12.dp))
+                    }
+                }
+                Text(assistantName, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold)
+            }
             Surface(color = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(5.dp, 20.dp, 20.dp, 20.dp),
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
                 Text(chatRichText(item.text), Modifier.padding(16.dp), style = MaterialTheme.typography.bodyMedium)

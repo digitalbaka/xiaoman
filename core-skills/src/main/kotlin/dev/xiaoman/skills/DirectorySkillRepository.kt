@@ -63,6 +63,8 @@ class DirectorySkillRepository(
             val parsed = mutableListOf<Pair<File, Skill>>()
             val problems = mutableListOf<SkillProblem>()
             for (folder in folders.filter { it.isDirectory && !it.name.startsWith(".") }.sortedBy { it.name }) {
+                // The installer writes this marker when the user switches a skill off.
+                if (File(folder, ".disabled").isFile) continue
                 val skillFile = File(folder, "SKILL.md")
                 if (!skillFile.isFile) {
                     problems += SkillProblem(folder.path, "missing SKILL.md")

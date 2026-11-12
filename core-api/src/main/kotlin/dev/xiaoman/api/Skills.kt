@@ -80,3 +80,36 @@ interface SkillRepository {
 
     suspend fun get(name: String): Skill?
 }
+
+/** A user-installed skill folder under the app's writable skills directory. */
+data class InstalledSkillInfo(
+    val name: String,
+    val description: String?,
+    val enabled: Boolean,
+    val source: String,
+)
+
+/** Outcome of installing one zip; [installed] lists skill names, [replaced] ones that already existed. */
+data class SkillInstallResult(
+    val ok: Boolean,
+    val message: String,
+    val installed: List<String> = emptyList(),
+    val replaced: List<String> = emptyList(),
+)
+
+/**
+ * Installs user skills from a zip (downloaded or picked locally) into the app's skills folder.
+ * Implementations must reject zip-slip paths and folders without a valid `SKILL.md`.
+ */
+interface SkillInstaller {
+    suspend fun installFromZip(bytes: ByteArray, sourceName: String = "zip"): SkillInstallResult
+
+    suspend fun installFromUrl(url: String): SkillInstallResult
+
+    /** User-installed skills only; bundled skills are not listed here. */
+    suspend fun listInstalled(): List<InstalledSkillInfo>
+
+    suspend fun setEnabled(name: String, enabled: Boolean): Boolean
+
+    suspend fun delete(name: String): Boolean
+}

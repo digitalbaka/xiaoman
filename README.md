@@ -1,12 +1,13 @@
-# 小满（Xiaoman）
+# 小满Extra （小满（Xiaoman）二创版）
 
 [English](README.en.md)
 
 小满是一个跑在 Android 手机上的开源私人助手。你在它的 App 里聊天，它会记住你告诉它的事，
 也能替你操作手机上的其他 App，比如打车、点外卖、改系统设置。新场景以**技能**的形式添加：一个技能
 就是一个包含 `SKILL.md` 和可选 `flow.yaml` 的小文件夹，推到手机上即可生效，不需要重新打包 APK。
+本项目基于[原项目](https://github.com/aduoge/phonepal)进行二创，本项目为MIT协议，新增一些自定义功能，欢迎提交新的Issues。
 
-- 需要 Android 11（API 30）及以上。小满通过无障碍服务读取屏幕并执行操作。
+- 需要 Android 7.1（API 25）及以上。小满通过无障碍服务读取屏幕并执行操作；Android 11 以下只能读节点树，不能截屏。
 - 不支持 iOS：iOS 不允许一个 App 读取或操作其他 App。
 - 模型：任意兼容 OpenAI 接口的服务都可以，例如火山方舟、阿里云百炼、OpenRouter、vLLM、Ollama。
   需要配置两个模型：一个聊天模型，一个能看图的屏幕操作模型。

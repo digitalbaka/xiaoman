@@ -7,7 +7,7 @@ android {
     namespace = "dev.xiaoman.hands"
     compileSdk = 35
     defaultConfig {
-        minSdk = 30
+        minSdk = 25
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     compileOptions {

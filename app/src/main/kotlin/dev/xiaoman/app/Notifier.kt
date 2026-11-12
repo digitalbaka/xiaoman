@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import dev.xiaoman.app.session.PendingApproval
@@ -19,6 +20,12 @@ class Notifier(private val context: Context) {
     private val manager = context.getSystemService(NotificationManager::class.java)
 
     fun createChannels() {
+        // Notification channels exist from Android 8.0 (API 26); older versions use priorities only.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) createChannelsO()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun createChannelsO() {
         manager.createNotificationChannel(
             NotificationChannel(CHANNEL_STATUS, context.getString(R.string.channel_status), NotificationManager.IMPORTANCE_LOW).apply {
                 description = context.getString(R.string.channel_status_description)
