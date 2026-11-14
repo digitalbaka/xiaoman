@@ -182,6 +182,7 @@ internal fun ChatMessage(
                     modifier = Modifier.fillMaxWidth(0.90f)) {
                     Text(item.text, Modifier.then(hold).padding(14.dp), style = MaterialTheme.typography.bodyMedium)
                 }
+                BubbleTime(item.at)
             }
         }
         is ChatItem.Assistant -> Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -203,9 +204,12 @@ internal fun ChatMessage(
                 }
                 Text(assistantName, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold)
             }
-            Surface(color = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(5.dp, 20.dp, 20.dp, 20.dp),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
-                Text(chatRichText(item.text), Modifier.then(hold).padding(16.dp), style = MaterialTheme.typography.bodyMedium)
+            Column {
+                Surface(color = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(5.dp, 20.dp, 20.dp, 20.dp),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
+                    Text(chatRichText(item.text), Modifier.then(hold).padding(16.dp), style = MaterialTheme.typography.bodyMedium)
+                }
+                BubbleTime(item.at)
             }
         }
         is ChatItem.Question -> NoticeCard(
@@ -216,6 +220,18 @@ internal fun ChatMessage(
         is ChatItem.Error -> NoticeCard(stringResource(R.string.chat_notice_error), item.text, true)
         is ChatItem.Progress -> Unit // handled by ProcessCard
     }
+}
+
+/** Small timestamp under a bubble; hidden for rows saved before timestamps existed. */
+@Composable
+private fun BubbleTime(at: Long) {
+    if (at <= 0) return
+    Text(
+        formatTime(at),
+        Modifier.padding(top = 3.dp, start = 4.dp, end = 4.dp),
+        style = MaterialTheme.typography.labelSmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
 }
 
 /** Copy / share / quote actions shown after long-pressing a chat bubble. */

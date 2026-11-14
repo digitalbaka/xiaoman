@@ -3,20 +3,40 @@ package dev.xiaoman.app.session
 import dev.xiaoman.api.Action
 import dev.xiaoman.api.AgentEvent
 
-/** One row of the chat list. */
+/** One row of the chat list. [at] is when the row was created, used for the bubble timestamp. */
 sealed class ChatItem {
     abstract val id: Long
+    abstract val at: Long
 
-    data class User(override val id: Long, val text: String) : ChatItem()
+    data class User(override val id: Long, val text: String, override val at: Long = System.currentTimeMillis()) : ChatItem()
 
-    data class Assistant(override val id: Long, val text: String) : ChatItem()
+    data class Assistant(override val id: Long, val text: String, override val at: Long = System.currentTimeMillis()) : ChatItem()
 
     /** Compact progress line: steps, skill chosen, memory updated, task result. */
-    data class Progress(override val id: Long, val text: String, val ok: Boolean? = null) : ChatItem()
+    data class Progress(
+        override val id: Long,
+        val text: String,
+        val ok: Boolean? = null,
+        override val at: Long = System.currentTimeMillis(),
+    ) : ChatItem()
 
-    data class Question(override val id: Long, val text: String, val takeover: Boolean) : ChatItem()
+    data class Question(
+        override val id: Long,
+        val text: String,
+        val takeover: Boolean,
+        override val at: Long = System.currentTimeMillis(),
+    ) : ChatItem()
 
-    data class Error(override val id: Long, val text: String) : ChatItem()
+    data class Error(override val id: Long, val text: String, override val at: Long = System.currentTimeMillis()) : ChatItem()
+}
+
+/** Body text of a row, shared by copy / quote and by chat search. */
+fun ChatItem.contentText(): String = when (this) {
+    is ChatItem.User -> text
+    is ChatItem.Assistant -> text
+    is ChatItem.Progress -> text
+    is ChatItem.Question -> text
+    is ChatItem.Error -> text
 }
 
 /** Human-readable (Chinese) text for agent events, used by the chat list and the status overlay. */
@@ -70,5 +90,7 @@ object StepText {
             event.success,
         )
         is AgentEvent.Failed -> ChatItem.Error(id, event.message)
+        // The draft is shown by its own confirm card, not as a chat row.
+        is AgentEvent.SkillProposed -> null
     }
 }

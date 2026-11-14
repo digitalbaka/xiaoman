@@ -6,12 +6,15 @@ import dev.xiaoman.api.AgentListener
 import dev.xiaoman.api.ApprovalAnswer
 import dev.xiaoman.api.ApprovalGateway
 import dev.xiaoman.api.ApprovalRequest
+import dev.xiaoman.api.ChatAttachment
+import dev.xiaoman.api.SkillAction
 import dev.xiaoman.api.UserChannel
 import dev.xiaoman.app.RunIds
 import dev.xiaoman.hands.MutableStopSignal
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -22,6 +25,8 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
@@ -34,6 +39,20 @@ data class SessionTexts(
     val approvedOnce: (String) -> String = { "已允许：$it" },
     val approvedTask: (String) -> String = { "本次任务都允许：$it" },
     val denied: (String) -> String = { "已拒绝：$it" },
+    /** Sent to a pending question when the user only attached files. */
+    val sentAttachments: String = "请看这些附件。",
+    val attachmentImage: String = "图片",
+    val attachmentFile: String = "文件",
+    val skillCancelled: String = "已取消技能修改",
+)
+
+/** One chat-search match; [conversationId] + [itemId] locate the row to jump to. */
+data class ChatSearchHit(
+    val conversationId: String,
+    val title: String,
+    val itemId: Long,
+    val text: String,
+    val updatedAt: Long,
 )
 
 class PendingQuestion(val id: Long, val taskId: String, val question: String, val takeover: Boolean) {
@@ -63,6 +82,9 @@ class AgentSession(
     private val onTaskEnd: (String) -> Unit = {},
     private val texts: SessionTexts = SessionTexts(),
     private val ready: suspend () -> Unit = {},
+    private val store: ConversationStore? = null,
+    /** Writes or deletes one skill after the user confirms; returns ok + message for the chat. */
+    private val applySkill: suspend (SkillAction) -> Pair<Boolean, String> = { false to "当前版本不支持修改技能" },
 ) : UserChannel, ApprovalGateway {
 
     private val ids = AtomicLong()
@@ -70,6 +92,22 @@ class AgentSession(
 
     private val _items = MutableStateFlow<List<ChatItem>>(emptyList())
     val items: StateFlow<List<ChatItem>> = _items.asStateFlow()
+
+    private val _conversations = MutableStateFlow<List<ConversationSummary>>(emptyList())
+
+    /** Saved conversations, newest first, for the history list. */
+    val conversations: StateFlow<List<ConversationSummary>> = _conversations.asStateFlow()
+
+    private val _currentConversationId = MutableStateFlow(newConversationId())
+
+    /** Id of the conversation shown now; changes on new / switch / delete. */
+    val currentConversationId: StateFlow<String> = _currentConversationId.asStateFlow()
+
+    private val saveMutex = Mutex()
+
+    init {
+        restoreConversation()
+    }
 
     private val _busy = MutableStateFlow(false)
     val busy: StateFlow<Boolean> = _busy.asStateFlow()
@@ -84,6 +122,11 @@ class AgentSession(
 
     private val _approval = MutableStateFlow<PendingApproval?>(null)
     val approval: StateFlow<PendingApproval?> = _approval.asStateFlow()
+
+    private val _pendingSkill = MutableStateFlow<SkillAction?>(null)
+
+    /** A skill draft / deletion the model proposed and the user has to confirm in the chat. */
+    val pendingSkill: StateFlow<SkillAction?> = _pendingSkill.asStateFlow()
 
     private val _events = MutableSharedFlow<AgentEvent>(extraBufferCapacity = 64, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     val events: SharedFlow<AgentEvent> = _events.asSharedFlow()
@@ -106,6 +149,7 @@ class AgentSession(
             }
         }
         if (event is AgentEvent.PhoneTaskFinished) onTaskEnd(event.taskId)
+        if (event is AgentEvent.SkillProposed) _pendingSkill.value = event.action
         StepText.status(event)?.let { _status.value = it }
         StepText.chatItem(event, ids.incrementAndGet())?.let(::add)
         _events.tryEmit(event)
@@ -120,24 +164,73 @@ class AgentSession(
     }
 
     /** Chat input: answers a pending question, else starts a chat turn. */
-    fun submit(text: String): Submit {
+    fun submit(text: String): Submit = submit(text, emptyList())
+
+    /** Same as [submit] with attached images / files; empty text is allowed when something is attached. */
+    fun submit(text: String, attachments: List<ChatAttachment>): Submit {
         val message = text.trim()
-        if (message.isEmpty()) return Submit.Empty
+        if (message.isEmpty() && attachments.isEmpty()) return Submit.Empty
+        // A skill draft is pending: "确认" / "取消" answer it here instead of starting a chat turn.
+        if (_pendingSkill.value != null && attachments.isEmpty()) {
+            val answer = skillAnswer(message)
+            if (answer != null) {
+                add(ChatItem.User(ids.incrementAndGet(), message))
+                answerSkill(answer)
+                return Submit.Started
+            }
+        }
         val pending = _question.value
-        if (pending != null && pending.answer.complete(message)) {
-            add(ChatItem.User(ids.incrementAndGet(), message))
+        if (pending != null && pending.answer.complete(message.ifEmpty { texts.sentAttachments })) {
+            add(ChatItem.User(ids.incrementAndGet(), displayMessage(message, attachments)))
             return Submit.Answered
         }
         val agent = agent()
         if (agent == null) {
-            add(ChatItem.User(ids.incrementAndGet(), message))
+            add(ChatItem.User(ids.incrementAndGet(), displayMessage(message, attachments)))
             add(ChatItem.Error(ids.incrementAndGet(), texts.notConfigured))
             return Submit.NotConfigured
         }
-        val started = launch(null) { agent.handle(message, listener, stopSignal) }
+        val started = launch(null) { agent.handle(message, attachments, listener, stopSignal) }
         if (!started) return Submit.Busy
-        add(ChatItem.User(ids.incrementAndGet(), message))
+        add(ChatItem.User(ids.incrementAndGet(), displayMessage(message, attachments)))
         return Submit.Started
+    }
+
+    /** Confirms or cancels the pending skill action; only a confirmation writes or deletes files. */
+    fun answerSkill(confirm: Boolean) {
+        val action = _pendingSkill.value ?: return
+        _pendingSkill.value = null
+        if (!confirm) {
+            add(ChatItem.Progress(ids.incrementAndGet(), texts.skillCancelled))
+            return
+        }
+        scope.launch {
+            val (ok, message) = try {
+                applySkill(action)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                false to (e.message?.takeIf { it.isNotBlank() } ?: "操作失败")
+            }
+            add(ChatItem.Progress(ids.incrementAndGet(), message, ok))
+        }
+    }
+
+    /** True / false when [text] is clearly yes / no, null when it is an ordinary message. */
+    private fun skillAnswer(text: String): Boolean? {
+        val plain = text.lowercase().replace(Regex("[\\s,，。.!！、~～]"), "")
+        if (plain.isEmpty()) return null
+        if (skillNo.any { plain.contains(it) }) return false
+        return if (skillYes.any { plain.contains(it) }) true else null
+    }
+
+    /** Bubble text for a turn: what was typed plus one compact line per attachment. */    private fun displayMessage(text: String, attachments: List<ChatAttachment>): String = buildString {
+        if (text.isNotEmpty()) append(text)
+        for (a in attachments) {
+            if (isNotEmpty()) append('\n')
+            val kind = if (a is ChatAttachment.Image) texts.attachmentImage else texts.attachmentFile
+            append("【").append(kind).append("】").append(a.name)
+        }
     }
 
     /**
@@ -250,9 +343,141 @@ class AgentSession(
 
     private fun add(item: ChatItem) {
         _items.update { (it + item).takeLast(MAX_ITEMS) }
+        persist()
     }
+
+    // ------------------------------------------------------------ conversations
+
+    /** Starts an empty conversation. Refused while a task is running. */
+    fun newConversation(): Boolean {
+        if (_busy.value) return false
+        _currentConversationId.value = newConversationId()
+        _items.value = emptyList()
+        _pendingSkill.value = null
+        agent()?.forgetHistory()
+        return true
+    }
+
+    /** Shows a saved conversation. Refused while a task is running. */
+    fun switchConversation(id: String): Boolean {
+        if (_busy.value || id == _currentConversationId.value) return false
+        val conversation = store?.load(id) ?: return false
+        val restored = conversation.items.mapNotNull(::toChatItem).takeLast(MAX_ITEMS)
+        _currentConversationId.value = id
+        _items.value = restored
+        _pendingSkill.value = null
+        ids.set(maxOf(ids.get(), restored.maxOfOrNull { it.id } ?: 0L))
+        agent()?.forgetHistory()
+        return true
+    }
+
+    /** Deletes a saved conversation; deleting the open one starts a fresh empty chat. */
+    fun deleteConversation(id: String) {
+        if (_busy.value) return
+        store?.delete(id)
+        _conversations.update { list -> list.filterNot { it.id == id } }
+        if (id == _currentConversationId.value) {
+            _currentConversationId.value = newConversationId()
+            _items.value = emptyList()
+            agent()?.forgetHistory()
+        }
+    }
+
+    private fun restoreConversation() {
+        val store = store ?: return
+        val all = runCatching { store.summaries() }.getOrDefault(emptyList())
+        _conversations.value = all
+        val latest = all.firstOrNull()?.let { store.load(it.id) } ?: return
+        _items.value = latest.items.mapNotNull(::toChatItem).takeLast(MAX_ITEMS)
+        _currentConversationId.value = latest.id
+        ids.set(maxOf(ids.get(), latest.items.maxOfOrNull { it.id } ?: 0L))
+    }
+
+    private fun persist() {
+        val store = store ?: return
+        val items = _items.value
+        if (items.isEmpty()) return
+        val conversation = StoredConversation(
+            id = _currentConversationId.value,
+            title = titleOf(items),
+            updatedAt = System.currentTimeMillis(),
+            items = items.map(::toStored),
+        )
+        _conversations.update { list ->
+            (list.filterNot { it.id == conversation.id } +
+                ConversationSummary(conversation.id, conversation.title, conversation.updatedAt, previewOf(items), items.size))
+                .sortedByDescending { it.updatedAt }
+        }
+        scope.launch(Dispatchers.IO) {
+            saveMutex.withLock { store.save(conversation) }
+        }
+    }
+
+    private fun titleOf(items: List<ChatItem>): String =
+        items.filterIsInstance<ChatItem.User>().firstOrNull()?.text?.trim()?.take(20)?.ifBlank { null } ?: "新对话"
+
+    /**
+     * Case-insensitive scan of the open conversation, plus every saved one when [all] is set.
+     * The current chat is read from memory so unsaved-in-flight rows are searchable too.
+     */
+    suspend fun searchConversations(query: String, all: Boolean): List<ChatSearchHit> {
+        val q = query.trim()
+        if (q.isEmpty()) return emptyList()
+        val currentId = _currentConversationId.value
+        val current = _items.value
+        val hits = mutableListOf<ChatSearchHit>()
+        current.forEach { item ->
+            val text = item.contentText()
+            if (text.contains(q, ignoreCase = true)) {
+                hits += ChatSearchHit(currentId, titleOf(current), item.id, text, System.currentTimeMillis())
+            }
+        }
+        val saved = store
+        if (all && saved != null) {
+            val others = withContext(Dispatchers.IO) {
+                saved.summaries().mapNotNull { summary ->
+                    if (summary.id == currentId) null else saved.load(summary.id)
+                }
+            }
+            others.forEach { conversation ->
+                conversation.items.forEach { item ->
+                    if (item.text.contains(q, ignoreCase = true)) {
+                        hits += ChatSearchHit(conversation.id, conversation.title, item.id, item.text, conversation.updatedAt)
+                    }
+                }
+            }
+        }
+        return hits.sortedByDescending { it.updatedAt }
+    }
+
+    private fun previewOf(items: List<ChatItem>): String =
+        items.lastOrNull { it is ChatItem.User || it is ChatItem.Assistant }
+            ?.let { if (it is ChatItem.User) it.text else (it as ChatItem.Assistant).text }
+            ?.replace('\n', ' ')?.take(60).orEmpty()
+
+    private fun toStored(item: ChatItem): StoredItem = when (item) {
+        is ChatItem.User -> StoredItem(item.id, "user", item.text, at = item.at)
+        is ChatItem.Assistant -> StoredItem(item.id, "assistant", item.text, at = item.at)
+        is ChatItem.Progress -> StoredItem(item.id, "progress", item.text, item.ok, at = item.at)
+        is ChatItem.Question -> StoredItem(item.id, "question", item.text, takeover = item.takeover, at = item.at)
+        is ChatItem.Error -> StoredItem(item.id, "error", item.text, at = item.at)
+    }
+
+    private fun toChatItem(item: StoredItem): ChatItem? = when (item.kind) {
+        "user" -> ChatItem.User(item.id, item.text, item.at)
+        "assistant" -> ChatItem.Assistant(item.id, item.text, item.at)
+        "progress" -> ChatItem.Progress(item.id, item.text, item.ok, item.at)
+        "question" -> ChatItem.Question(item.id, item.text, item.takeover, item.at)
+        "error" -> ChatItem.Error(item.id, item.text, item.at)
+        else -> null
+    }
+
+    private fun newConversationId() = "chat-${System.currentTimeMillis()}"
 
     companion object {
         const val MAX_ITEMS = 500
+
+        private val skillYes = listOf("确认", "确定", "可以", "同意", "添加", "保存", "删除", "好的", "好", "是的", "嗯", "ok", "yes", "sure")
+        private val skillNo = listOf("取消", "算了", "不要", "不用", "别", "不", "no")
     }
 }
