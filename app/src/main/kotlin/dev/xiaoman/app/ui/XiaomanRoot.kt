@@ -1,6 +1,7 @@
 package dev.xiaoman.app.ui
 
 import androidx.annotation.StringRes
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,17 +21,21 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import dev.xiaoman.app.AppGraph
 import dev.xiaoman.app.R
+import dev.xiaoman.app.speech.Speaker
 
 enum class Tab(@StringRes val label: Int, val icon: ImageVector) {
     CHAT(R.string.nav_chat, Icons.AutoMirrored.Filled.Chat),
@@ -42,6 +47,12 @@ enum class Tab(@StringRes val label: Int, val icon: ImageVector) {
 @Composable
 fun XiaomanRoot(graph: AppGraph) {
     var tab by rememberSaveable { mutableStateOf(Tab.CHAT) }
+    // On any tab other than chat the first back press only returns to chat; a second press exits,
+    // so a stray tap on Settings cannot close the app.
+    BackHandler(enabled = tab != Tab.CHAT) { tab = Tab.CHAT }
+    val context = LocalContext.current
+    val speaker = remember { Speaker(context) }
+    DisposableEffect(speaker) { onDispose { speaker.shutdown() } }
     val keyboardOpen = WindowInsets.ime.getBottom(LocalDensity.current) > 0
     Scaffold(
         bottomBar = {
@@ -59,7 +70,7 @@ fun XiaomanRoot(graph: AppGraph) {
     ) { padding ->
         Box(Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).imePadding()) {
             when (tab) {
-                Tab.CHAT -> ChatScreen(graph, onOpenSettings = { tab = Tab.SETTINGS })
+                Tab.CHAT -> ChatScreen(graph, speaker = speaker, onOpenSettings = { tab = Tab.SETTINGS })
                 Tab.SKILLS -> SkillsScreen(graph)
                 Tab.MEMORY -> MemoryScreen(graph)
                 Tab.SETTINGS -> SettingsScreen(graph)

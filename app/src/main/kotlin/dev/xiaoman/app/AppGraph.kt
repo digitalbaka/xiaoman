@@ -6,8 +6,11 @@ import dev.xiaoman.agent.Prompts
 import dev.xiaoman.agent.XiaomanAgent
 import dev.xiaoman.api.Agent
 import dev.xiaoman.api.ModelRole
+import dev.xiaoman.api.SkillAction
+import dev.xiaoman.api.SkillInstallResult
 import dev.xiaoman.app.mcp.McpRegistry
 import dev.xiaoman.app.session.AgentSession
+import dev.xiaoman.app.session.ConversationStore
 import dev.xiaoman.app.session.SessionTexts
 import dev.xiaoman.app.settings.AppSettings
 import dev.xiaoman.app.settings.SettingsStore
@@ -53,6 +56,11 @@ class AppGraph(context: Context, val llm: LlmClientFactory = LlmClients.default)
     val tracesDir = File(externalRoot, "traces")
     val bundledSkillsDir = File(app.filesDir, "bundled-skills")
 
+    /** Saved conversations; internal storage so they survive restarts and are not user-visible files. */
+    val chatsDir = File(app.filesDir, "chats")
+
+    val conversationStore by lazy { ConversationStore(chatsDir) }
+
     val settings: SettingsStore by lazy { SettingsStore.create(app) }
 
     val memory by lazy { FileMemoryStore(memoryDir) }
@@ -62,8 +70,8 @@ class AppGraph(context: Context, val llm: LlmClientFactory = LlmClients.default)
     /** Installs user skills into [skillsDir]; the Skills tab and the chat `skill_install` tool share it. */
     val skillInstaller by lazy { DirectorySkillInstaller(skillsDir) }
 
-    /** Read-only client for the SkillHub store shown in the Skills tab. */
-    val skillHub by lazy { SkillHubClient() }
+    /** Client for the Skill store selected in Settings (built-in SkillHub by default). */
+    fun skillHubClient(): SkillHubClient = SkillHubClient(baseUrl = settings.current.selectedSkillSource.baseUrl.trim())
 
     /** Enabled external MCP services; the agent discovers their tools on every chat turn. */
     val mcpRegistry by lazy { McpRegistry { settings.current } }
@@ -105,8 +113,24 @@ class AppGraph(context: Context, val llm: LlmClientFactory = LlmClients.default)
                 approvedOnce = { app.getString(R.string.approval_resolved_allowed, it) },
                 approvedTask = { app.getString(R.string.approval_resolved_task, it) },
                 denied = { app.getString(R.string.approval_resolved_denied, it) },
+                sentAttachments = app.getString(R.string.session_sent_attachments),
+                attachmentImage = app.getString(R.string.chat_attachment_image),
+                attachmentFile = app.getString(R.string.chat_attachment_file),
+                skillCancelled = app.getString(R.string.skill_change_cancelled),
             ),
             ready = { startup.await() },
+            store = conversationStore,
+            applySkill = { action ->
+                val result = when (action) {
+                    is SkillAction.Save -> skillInstaller.installFromMarkdown(action.name, action.markdown, replace = true)
+                    is SkillAction.Delete -> {
+                        val ok = skillInstaller.delete(action.name)
+                        SkillInstallResult(ok, if (ok) "已删除技能 ${action.name}" else "删除失败：技能不存在或属于内置技能")
+                    }
+                }
+                if (result.ok) runCatching { skills.reload() }
+                result.ok to result.message
+            },
         )
     }
 
