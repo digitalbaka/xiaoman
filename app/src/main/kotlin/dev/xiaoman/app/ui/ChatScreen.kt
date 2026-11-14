@@ -10,6 +10,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -94,8 +96,15 @@ fun ChatScreen(graph: AppGraph, speaker: Speaker, onOpenSettings: () -> Unit) {
     var attachments by remember { mutableStateOf<List<PickedAttachment>>(emptyList()) }
     val scope = rememberCoroutineScope()
     // A cold start restores focus to the input, which pops the IME; drop it once on startup.
-    // After that, only the user can bring the keyboard back.
+    // The guard is disarmed the moment the user presses the input, so their own first tap opens
+    // the keyboard normally instead of being mistaken for the startup focus.
+    val inputInteractions = remember { MutableInteractionSource() }
     var startupImeGuard by remember { mutableStateOf(true) }
+    LaunchedEffect(inputInteractions) {
+        inputInteractions.interactions.collect { interaction ->
+            if (interaction is PressInteraction.Press) startupImeGuard = false
+        }
+    }
     val imeOpen = WindowInsets.ime.getBottom(LocalDensity.current) > 0
     LaunchedEffect(imeOpen) {
         if (imeOpen && startupImeGuard) {
@@ -243,6 +252,7 @@ fun ChatScreen(graph: AppGraph, speaker: Speaker, onOpenSettings: () -> Unit) {
                 answering = question != null,
                 attachments = attachments,
                 supportsImages = settings.chatSupportsImages,
+                interactionSource = inputInteractions,
                 onAttach = { images -> picker.launch(if (images) "image/*" else "*/*") },
                 onRemove = { index -> attachments = attachments.filterIndexed { i, _ -> i != index } },
                 onSent = {
@@ -271,6 +281,7 @@ private fun ChatInput(
     answering: Boolean,
     attachments: List<PickedAttachment>,
     supportsImages: Boolean,
+    interactionSource: MutableInteractionSource,
     onAttach: (images: Boolean) -> Unit,
     onRemove: (Int) -> Unit,
     onSent: () -> Unit,
@@ -337,6 +348,7 @@ private fun ChatInput(
                 }
                 OutlinedTextField(
                     value = text, onValueChange = onChange, modifier = Modifier.weight(1f),
+                    interactionSource = interactionSource,
                     placeholder = { Text(stringResource(if (answering) R.string.chat_placeholder_answer else R.string.chat_placeholder), style = MaterialTheme.typography.bodyMedium) },
                     shape = MaterialTheme.shapes.large, textStyle = MaterialTheme.typography.bodyMedium,
                     minLines = 1, maxLines = 4,

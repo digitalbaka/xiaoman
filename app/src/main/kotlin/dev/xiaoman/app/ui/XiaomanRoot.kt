@@ -2,6 +2,12 @@ package dev.xiaoman.app.ui
 
 import androidx.annotation.StringRes
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -56,14 +62,22 @@ fun XiaomanRoot(graph: AppGraph) {
     val keyboardOpen = WindowInsets.ime.getBottom(LocalDensity.current) > 0
     Scaffold(
         bottomBar = {
-            if (!keyboardOpen) NavigationBar(containerColor = MaterialTheme.colorScheme.surface, tonalElevation = 0.dp) {
-                Tab.entries.forEach { t ->
-                    NavigationBarItem(
-                        selected = tab == t,
-                        onClick = { tab = t },
-                        icon = { Icon(t.icon, contentDescription = null) },
-                        label = { Text(stringResource(t.label), style = MaterialTheme.typography.labelSmall) },
-                    )
+            // The bar used to vanish in a single frame while the IME animates; sliding it out keeps
+            // the bar's height (and the content padding derived from it) changing frame by frame.
+            AnimatedVisibility(
+                visible = !keyboardOpen,
+                enter = slideInVertically(tween(220)) { it } + fadeIn(tween(220)),
+                exit = slideOutVertically(tween(160)) { it } + fadeOut(tween(160)),
+            ) {
+                NavigationBar(containerColor = MaterialTheme.colorScheme.surface, tonalElevation = 0.dp) {
+                    Tab.entries.forEach { t ->
+                        NavigationBarItem(
+                            selected = tab == t,
+                            onClick = { tab = t },
+                            icon = { Icon(t.icon, contentDescription = null) },
+                            label = { Text(stringResource(t.label), style = MaterialTheme.typography.labelSmall) },
+                        )
+                    }
                 }
             }
         },
