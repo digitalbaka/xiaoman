@@ -5,10 +5,12 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.provider.Settings
+import android.view.inputmethod.InputMethodManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
@@ -33,11 +35,14 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
@@ -286,8 +291,10 @@ private fun ChatInput(
     onRemove: (Int) -> Unit,
     onSent: () -> Unit,
 ) {
-    val focus = LocalFocusManager.current
-    val keyboard = LocalSoftwareKeyboardController.current
+    val view = LocalView.current
+    // clearFocus() alone left the field attached to the IME, which re-shows the keyboard as soon
+    // as the layout settles; blur it by handing focus to a zero-size sink instead.
+    val blurTarget = remember { FocusRequester() }
     val canSend = (text.isNotBlank() || attachments.isNotEmpty()) && (!busy || answering)
     var menu by remember { mutableStateOf(false) }
     fun send() {
@@ -297,8 +304,11 @@ private fun ChatInput(
             else -> {
                 onChange("")
                 onSent()
-                focus.clearFocus()
-                keyboard?.hide()
+                blurTarget.requestFocus()
+                view.post {
+                    view.context.getSystemService(InputMethodManager::class.java)
+                        ?.hideSoftInputFromWindow(view.windowToken, 0)
+                }
             }
         }
     }
@@ -357,6 +367,7 @@ private fun ChatInput(
                     keyboardActions = KeyboardActions(onSend = { send() }),
                 )
                 Spacer(Modifier.width(8.dp))
+                Box(Modifier.size(1.dp).focusRequester(blurTarget).focusable())
                 FilledIconButton(onClick = { if (busy && !answering) session.stop() else send() },
                     enabled = (busy && !answering) || canSend, modifier = Modifier.padding(bottom = 4.dp).size(48.dp)) {
                     Icon(if (busy && !answering) Icons.Default.Stop else Icons.Default.ArrowUpward,
