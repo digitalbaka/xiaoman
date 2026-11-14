@@ -1,5 +1,6 @@
 package dev.xiaoman.app.ui
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,6 +15,7 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -40,6 +42,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.xiaoman.app.AppGraph
 import dev.xiaoman.app.R
+import dev.xiaoman.app.settings.AppSettings
+import dev.xiaoman.app.settings.DarkMode
 import dev.xiaoman.app.settings.SettingsForm
 
 @Composable
@@ -54,6 +58,38 @@ fun SettingsScreen(graph: AppGraph) {
     var form by remember { mutableStateOf(SettingsForm.of(store.current)) }
     var saved by remember { mutableStateOf(false) }
     var showMcp by remember { mutableStateOf(false) }
+    var showMcpStore by remember { mutableStateOf(false) }
+    var showStores by remember { mutableStateOf(false) }
+    var showTheme by remember { mutableStateOf(false) }
+    var showAbout by remember { mutableStateOf(false) }
+    // Inside a settings sub-page, back returns to the settings list instead of leaving the tab.
+    BackHandler(enabled = showModels || showMcp || showMcpStore || showStores || showTheme || showAbout) {
+        showModels = false
+        showMcp = false
+        showMcpStore = false
+        showStores = false
+        showTheme = false
+        showAbout = false
+    }
+    if (showAbout) {
+        AboutScreen(onBack = { showAbout = false })
+        return
+    }
+    if (showTheme) {
+        ThemeScreen(settings, onSave = { store.save(it) }, onBack = { showTheme = false })
+        return
+    }
+    if (showStores) {
+        SkillStoresScreen(graph) { showStores = false }
+        return
+    }
+    if (showMcpStore) {
+        McpStoreScreen(graph, onBack = { showMcpStore = false }, onOpenServices = {
+            showMcpStore = false
+            showMcp = true
+        })
+        return
+    }
     if (showMcp) {
         McpScreen(graph) { showMcp = false }
         return
@@ -79,6 +115,28 @@ fun SettingsScreen(graph: AppGraph) {
                 Text(stringResource(R.string.settings_mcp_entry))
                 Text(
                     stringResource(R.string.settings_mcp_enabled, settings.mcp.enabledCount),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Text("›", style = MaterialTheme.typography.titleMedium)
+        }
+        TextButton(onClick = { showMcpStore = true }, modifier = Modifier.fillMaxWidth()) {
+            Column(Modifier.weight(1f), horizontalAlignment = Alignment.Start) {
+                Text(stringResource(R.string.mcp_store_entry))
+                Text(
+                    stringResource(R.string.mcp_store_entry_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Text("›", style = MaterialTheme.typography.titleMedium)
+        }
+        TextButton(onClick = { showStores = true }, modifier = Modifier.fillMaxWidth()) {
+            Column(Modifier.weight(1f), horizontalAlignment = Alignment.Start) {
+                Text(stringResource(R.string.settings_skill_store_entry))
+                Text(
+                    stringResource(R.string.settings_skill_store_current, settings.selectedSkillSource.name),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -136,6 +194,119 @@ fun SettingsScreen(graph: AppGraph) {
                 saved = false
             })
         }
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+            Column(Modifier.weight(1f)) {
+                Text(stringResource(R.string.settings_show_suggestions))
+                Text(
+                    stringResource(R.string.settings_show_suggestions_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Switch(
+                checked = settings.showTaskSuggestions,
+                onCheckedChange = { store.save(store.current.copy(showTaskSuggestions = it)) },
+            )
+        }
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text(stringResource(R.string.settings_speak_replies))
+                Text(
+                    stringResource(R.string.settings_speak_replies_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Switch(
+                checked = settings.speakReplies,
+                onCheckedChange = { store.save(store.current.copy(speakReplies = it)) },
+            )
+        }
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text(stringResource(R.string.settings_start_fresh))
+                Text(
+                    stringResource(R.string.settings_start_fresh_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Switch(
+                checked = settings.startFreshChat,
+                onCheckedChange = { store.save(store.current.copy(startFreshChat = it)) },
+            )
+        }
+
+        Text(stringResource(R.string.settings_language), style = MaterialTheme.typography.titleMedium)
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FilterChip(
+                selected = settings.language == AppSettings.LANGUAGE_SYSTEM,
+                onClick = { store.save(store.current.copy(language = AppSettings.LANGUAGE_SYSTEM)) },
+                label = { Text(stringResource(R.string.language_system)) },
+            )
+            FilterChip(
+                selected = settings.language == "zh-TW",
+                onClick = { store.save(store.current.copy(language = "zh-TW")) },
+                label = { Text("繁體中文") },
+            )
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FilterChip(
+                selected = settings.language == "en",
+                onClick = { store.save(store.current.copy(language = "en")) },
+                label = { Text("English") },
+            )
+            FilterChip(
+                selected = settings.language == "ja",
+                onClick = { store.save(store.current.copy(language = "ja")) },
+                label = { Text("日本語") },
+            )
+        }
+
+        Text(stringResource(R.string.settings_dark_mode), style = MaterialTheme.typography.titleMedium)
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            listOf(
+                DarkMode.SYSTEM to R.string.dark_mode_system,
+                DarkMode.LIGHT to R.string.dark_mode_light,
+                DarkMode.DARK to R.string.dark_mode_dark,
+            ).forEach { (mode, label) ->
+                FilterChip(
+                    selected = settings.darkMode == mode,
+                    onClick = { store.save(store.current.copy(darkMode = mode)) },
+                    label = { Text(stringResource(label)) },
+                )
+            }
+        }
+
+        TextButton(onClick = { showTheme = true }, modifier = Modifier.fillMaxWidth()) {
+            Column(Modifier.weight(1f), horizontalAlignment = Alignment.Start) {
+                Text(stringResource(R.string.theme_entry))
+                Text(
+                    stringResource(R.string.theme_entry_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Text("›", style = MaterialTheme.typography.titleMedium)
+        }
+
+        Text(stringResource(R.string.settings_font_size), style = MaterialTheme.typography.titleMedium)
+        Text(
+            stringResource(R.string.settings_font_size_hint),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FONT_STEPS.forEach { (scale, label) ->
+                FilterChip(
+                    selected = kotlin.math.abs(settings.fontScale - scale) < 0.01f,
+                    onClick = { store.save(store.current.copy(fontScale = scale)) },
+                    label = { Text(label) },
+                )
+            }
+        }
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             Button(enabled = parsed != null, onClick = {
@@ -164,6 +335,19 @@ fun SettingsScreen(graph: AppGraph) {
         Text(stringResource(R.string.settings_folder_skills, graph.skillsDir.path), style = MaterialTheme.typography.bodySmall)
         Text(stringResource(R.string.settings_folder_memory, graph.memoryDir.path), style = MaterialTheme.typography.bodySmall)
         Text(stringResource(R.string.settings_folder_traces, graph.tracesDir.path), style = MaterialTheme.typography.bodySmall)
+
+        HorizontalDivider()
+        TextButton(onClick = { showAbout = true }, modifier = Modifier.fillMaxWidth()) {
+            Column(Modifier.weight(1f), horizontalAlignment = Alignment.Start) {
+                Text(stringResource(R.string.about_entry))
+                Text(
+                    stringResource(R.string.about_entry_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Text("›", style = MaterialTheme.typography.titleMedium)
+        }
     }
 }
 

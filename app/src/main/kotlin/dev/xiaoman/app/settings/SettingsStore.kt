@@ -40,9 +40,18 @@ class SettingsStore(private val plain: SharedPreferences, private val secret: Sh
             putString(AVATAR_PATH, saved.avatarPath)
             putString(BACKGROUND_PATH, saved.chatBackgroundPath)
             putString(THEME_COLOR, saved.themeColor)
+            putString(THEME_STYLE, saved.themeStyle)
             putString(MODELS, encodeModels(saved.chatModels))
             putString(SELECTED_MODEL, saved.selectedChatModelId)
             putString(MCP, encodeMcp(saved.mcp))
+            putBoolean(SHOW_SUGGESTIONS, saved.showTaskSuggestions)
+            putString(SKILL_SOURCES, encodeSources(saved.skillSources))
+            putString(SELECTED_SOURCE, saved.selectedSkillSourceId)
+            putFloat(FONT_SCALE, saved.fontScale)
+            putString(DARK_MODE, saved.darkMode.name)
+            putString(LANGUAGE, saved.language)
+            putBoolean(SPEAK_REPLIES, saved.speakReplies)
+            putBoolean(START_FRESH, saved.startFreshChat)
         }
         secret.edit(commit = true) {
             putString(CHAT + API_KEY, saved.chat.apiKey)
@@ -103,9 +112,21 @@ class SettingsStore(private val plain: SharedPreferences, private val secret: Sh
             avatarPath = plain.getString(AVATAR_PATH, null),
             chatBackgroundPath = plain.getString(BACKGROUND_PATH, null),
             themeColor = plain.getString(THEME_COLOR, null)?.takeIf { it.matches(HEX) } ?: defaults.themeColor,
+            themeStyle = plain.getString(THEME_STYLE, null)
+                ?.takeIf { it == AppSettings.THEME_STYLE_ACCENT || it == AppSettings.THEME_STYLE_WALLPAPER }
+                ?: defaults.themeStyle,
             chatModels = migrated,
             selectedChatModelId = selectedId,
             mcp = decodeMcp(plain.getString(MCP, null)),
+            showTaskSuggestions = plain.getBoolean(SHOW_SUGGESTIONS, defaults.showTaskSuggestions),
+            skillSources = decodeSources(plain.getString(SKILL_SOURCES, null)),
+            selectedSkillSourceId = plain.getString(SELECTED_SOURCE, null) ?: defaults.selectedSkillSourceId,
+            fontScale = plain.getFloat(FONT_SCALE, defaults.fontScale).takeIf { it in FONT_SCALE_RANGE } ?: defaults.fontScale,
+            darkMode = runCatching { DarkMode.valueOf(plain.getString(DARK_MODE, null).orEmpty()) }
+                .getOrDefault(defaults.darkMode),
+            language = plain.getString(LANGUAGE, null)?.takeIf { it in AppSettings.LANGUAGES } ?: defaults.language,
+            speakReplies = plain.getBoolean(SPEAK_REPLIES, defaults.speakReplies),
+            startFreshChat = plain.getBoolean(START_FRESH, defaults.startFreshChat),
         )
     }
 
@@ -236,6 +257,33 @@ class SettingsStore(private val plain: SharedPreferences, private val secret: Sh
         return McpSettings(services = services, custom = custom, confirmPolicy = policy).normalized()
     }
 
+    /** Extra Skill stores; the built-in SkillHub is implicit and never written. */
+    private fun encodeSources(sources: List<SkillSource>): String = JSONArray().apply {
+        sources.filterNot { it.builtin }.forEach { s ->
+            put(JSONObject().apply {
+                put("id", s.id)
+                put("name", s.name)
+                put("baseUrl", s.baseUrl)
+            })
+        }
+    }.toString()
+
+    private fun decodeSources(raw: String?): List<SkillSource> {
+        if (raw.isNullOrBlank()) return emptyList()
+        return runCatching {
+            val array = JSONArray(raw)
+            buildList {
+                for (i in 0 until array.length()) {
+                    val o = array.optJSONObject(i) ?: continue
+                    val id = o.optString("id").takeIf { it.isNotBlank() && it != SkillSource.BUILTIN_ID } ?: continue
+                    val url = o.optString("baseUrl").trim()
+                    if (url.isBlank()) continue
+                    add(SkillSource(id = id, name = o.optString("name").ifBlank { id }, baseUrl = url))
+                }
+            }
+        }.getOrDefault(emptyList())
+    }
+
     companion object {
         private const val TAG = "Xiaoman"
         private const val PLAIN_FILE = "settings"
@@ -253,10 +301,20 @@ class SettingsStore(private val plain: SharedPreferences, private val secret: Sh
         private const val AVATAR_PATH = "custom.avatarPath"
         private const val BACKGROUND_PATH = "custom.backgroundPath"
         private const val THEME_COLOR = "custom.themeColor"
+        private const val THEME_STYLE = "custom.themeStyle"
         private const val MODELS = "models.chat"
         private const val SELECTED_MODEL = "models.selected"
         private const val OPERATOR_SAME = "operator.sameAsChat"
         private const val MCP = "mcp.config"
+        private const val SHOW_SUGGESTIONS = "chat.showSuggestions"
+        private const val SKILL_SOURCES = "skills.sources"
+        private const val SELECTED_SOURCE = "skills.selectedSource"
+        private const val FONT_SCALE = "ui.fontScale"
+        private const val DARK_MODE = "ui.darkMode"
+        private const val LANGUAGE = "ui.language"
+        private const val SPEAK_REPLIES = "ui.speakReplies"
+        private const val START_FRESH = "ui.startFreshChat"
+        private val FONT_SCALE_RANGE = 0.8f..1.6f
         private const val LEGACY_ID = "legacy-chat"
         private val HEX = Regex("^#[0-9A-Fa-f]{6}$")
 

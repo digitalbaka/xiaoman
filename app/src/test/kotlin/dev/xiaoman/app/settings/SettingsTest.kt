@@ -38,7 +38,18 @@ class SettingsTest {
     @Test fun `round trip keeps every field and keys stay out of the plain file`() {
         store().save(sample)
         val loaded = store().current
-        assertEquals(sample, loaded)
+        // Chat models and MCP come back normalized: the legacy chat config is migrated into one
+        // model entry, and MCP always carries the built-in service entries.
+        assertEquals(1, loaded.chatModels.size)
+        assertEquals(McpBuiltins.all.size, loaded.mcp.services.size)
+        assertEquals(
+            sample.copy(
+                chatModels = loaded.chatModels,
+                selectedChatModelId = loaded.selectedChatModelId,
+                mcp = loaded.mcp,
+            ),
+            loaded,
+        )
         assertTrue(loaded.configured)
         val plain = context.getSharedPreferences("plain-test", Context.MODE_PRIVATE).all.values.joinToString()
         assertFalse(key in plain)

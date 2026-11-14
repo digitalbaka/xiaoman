@@ -143,39 +143,6 @@ fun PersonalizationSection(settings: AppSettings, onSave: (AppSettings) -> Unit)
         ) { Text(stringResource(R.string.settings_name_save)) }
     }
 
-    Text(stringResource(R.string.settings_theme_color), style = MaterialTheme.typography.bodyMedium)
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-        THEME_PRESETS.forEach { preset ->
-            val color = themeAccent(preset.hex)
-            val selected = settings.themeColor.equals(preset.hex, ignoreCase = true)
-            Column(
-                Modifier.weight(1f).clip(RoundedCornerShape(10.dp))
-                    .clickable { onSave(settings.copy(themeColor = preset.hex)) }
-                    .padding(vertical = 4.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                Box(
-                    Modifier.size(32.dp).clip(CircleShape).background(color)
-                        .border(
-                            width = if (selected) 3.dp else 0.dp,
-                            color = if (selected) MaterialTheme.colorScheme.onSurface else Color.Transparent,
-                            shape = CircleShape,
-                        ),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    if (selected) Icon(Icons.Filled.Check, contentDescription = preset.name, tint = Color.White)
-                }
-                Text(
-                    preset.name,
-                    style = MaterialTheme.typography.labelSmall,
-                    maxLines = 1,
-                    color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        }
-    }
-
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         val bg = rememberFileImage(settings.chatBackgroundPath)
         Box(
