@@ -4,6 +4,7 @@ import dev.xiaoman.api.InstalledSkillInfo
 import dev.xiaoman.api.SkillInstallResult
 import dev.xiaoman.api.SkillInstaller
 import dev.xiaoman.api.SkillProblem
+import dev.xiaoman.api.SkillSafety
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -125,6 +126,38 @@ class DirectorySkillInstaller(
             }
         } finally {
             temp.deleteRecursively()
+        }
+    }
+
+    override suspend fun installFromMarkdown(name: String, markdown: String, replace: Boolean): SkillInstallResult = withContext(io) {
+        if (!SkillParser.NAME.matches(name)) return@withContext failure("技能名必须是 [a-z0-9-]")
+        val secrets = SkillSafety.problems(markdown)
+        if (secrets.isNotEmpty()) {
+            return@withContext failure("技能内容不能包含${secrets.joinToString("、")}，请删掉这些信息后重试")
+        }
+        if (markdown.isBlank()) return@withContext failure("SKILL.md 是空的")
+        skillsDir.mkdirs()
+        val target = File(skillsDir, name)
+        if (!inside(target, skillsDir)) return@withContext failure("目标路径不合法")
+        if (target.exists() && !replace) return@withContext failure("已经有一个叫 $name 的技能，覆盖它需要先确认")
+        val parsed = runCatching {
+            SkillParser.parseFolder(name, markdown, null, "chat")
+        }.getOrElse { null to listOf(SkillProblem("SKILL.md", it.message ?: "无法读取")) }
+        val (skill, warnings) = parsed
+        if (skill == null) {
+            return@withContext failure(warnings.firstOrNull()?.message ?: "SKILL.md 不合法")
+        }
+        if (!target.mkdirs() && !target.isDirectory) return@withContext failure("无法创建技能目录")
+        return@withContext try {
+            File(target, "SKILL.md").writeText(markdown)
+            SkillInstallResult(
+                ok = true,
+                message = if (replace) "已更新技能 ${skill.name}" else "已添加技能 ${skill.name}",
+                installed = listOf(skill.name),
+                replaced = if (replace) listOf(skill.name) else emptyList(),
+            )
+        } catch (e: Exception) {
+            failure("写入失败：${e.message ?: e.javaClass.simpleName}")
         }
     }
 
