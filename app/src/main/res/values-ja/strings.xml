@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">小满Extra</string>
+    <string name="assistant_default_name">小满Extra</string>
+
+    <!-- Navigation -->
+    <string name="nav_chat">チャット</string>
+    <string name="nav_skills">スキル</string>
+    <string name="nav_memory">メモリー</string>
+    <string name="nav_settings">設定</string>
+    <string name="close">閉じる</string>
+    <string name="back">戻る</string>
+
+    <!-- Chat -->
+    <string name="chat_input_hint">小满Extraに話しかける</string>
+    <string name="chat_answer_hint">小满Extraの質問に答える</string>
+    <string name="chat_send">送信</string>
+    <string name="chat_stop">停止</string>
+    <string name="chat_busy">小满Extraは前のメッセージを処理中です</string>
+    <string name="chat_empty">してほしいことを教えてください。例：「家までタクシーを呼んで」「東京都渋谷区に住んでいると覚えておいて」。</string>
+    <string name="chat_question_label">小满Extraからの質問</string>
+    <string name="chat_takeover_label">操作を代わってください</string>
+    <string name="chat_takeover_hint">スマホで操作（ログイン、認証コード、セキュリティ画面）を済ませてから、ここで「完了」と返信してください。</string>
+    <string name="chat_error_label">エラーが発生しました</string>
+    <string name="banner_accessibility">アクセシビリティサービスがオフのため、%1$sは他のアプリを操作できません。</string>
+    <string name="banner_accessibility_action">有効にする</string>
+    <string name="banner_models">チャット用モデルと操作モデルが未設定です。</string>
+    <string name="banner_models_action">設定へ</string>
+    <string name="banner_notifications">通知を許可すると、タスクの実行や確認が必要なときに知らせます。</string>
+    <string name="banner_notifications_action">許可</string>
+    <string name="chat_header_subtitle">あなたのスマホアシスタント</string>
+    <string name="chat_status_waiting">確認待ち</string>
+    <string name="chat_status_busy">処理中</string>
+    <string name="chat_status_ready">準備完了</string>
+    <string name="chat_status_setup">設定待ち</string>
+    <string name="chat_status_no_accessibility">アクセシビリティ未設定</string>
+    <string name="chat_welcome_title">今日は何をしますか？</string>
+    <string name="chat_welcome_subtitle">一言伝えれば、私が動きます。</string>
+    <string name="chat_welcome_more">思いついたことをそのまま入力してもかまいません</string>
+    <string name="example_notebook_title">ノートを選ぶ</string>
+    <string name="example_notebook_detail">20元以内、まず確認</string>
+    <string name="example_notebook_prompt">タオバオで20元以内のA5ノートを探して、注文前に確認してください。</string>
+    <string name="example_water_title">水を飲むよう通知</string>
+    <string name="example_water_detail">10分後に通知</string>
+    <string name="example_water_prompt">10分後に水を飲むよう通知して。</string>
+    <string name="example_memory_title">好みを覚えておく</string>
+    <string name="example_memory_detail">アシスタントがだんだん理解します</string>
+    <string name="example_memory_prompt">買い物はシンプルで実用的なものが好きだと覚えておいて。</string>
+    <string name="chat_placeholder">してほしいことを教えてください…</string>
+    <string name="chat_placeholder_answer">そのまま教えてください…</string>
+    <string name="chat_thinking">考えています…</string>
+    <string name="chat_process_title">処理の流れ · %1$d 件</string>
+    <string name="chat_process_expand">処理の流れを開く</string>
+    <string name="chat_process_collapse">処理の流れを閉じる</string>
+    <string name="chat_notice_takeover">手伝いが必要です</string>
+    <string name="chat_notice_followup">もう少し教えてください</string>
+    <string name="chat_notice_error">今回は完了できませんでした</string>
+
+    <!-- Approvals -->
+    <string name="approval_title">確認が必要です</string>
+    <string name="approval_once">1回だけ許可</string>
+    <string name="approval_task">このタスクでは常に許可</string>
+    <string name="approval_deny">拒否</string>
+    <string name="approval_resolved_allowed">許可しました：%1$s</string>
+    <string name="approval_resolved_task">このタスクでは常に許可：%1$s</string>
+    <string name="approval_resolved_denied">拒否しました：%1$s</string>
+
+    <!-- Skills -->
+    <string name="skills_title">スキル</string>
+    <string name="skills_reload">再読み込み</string>
+    <string name="skills_empty">スキルがありません。%1$s にスキルのフォルダーを置いて再読み込みしてください。</string>
+    <string name="skills_problems">読み込みの問題</string>
+    <string name="skills_apps">アプリ：%1$s</string>
+
+    <!-- Memory -->
+    <string name="memory_search_hint">メモリーを検索</string>
+    <string name="memory_empty">メモリーはまだありません。</string>
+    <string name="memory_no_hits">該当するメモはありません。</string>
+    <string name="memory_delete">削除</string>
+    <string name="memory_delete_title">このメモを削除しますか？</string>
+    <string name="memory_delete_message">「%1$s」はスマホから完全に削除されます。</string>
+    <string name="memory_delete_confirm">削除</string>
+    <string name="memory_not_found">このメモは存在しません。</string>
+    <string name="cancel">キャンセル</string>
+    <string name="clear">クリア</string>
+
+    <!-- Settings -->
+    <string name="settings_title">設定</string>
+    <string name="settings_manage_models">モデルを管理</string>
+    <string name="settings_selected_model">現在：%1$s</string>
+    <string name="settings_no_model">チャット用モデルが未登録です</string>
+    <string name="settings_personalize">パーソナライズ</string>
+    <string name="settings_assistant_name">アシスタント名</string>
+    <string name="settings_avatar">アシスタントのアイコン</string>
+    <string name="settings_avatar_pick">画像を選択</string>
+    <string name="settings_avatar_reset">初期値に戻す</string>
+    <string name="settings_theme_color">テーマカラー</string>
+    <string name="settings_background">チャット背景</string>
+    <string name="settings_background_pick">画像を選択</string>
+    <string name="settings_background_reset">初期値に戻す</string>
+    <string name="settings_name_save">名前を保存</string>
+    <string name="crop_title">画像を切り抜く</string>
+    <string name="crop_use">使用</string>
+    <string name="crop_hint">ピンチで拡大縮小、ドラッグで位置を調整</string>
+    <string name="image_load_failed">画像を読み込めません。別の画像でお試しください</string>
+
+    <!-- Models -->
+    <string name="models_title">モデル</string>
+    <string name="models_add">モデルを追加</string>
+    <string name="models_empty">モデルがありません。OpenAI 互換のエンドポイントを追加するとチャットで使えます。</string>
+    <string name="models_default">デフォルト</string>
+    <string name="models_edit">編集</string>
+    <string name="models_delete">削除</string>
+    <string name="models_name">名前</string>
+    <string name="models_name_hint">例：Volcano Ark</string>
+    <string name="models_model_id">モデル ID</string>
+    <string name="models_max_tokens">最大出力トークン（任意）</string>
+    <string name="models_test">接続テスト</string>
+    <string name="models_testing">テスト中…</string>
+    <string name="models_test_ok">接続できました</string>
+    <string name="models_test_failed">接続に失敗しました：%1$s</string>
+    <string name="models_delete_title">モデルを削除しますか？</string>
+    <string name="models_delete_message">「%1$s」を一覧から削除します。他のモデルには影響しません。</string>
+    <string name="models_required">Base URL とモデル ID を入力してください</string>
+    <string name="models_key_required">API Key を入力してください</string>
+    <string name="models_save_failed">保存に失敗しました。入力内容をご確認ください</string>
+
+    <!-- Skills install -->
+    <string name="skills_install">スキルをインストール</string>
+    <string name="skills_install_title">スキルをインストール</string>
+    <string name="skills_install_url">リンクからインストール</string>
+    <string name="skills_install_zip">ローカルの zip からインストール</string>
+    <string name="skills_install_url_hint">https://example.com/skill.zip</string>
+    <string name="skills_install_hint">zip には SKILL.md が必要です。1つのスキルでも、複数スキルを含むリポジトリの圧縮でもかまいません。</string>
+    <string name="skills_install_action">インストール</string>
+    <string name="skills_installing">インストール中…</string>
+    <string name="skills_install_ok">インストールしました：%1$s</string>
+    <string name="skills_install_failed">インストール失敗：%1$s</string>
+    <string name="skills_pick_zip">zip ファイルを選択</string>
+    <string name="skills_installed">インストール済み</string>
+    <string name="skills_bundled">内蔵</string>
+    <string name="skills_enable">有効化</string>
+    <string name="skills_disable">無効化</string>
+    <string name="skills_delete">削除</string>
+    <string name="skills_delete_title">スキルを削除しますか？</string>
+    <string name="skills_delete_message">「%1$s」をアプリから削除します。</string>
+    <string name="skills_no_installed">インストール済みのスキルはありません。内蔵スキルは引き続き使えます。</string>
+    <string name="skills_disabled">無効</string>
+    <string name="skills_user_skills">インストール済み</string>
+    <string name="skills_origin">取得元：%1$s</string>
+    <string name="skills_shop_entry">ストア</string>
+    <string name="skills_shop_back">戻る</string>
+    <string name="skills_shop_title">スキルストア</string>
+    <string name="skills_shop_search_hint">スキルを検索</string>
+    <string name="skills_shop_search">検索</string>
+    <string name="skills_shop_install">インストール</string>
+    <string name="skills_shop_installing">インストール中…</string>
+    <string name="skills_shop_downloads">ダウンロード %1$d</string>
+    <string name="skills_shop_footer">スキルは %1$s から取得し、アプリ内にインストールされます。スキル一覧で有効化・無効化・削除できます。</string>
+
+    <!-- Memory folders -->
+    <string name="memory_all">すべて</string>
+    <string name="memory_subtitle">フォルダーでメモリーを整理</string>
+    <string name="memory_notes">メモ</string>
+    <string name="memory_new_folder">フォルダーを作成</string>
+    <string name="memory_folder_name">フォルダー名</string>
+    <string name="memory_create">作成</string>
+    <string name="memory_rename">名前を変更</string>
+    <string name="memory_move">移動</string>
+    <string name="memory_move_note">メモを移動</string>
+    <string name="memory_move_to">移動先</string>
+    <string name="memory_root">ルート</string>
+    <string name="memory_delete_folder_title">フォルダーを削除しますか？</string>
+    <string name="memory_delete_folder_message">「%1$s」と中のメモは完全に削除されます。</string>
+    <string name="memory_items">%1$d 件</string>
+    <string name="memory_back_root">すべてのメモリー</string>
+    <string name="memory_empty_folder">このフォルダーにはメモがありません。</string>
+    <string name="memory_folder_exists">同じ名前のフォルダーがあります</string>
+    <string name="memory_rename_folder">フォルダー名を変更</string>
+    <string name="memory_name_empty">名前を入力してください</string>
+    <string name="memory_folder_error">操作に失敗しました：%1$s</string>
+    <string name="memory_unfiled">未分類</string>
+
+    <string name="settings_chat_model">チャットモデル</string>
+    <string name="settings_operator_model">操作モデル（画像対応が必要）</string>
+    <string name="settings_base_url">Base URL</string>
+    <string name="settings_model">モデル名</string>
+    <string name="settings_api_key">API Key</string>
+    <string name="settings_show_key">API Key を表示</string>
+    <string name="settings_hide_key">API Key を隠す</string>
+    <string name="settings_temperature">Temperature（任意）</string>
+    <string name="settings_agent">タスク</string>
+    <string name="settings_max_steps">最大ステップ数</string>
+    <string name="settings_learn">成功した操作手順を記憶する</string>
+    <string name="settings_save">保存</string>
+    <string name="settings_saved">保存しました</string>
+    <string name="settings_invalid_number">有効な数値を入力してください</string>
+    <string name="settings_copy_chat">チャットモデルと同じ</string>
+    <string name="settings_same_as_chat_hint">オンにするとチャットモデルの Base URL・モデル名・Key・パラメータをそのまま使います。下の入力欄は編集できません</string>
+    <string name="settings_mcp_entry">外部サービス / MCP</string>
+    <string name="settings_mcp_enabled">%1$d 個有効</string>
+    <string name="settings_folders">フォルダー</string>
+    <string name="settings_folder_skills">スキル：%1$s</string>
+    <string name="settings_folder_memory">メモリー：%1$s</string>
+    <string name="settings_folder_traces">トレース：%1$s</string>
+
+    <!-- Service and notifications -->
+    <string name="channel_status">タスクの状態</string>
+    <string name="channel_status_description">小满Extraがタスクを実行しているときに表示</string>
+    <string name="channel_attention">あなたの対応が必要</string>
+    <string name="channel_attention_description">小满Extraが確認や回答を必要とするときの通知</string>
+    <string name="channel_reminders">スケジュールされたリマインダー</string>
+    <string name="channel_reminders_description">設定したリマインダーの時刻に通知</string>
+    <string name="notification_running">小满Extraが作業中です</string>
+    <string name="notification_question">小满Extraから質問があります</string>
+    <string name="reminder_title">リマインダー</string>
+
+    <!-- Session messages -->
+    <string name="session_not_configured">モデルが未設定です。設定でチャットモデルと操作モデルを入力してください。</string>
+    <string name="session_busy">別のタスクが実行中です。しばらくしてからお試しください。</string>
+    <string name="session_stopped">停止しました</string>
+
+    <!-- Conversation history -->
+    <string name="chat_history">履歴</string>
+    <string name="chat_history_new">新しいチャット</string>
+    <string name="chat_history_empty">過去のチャットはありません。会話は自動的にここへ保存されます。</string>
+    <string name="chat_history_open">チャットを開く</string>
+    <string name="chat_history_delete">チャットを削除</string>
+    <string name="chat_history_delete_title">このチャットを削除しますか？</string>
+    <string name="chat_history_delete_message">「%1$s」はスマホから完全に削除されます。</string>
+    <string name="chat_history_count">%1$d 件のメッセージ</string>
+    <string name="chat_history_current">現在</string>
+    <string name="chat_history_busy">タスク実行中はチャットの切り替えや削除ができません</string>
+    <string name="chat_search">チャット履歴を検索</string>
+    <string name="chat_search_hint">キーワードを入力</string>
+    <string name="chat_search_scope_current">このチャット</string>
+    <string name="chat_search_scope_all">すべてのチャット</string>
+    <string name="chat_search_tip">キーワードでこのチャット、または保存済みの全チャットを検索できます</string>
+    <string name="chat_search_empty">該当する内容が見つかりません</string>
+    <string name="chat_search_open">開く</string>
+    <string name="chat_actions_title">メッセージの操作</string>
+    <string name="chat_copy">コピー</string>
+    <string name="chat_share">共有</string>
+    <string name="chat_quote">引用</string>
+    <string name="chat_copied">コピーしました</string>
+
+    <!-- Task suggestions -->
+    <string name="settings_show_suggestions">タスク候補を表示</string>
+    <string name="settings_show_suggestions_hint">ホームの空の状態に「ノートを選ぶ」など3つの例を表示します</string>
+
+    <string name="skill_store_title">スキルストアの取得元</string>
+    <string name="skill_store_hint">SkillHub 互換 API（/api/v1/search、/showcase/hot、/download）が必要です。選択した取得元をスキルページのストアが使います。</string>
+    <string name="skill_store_builtin">内蔵</string>
+    <string name="skill_store_add">カスタム取得元を追加</string>
+    <string name="skill_store_name">名前</string>
+    <string name="skill_store_url">エンドポイント（https://…）</string>
+    <string name="skill_store_add_button">追加して切り替え</string>
+    <string name="skill_store_delete">この取得元を削除</string>
+    <string name="skill_store_error_name">名前を入力してください</string>
+    <string name="skill_store_error_url">http:// または https:// で始まる必要があります</string>
+    <string name="settings_skill_store_entry">スキルストアの取得元</string>
+    <string name="settings_skill_store_current">現在：%1$s</string>
+
+    <!-- Chat attachments -->
+    <string name="chat_attach">画像またはファイルを追加</string>
+    <string name="chat_attach_image">画像</string>
+    <string name="chat_attach_file">ファイル</string>
+    <string name="chat_attachment_remove">添付を削除</string>
+    <string name="chat_attachment_image">画像</string>
+    <string name="chat_attachment_file">ファイル</string>
+    <string name="chat_image_model_warning">現在のモデルは画像に対応していない可能性があり、画像の内容を理解できないことがあります</string>
+    <string name="session_sent_attachments">添付ファイルをご確認ください。</string>
+
+    <!-- MCP store -->
+    <string name="mcp_store_entry">MCP ストア</string>
+    <string name="mcp_store_entry_hint">外部サービスを閲覧してワンタップで追加</string>
+
+    <!-- Conversational skill editing -->
+    <string name="skill_draft_title">スキルの下書き</string>
+    <string name="skill_delete_title">スキルを削除</string>
+    <string name="skill_draft_hint">確認するまで保存されません。「確認」と返信してもかまいません</string>
+    <string name="skill_delete_hint">削除は元に戻せません。内蔵スキルには影響しません</string>
+    <string name="skill_confirm_add">追加を確認</string>
+    <string name="skill_confirm_delete">削除を確認</string>
+    <string name="skill_cancel">キャンセル</string>
+    <string name="skill_change_cancelled">スキルの変更をキャンセルしました</string>
+
+    <!-- Appearance -->
+    <string name="settings_language">言語</string>
+    <string name="language_system">システムに従う</string>
+    <string name="settings_dark_mode">ダークモード</string>
+    <string name="dark_mode_system">システムに従う</string>
+    <string name="dark_mode_light">ライト</string>
+    <string name="dark_mode_dark">ダーク</string>
+    <string name="settings_font_size">文字サイズ</string>
+    <string name="settings_font_size_hint">変更するとアプリ全体にすぐ反映されます</string>
+    <string name="settings_speak_replies">回答を読み上げる</string>
+    <string name="settings_speak_replies_hint">スマホ内蔵の音声で読み上げます。長い回答は分割して読み上げ、いつでも停止できます</string>
+    <string name="settings_start_fresh">起動時に新しいチャットを開く</string>
+    <string name="settings_start_fresh_hint">起動のたびに空のチャットから始めます。履歴は一覧に残ります</string>
+    <string name="chat_speaking">読み上げ中…</string>
+    <string name="chat_stop_speaking">読み上げを停止</string>
+    <string name="theme_entry">テーマと配色</string>
+    <string name="theme_entry_hint">プリセット、カスタムカラー、壁紙の色</string>
+    <string name="theme_title">テーマ</string>
+    <string name="theme_subtitle">配色を選んでプレビューし、適用します</string>
+    <string name="theme_preview">プレビュー</string>
+    <string name="theme_preview_reply">今日の予定をまとめました。この内容で大丈夫ですか？</string>
+    <string name="theme_preview_user">ありがとう</string>
+    <string name="theme_presets">プリセットテーマ</string>
+    <string name="theme_wallpaper">壁紙の色に合わせる</string>
+    <string name="theme_wallpaper_hint">壁紙から生成された配色を使い、壁紙の変更に追従します。その間カスタムカラーは無効です</string>
+    <string name="theme_wallpaper_unsupported">この端末では壁紙の色を取得できません（Android 12 以降が必要です）</string>
+    <string name="theme_custom">カスタムカラー</string>
+    <string name="theme_custom_label">カラー値（#RRGGBB）</string>
+    <string name="theme_custom_invalid"># で始まる 6 桁の 16 進カラーを入力してください</string>
+    <string name="theme_custom_use">この色を使う</string>
+    <string name="theme_apply">テーマを適用</string>
+    <string name="theme_applied">適用済み</string>
+    <string name="theme_preset_ocean">オーシャン</string>
+    <string name="theme_preset_purple">ミスト</string>
+    <string name="theme_preset_pink">ピーチ</string>
+    <string name="theme_preset_sunset">サンセット</string>
+    <string name="theme_preset_forest">フォレスト</string>
+    <string name="theme_preset_graphite">グラファイト</string>
+    <string name="theme_preset_celadon">セラドン</string>
+    <string name="theme_preset_indigo">インディゴ</string>
+    <string name="theme_preset_rose">ローズ</string>
+    <string name="theme_preset_coffee">コーヒー</string>
+    <string name="about_entry">小満Extra について</string>
+    <string name="about_entry_hint">バージョン、プロジェクト概要、リポジトリ</string>
+    <string name="about_title">このアプリについて</string>
+    <string name="about_version">バージョン %1$s（%2$d）</string>
+    <string name="about_intro_title">プロジェクト概要</string>
+    <string name="about_intro">小満Extra はオープンソースのスマホアシスタントです。ひとことでスマホを操作し、好みを記憶し、スキルと外部サービスを必要なだけ組み合わせます。会話とデータは端末内に保存されます。</string>
+    <string name="about_repo_title">リポジトリ</string>
+    <string name="about_repo_hint">ソースコード、更新履歴、問題報告は GitHub で公開しています</string>
+    <string name="about_license">本プロジェクトはオープンソースです。Issue と Pull Request を歓迎します。</string>
+</resources>

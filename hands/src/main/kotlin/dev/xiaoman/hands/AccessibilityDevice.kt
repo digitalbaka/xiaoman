@@ -31,7 +31,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
-import java.util.concurrent.Executor
 import kotlin.coroutines.resume
 
 /** Thrown by [AccessibilityDevice.observe] while the accessibility service is not enabled. */
@@ -96,58 +95,21 @@ class AccessibilityDevice(
             // Android allows one takeScreenshot per second per service.
             val wait = lastScreenshotAt + SCREENSHOT_INTERVAL_MS - SystemClock.uptimeMillis()
             if (wait > 0) delay(wait)
-            val result = takeScreenshot(service)
+            val attempt = ScreenshotApi30.capture(service)
             lastScreenshotAt = SystemClock.uptimeMillis()
-            when (result) {
-                is RawShot.Ok -> return withContext(Dispatchers.Default) { encode(result.bitmap) }
-                is RawShot.Failed -> when (result.code) {
-                    AccessibilityService.ERROR_TAKE_SCREENSHOT_INTERVAL_TIME_SHORT -> Unit // retry after the interval
-                    AccessibilityService.ERROR_TAKE_SCREENSHOT_SECURE_WINDOW -> return Shot(null, secure = true)
-                    else -> {
-                        Log.w(TAG, "takeScreenshot failed: ${result.code}")
-                        return Shot(null, secure = false)
-                    }
+            val bitmap = attempt.bitmap
+            if (bitmap != null) return withContext(Dispatchers.Default) { encode(bitmap) }
+            when (attempt.errorCode) {
+                AccessibilityService.ERROR_TAKE_SCREENSHOT_INTERVAL_TIME_SHORT -> Unit // retry after the interval
+                AccessibilityService.ERROR_TAKE_SCREENSHOT_SECURE_WINDOW -> return Shot(null, secure = true)
+                else -> {
+                    Log.w(TAG, "takeScreenshot failed: ${attempt.errorCode}")
+                    return Shot(null, secure = false)
                 }
             }
         }
         return Shot(null, secure = false)
     }
-
-    private sealed class RawShot {
-        class Ok(val bitmap: Bitmap) : RawShot()
-        class Failed(val code: Int) : RawShot()
-    }
-
-    private suspend fun takeScreenshot(service: XiaomanAccessibilityService): RawShot =
-        suspendCancellableCoroutine { cont ->
-            val direct = Executor { it.run() }
-            try {
-                service.takeScreenshot(Display.DEFAULT_DISPLAY, direct, object : AccessibilityService.TakeScreenshotCallback {
-                    override fun onSuccess(result: AccessibilityService.ScreenshotResult) {
-                        val buffer = result.hardwareBuffer
-                        val bitmap = try {
-                            Bitmap.wrapHardwareBuffer(buffer, result.colorSpace)?.let { hw ->
-                                hw.copy(Bitmap.Config.ARGB_8888, false).also { hw.recycle() }
-                            }
-                        } finally {
-                            buffer.close()
-                        }
-                        if (cont.isActive) {
-                            cont.resume(if (bitmap != null) RawShot.Ok(bitmap) else RawShot.Failed(AccessibilityService.ERROR_TAKE_SCREENSHOT_INTERNAL_ERROR))
-                        } else {
-                            bitmap?.recycle()
-                        }
-                    }
-
-                    override fun onFailure(errorCode: Int) {
-                        if (cont.isActive) cont.resume(RawShot.Failed(errorCode))
-                    }
-                })
-            } catch (e: RuntimeException) {
-                Log.w(TAG, "takeScreenshot threw", e)
-                if (cont.isActive) cont.resume(RawShot.Failed(AccessibilityService.ERROR_TAKE_SCREENSHOT_INTERNAL_ERROR))
-            }
-        }
 
     private fun encode(full: Bitmap): Shot {
         try {
@@ -246,11 +208,35 @@ class AccessibilityDevice(
         is Action.Home -> global(service, AccessibilityService.GLOBAL_ACTION_HOME, "home")
         is Action.LaunchApp -> launch(service, action.packageName)
         is Action.OpenDeeplink -> deeplink(service, action)
-        is Action.Wait -> {
-            delay(action.millis.coerceIn(0, MAX_WAIT_MS))
-            ActionResult(true)
-        }
+        is Action.Wait -> waitForChange(service, action.millis)
         is Action.AskUser, is Action.Finish -> ActionResult(false, "not a device action")
+    }
+
+    /**
+     * Waits at most [millis], but returns as soon as the screen content changes.
+     * A blind `delay` made the operator sit out a fixed 2 s even when the page had loaded already.
+     * Caller holds [mutex].
+     */
+    private suspend fun waitForChange(service: XiaomanAccessibilityService, millis: Long): ActionResult {
+        val limit = millis.coerceIn(0, MAX_WAIT_MS)
+        if (limit == 0L) return ActionResult(true, "no wait")
+        val (w, h) = displaySize(service)
+        val before = signature(readNodes(service, w, h))
+        val deadline = SystemClock.uptimeMillis() + limit
+        while (true) {
+            val left = deadline - SystemClock.uptimeMillis()
+            if (left <= 0L) return ActionResult(true, "waited ${limit}ms")
+            delay(minOf(WAIT_POLL_MS, left))
+            if (signature(readNodes(service, w, h)) != before) return ActionResult(true, "screen changed")
+        }
+    }
+
+    private fun signature(screen: Pair<String?, List<dev.xiaoman.api.UiNode>>): String = buildString {
+        append(screen.first)
+        for (node in screen.second) {
+            append('|').append(node.text).append('~').append(node.description)
+            append('@').append(node.bounds.left / 16).append(',').append(node.bounds.top / 16)
+        }
     }
 
     private suspend fun press(service: XiaomanAccessibilityService, nodeId: Int?, point: Point?, long: Boolean, durationMs: Long): ActionResult {
@@ -389,5 +375,6 @@ class AccessibilityDevice(
         private const val FOCUS_DELAY_MS = 400L
         private const val SUBMIT_DELAY_MS = 150L
         private const val MAX_WAIT_MS = 30_000L
+        private const val WAIT_POLL_MS = 250L
     }
 }

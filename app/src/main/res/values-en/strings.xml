@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">小满Extra</string>
+    <string name="assistant_default_name">小满Extra</string>
+
+    <!-- Navigation -->
+    <string name="nav_chat">Chat</string>
+    <string name="nav_skills">Skills</string>
+    <string name="nav_memory">Memory</string>
+    <string name="nav_settings">Settings</string>
+    <string name="close">Close</string>
+    <string name="back">Back</string>
+
+    <!-- Chat -->
+    <string name="chat_input_hint">Message 小满Extra</string>
+    <string name="chat_answer_hint">Answer 小满Extra</string>
+    <string name="chat_send">Send</string>
+    <string name="chat_stop">Stop</string>
+    <string name="chat_busy">小满Extra is still handling the previous message</string>
+    <string name="chat_empty">Tell me what you want to do, for example “call a ride home” or “remember that I live in Haidian, Beijing”.</string>
+    <string name="chat_question_label">小满Extra asks</string>
+    <string name="chat_takeover_label">You need to take over</string>
+    <string name="chat_takeover_hint">Finish the step on your phone (sign-in, verification code or security page), then reply “done” here.</string>
+    <string name="chat_error_label">Something went wrong</string>
+    <string name="banner_accessibility">Accessibility is off, so %1$s cannot operate other apps yet.</string>
+    <string name="banner_accessibility_action">Turn on</string>
+    <string name="banner_models">No chat model or operator model is configured yet.</string>
+    <string name="banner_models_action">Open settings</string>
+    <string name="banner_notifications">Allow notifications to be reminded when tasks run or need your confirmation.</string>
+    <string name="banner_notifications_action">Allow</string>
+    <string name="chat_header_subtitle">Your phone assistant</string>
+    <string name="chat_status_waiting">Waiting for you</string>
+    <string name="chat_status_busy">Working</string>
+    <string name="chat_status_ready">Ready</string>
+    <string name="chat_status_setup">Needs setup</string>
+    <string name="chat_status_no_accessibility">Accessibility off</string>
+    <string name="chat_welcome_title">What would you like to do today?</string>
+    <string name="chat_welcome_subtitle">Just say it and I will do the work.</string>
+    <string name="chat_welcome_more">Or simply type what you have in mind</string>
+    <string name="example_notebook_title">Pick a notebook</string>
+    <string name="example_notebook_detail">Under 20 yuan, confirm first</string>
+    <string name="example_notebook_prompt">Find me an A5 notebook under 20 yuan on Taobao, then ask me to confirm before ordering.</string>
+    <string name="example_water_title">Remind me to drink water</string>
+    <string name="example_water_detail">In 10 minutes</string>
+    <string name="example_water_prompt">Remind me to drink water in 10 minutes.</string>
+    <string name="example_memory_title">Remember my preference</string>
+    <string name="example_memory_detail">Help the assistant understand you</string>
+    <string name="example_memory_prompt">Remember that I like simple and practical things when shopping.</string>
+    <string name="chat_placeholder">Tell me what you want to do…</string>
+    <string name="chat_placeholder_answer">Just tell me…</string>
+    <string name="chat_thinking">Thinking it over…</string>
+    <string name="chat_process_title">Progress · %1$d entries</string>
+    <string name="chat_process_expand">Show progress</string>
+    <string name="chat_process_collapse">Hide progress</string>
+    <string name="chat_notice_takeover">Your help is needed</string>
+    <string name="chat_notice_followup">Tell me a bit more</string>
+    <string name="chat_notice_error">This one did not finish</string>
+
+    <!-- Approvals -->
+    <string name="approval_title">Needs your confirmation</string>
+    <string name="approval_once">Allow once</string>
+    <string name="approval_task">Allow for this task</string>
+    <string name="approval_deny">Deny</string>
+    <string name="approval_resolved_allowed">Allowed: %1$s</string>
+    <string name="approval_resolved_task">Allowed for this task: %1$s</string>
+    <string name="approval_resolved_denied">Denied: %1$s</string>
+
+    <!-- Skills -->
+    <string name="skills_title">Skills</string>
+    <string name="skills_reload">Reload</string>
+    <string name="skills_empty">No skills yet. Put a skill folder in %1$s, then tap Reload.</string>
+    <string name="skills_problems">Load issues</string>
+    <string name="skills_apps">Apps: %1$s</string>
+
+    <!-- Memory -->
+    <string name="memory_search_hint">Search memory</string>
+    <string name="memory_empty">No memories yet.</string>
+    <string name="memory_no_hits">No matching notes.</string>
+    <string name="memory_delete">Delete</string>
+    <string name="memory_delete_title">Delete this note?</string>
+    <string name="memory_delete_message">“%1$s” will be permanently deleted from this phone.</string>
+    <string name="memory_delete_confirm">Delete</string>
+    <string name="memory_not_found">This note no longer exists.</string>
+    <string name="cancel">Cancel</string>
+    <string name="clear">Clear</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_manage_models">Manage models</string>
+    <string name="settings_selected_model">Current: %1$s</string>
+    <string name="settings_no_model">No chat model added yet</string>
+    <string name="settings_personalize">Personalization</string>
+    <string name="settings_assistant_name">Assistant name</string>
+    <string name="settings_avatar">Assistant avatar</string>
+    <string name="settings_avatar_pick">Choose image</string>
+    <string name="settings_avatar_reset">Reset</string>
+    <string name="settings_theme_color">Theme color</string>
+    <string name="settings_background">Chat background</string>
+    <string name="settings_background_pick">Choose image</string>
+    <string name="settings_background_reset">Reset</string>
+    <string name="settings_name_save">Save name</string>
+    <string name="crop_title">Crop image</string>
+    <string name="crop_use">Use</string>
+    <string name="crop_hint">Pinch to zoom and drag to position</string>
+    <string name="image_load_failed">Could not read the image, please try another one</string>
+
+    <!-- Models -->
+    <string name="models_title">Models</string>
+    <string name="models_add">Add model</string>
+    <string name="models_empty">No models yet. Add an OpenAI-compatible endpoint to use it in chat.</string>
+    <string name="models_default">Default</string>
+    <string name="models_edit">Edit</string>
+    <string name="models_delete">Delete</string>
+    <string name="models_name">Name</string>
+    <string name="models_name_hint">For example: Volcano Ark</string>
+    <string name="models_model_id">Model ID</string>
+    <string name="models_max_tokens">Max output tokens (optional)</string>
+    <string name="models_test">Test connection</string>
+    <string name="models_testing">Testing…</string>
+    <string name="models_test_ok">Connected</string>
+    <string name="models_test_failed">Connection failed: %1$s</string>
+    <string name="models_delete_title">Delete model?</string>
+    <string name="models_delete_message">“%1$s” will be removed from the list. Other models are unaffected.</string>
+    <string name="models_required">Enter the Base URL and model ID</string>
+    <string name="models_key_required">Enter an API Key</string>
+    <string name="models_save_failed">Save failed, please check the fields</string>
+
+    <!-- Skills install -->
+    <string name="skills_install">Install skill</string>
+    <string name="skills_install_title">Install skill</string>
+    <string name="skills_install_url">Install from link</string>
+    <string name="skills_install_zip">Install from local zip</string>
+    <string name="skills_install_url_hint">https://example.com/skill.zip</string>
+    <string name="skills_install_hint">The zip must contain SKILL.md. It can hold one skill or a repository of several skills.</string>
+    <string name="skills_install_action">Install</string>
+    <string name="skills_installing">Installing…</string>
+    <string name="skills_install_ok">Installed: %1$s</string>
+    <string name="skills_install_failed">Install failed: %1$s</string>
+    <string name="skills_pick_zip">Choose a zip file</string>
+    <string name="skills_installed">Installed</string>
+    <string name="skills_bundled">Built-in</string>
+    <string name="skills_enable">Enable</string>
+    <string name="skills_disable">Disable</string>
+    <string name="skills_delete">Delete</string>
+    <string name="skills_delete_title">Delete skill?</string>
+    <string name="skills_delete_message">“%1$s” will be removed from the app.</string>
+    <string name="skills_no_installed">No installed skills yet. Built-in skills stay available.</string>
+    <string name="skills_disabled">Disabled</string>
+    <string name="skills_user_skills">Installed</string>
+    <string name="skills_origin">Source: %1$s</string>
+    <string name="skills_shop_entry">Store</string>
+    <string name="skills_shop_back">Back</string>
+    <string name="skills_shop_title">Skill store</string>
+    <string name="skills_shop_search_hint">Search skills</string>
+    <string name="skills_shop_search">Search</string>
+    <string name="skills_shop_install">Install</string>
+    <string name="skills_shop_installing">Installing…</string>
+    <string name="skills_shop_downloads">%1$d downloads</string>
+    <string name="skills_shop_footer">Skills come from %1$s and are installed into the app. Enable, disable or delete them in the skills list.</string>
+
+    <!-- Memory folders -->
+    <string name="memory_all">All</string>
+    <string name="memory_subtitle">Organize memories with folders</string>
+    <string name="memory_notes">Notes</string>
+    <string name="memory_new_folder">New folder</string>
+    <string name="memory_folder_name">Folder name</string>
+    <string name="memory_create">Create</string>
+    <string name="memory_rename">Rename</string>
+    <string name="memory_move">Move</string>
+    <string name="memory_move_note">Move note</string>
+    <string name="memory_move_to">Move to</string>
+    <string name="memory_root">Root</string>
+    <string name="memory_delete_folder_title">Delete folder?</string>
+    <string name="memory_delete_folder_message">“%1$s” and its notes will be permanently deleted.</string>
+    <string name="memory_items">%1$d items</string>
+    <string name="memory_back_root">All memories</string>
+    <string name="memory_empty_folder">No notes in this folder yet.</string>
+    <string name="memory_folder_exists">A folder with that name already exists</string>
+    <string name="memory_rename_folder">Rename folder</string>
+    <string name="memory_name_empty">Name cannot be empty</string>
+    <string name="memory_folder_error">Operation failed: %1$s</string>
+    <string name="memory_unfiled">Unfiled</string>
+
+    <string name="settings_chat_model">Chat model</string>
+    <string name="settings_operator_model">Operator model (needs image support)</string>
+    <string name="settings_base_url">Base URL</string>
+    <string name="settings_model">Model name</string>
+    <string name="settings_api_key">API Key</string>
+    <string name="settings_show_key">Show API Key</string>
+    <string name="settings_hide_key">Hide API Key</string>
+    <string name="settings_temperature">Temperature (optional)</string>
+    <string name="settings_agent">Tasks</string>
+    <string name="settings_max_steps">Max steps</string>
+    <string name="settings_learn">Remember successful paths</string>
+    <string name="settings_save">Save</string>
+    <string name="settings_saved">Saved</string>
+    <string name="settings_invalid_number">Enter a valid number</string>
+    <string name="settings_copy_chat">Same as chat model</string>
+    <string name="settings_same_as_chat_hint">When checked, the operator model reuses the chat model Base URL, model, key and parameters; the fields below are read-only</string>
+    <string name="settings_mcp_entry">External services / MCP</string>
+    <string name="settings_mcp_enabled">%1$d enabled</string>
+    <string name="settings_folders">Folders</string>
+    <string name="settings_folder_skills">Skills: %1$s</string>
+    <string name="settings_folder_memory">Memory: %1$s</string>
+    <string name="settings_folder_traces">Traces: %1$s</string>
+
+    <!-- Service and notifications -->
+    <string name="channel_status">Task status</string>
+    <string name="channel_status_description">Shown while 小满Extra runs a task</string>
+    <string name="channel_attention">Needs you</string>
+    <string name="channel_attention_description">Reminders when 小满Extra needs your confirmation or answer</string>
+    <string name="channel_reminders">Scheduled reminders</string>
+    <string name="channel_reminders_description">Alerts when your reminders are due</string>
+    <string name="notification_running">小满Extra is working</string>
+    <string name="notification_question">小满Extra has a question</string>
+    <string name="reminder_title">Reminder</string>
+
+    <!-- Session messages -->
+    <string name="session_not_configured">No model configured yet. Set up the chat model and operator model in Settings.</string>
+    <string name="session_busy">A task is already running, please try again later.</string>
+    <string name="session_stopped">Stopped</string>
+
+    <!-- Conversation history -->
+    <string name="chat_history">History</string>
+    <string name="chat_history_new">New chat</string>
+    <string name="chat_history_empty">No past chats yet. Everything you talk about is saved here automatically.</string>
+    <string name="chat_history_open">Open chat</string>
+    <string name="chat_history_delete">Delete chat</string>
+    <string name="chat_history_delete_title">Delete this chat?</string>
+    <string name="chat_history_delete_message">“%1$s” will be permanently deleted from this phone.</string>
+    <string name="chat_history_count">%1$d messages</string>
+    <string name="chat_history_current">Current</string>
+    <string name="chat_history_busy">A task is running, so chats cannot be switched or deleted right now</string>
+    <string name="chat_search">Search chats</string>
+    <string name="chat_search_hint">Enter a keyword</string>
+    <string name="chat_search_scope_current">This chat</string>
+    <string name="chat_search_scope_all">All chats</string>
+    <string name="chat_search_tip">Type a keyword to search this chat or all saved chats</string>
+    <string name="chat_search_empty">No matches found</string>
+    <string name="chat_search_open">Open</string>
+    <string name="chat_actions_title">Message actions</string>
+    <string name="chat_copy">Copy</string>
+    <string name="chat_share">Share</string>
+    <string name="chat_quote">Quote</string>
+    <string name="chat_copied">Copied</string>
+
+    <!-- Task suggestions -->
+    <string name="settings_show_suggestions">Show task suggestions</string>
+    <string name="settings_show_suggestions_hint">Show the three example cards, such as “pick a notebook”, on the empty home screen</string>
+
+    <string name="skill_store_title">Skill store sources</string>
+    <string name="skill_store_hint">A source must speak the SkillHub API (/api/v1/search, /showcase/hot, /download). The store tab uses the selected source.</string>
+    <string name="skill_store_builtin">Built-in</string>
+    <string name="skill_store_add">Add a custom source</string>
+    <string name="skill_store_name">Name</string>
+    <string name="skill_store_url">Endpoint (https://…)</string>
+    <string name="skill_store_add_button">Add and switch</string>
+    <string name="skill_store_delete">Delete this source</string>
+    <string name="skill_store_error_name">Enter a name</string>
+    <string name="skill_store_error_url">The address must start with http:// or https://</string>
+    <string name="settings_skill_store_entry">Skill store source</string>
+    <string name="settings_skill_store_current">Current: %1$s</string>
+
+    <!-- Chat attachments -->
+    <string name="chat_attach">Add image or file</string>
+    <string name="chat_attach_image">Image</string>
+    <string name="chat_attach_file">File</string>
+    <string name="chat_attachment_remove">Remove attachment</string>
+    <string name="chat_attachment_image">Image</string>
+    <string name="chat_attachment_file">File</string>
+    <string name="chat_image_model_warning">The current model may not support images; it might not understand this picture</string>
+    <string name="session_sent_attachments">Please look at these attachments.</string>
+
+    <!-- MCP store -->
+    <string name="mcp_store_entry">MCP store</string>
+    <string name="mcp_store_entry_hint">Browse external services and add them with one tap</string>
+
+    <!-- Conversational skill editing -->
+    <string name="skill_draft_title">Skill draft</string>
+    <string name="skill_delete_title">Delete skill</string>
+    <string name="skill_draft_hint">Nothing is saved until you confirm; you can also reply “confirm”</string>
+    <string name="skill_delete_hint">Deletion cannot be undone; built-in skills are unaffected</string>
+    <string name="skill_confirm_add">Confirm add</string>
+    <string name="skill_confirm_delete">Confirm delete</string>
+    <string name="skill_cancel">Cancel</string>
+    <string name="skill_change_cancelled">Skill change cancelled</string>
+
+    <!-- Appearance -->
+    <string name="settings_language">Language</string>
+    <string name="language_system">System</string>
+    <string name="settings_dark_mode">Dark mode</string>
+    <string name="dark_mode_system">Follow system</string>
+    <string name="dark_mode_light">Light</string>
+    <string name="dark_mode_dark">Dark</string>
+    <string name="settings_font_size">Text size</string>
+    <string name="settings_font_size_hint">Applies to the whole app immediately</string>
+    <string name="settings_speak_replies">Read replies aloud</string>
+    <string name="settings_speak_replies_hint">Uses the phone TTS engine; long replies are read in parts and can be stopped anytime</string>
+    <string name="settings_start_fresh">Open a new chat on launch</string>
+    <string name="settings_start_fresh_hint">Always start from a blank chat; saved chats stay in the history list</string>
+    <string name="chat_speaking">Reading aloud…</string>
+    <string name="chat_stop_speaking">Stop reading</string>
+    <string name="theme_entry">Theme &amp; colors</string>
+    <string name="theme_entry_hint">Presets, custom color, wallpaper colors</string>
+    <string name="theme_title">Theme</string>
+    <string name="theme_subtitle">Pick a palette, preview it, then apply</string>
+    <string name="theme_preview">Preview</string>
+    <string name="theme_preview_reply">I have sorted today\'s schedule for you. Does it look right?</string>
+    <string name="theme_preview_user">Great, thanks</string>
+    <string name="theme_presets">Preset themes</string>
+    <string name="theme_wallpaper">Wallpaper colors</string>
+    <string name="theme_wallpaper_hint">Uses colors generated from the wallpaper and updates when it changes; the custom color is ignored meanwhile</string>
+    <string name="theme_wallpaper_unsupported">Wallpaper colors need Android 12 or later and are not available on this system</string>
+    <string name="theme_custom">Custom color</string>
+    <string name="theme_custom_label">Color (#RRGGBB)</string>
+    <string name="theme_custom_invalid">Enter a 6-digit hex color starting with #</string>
+    <string name="theme_custom_use">Use this color</string>
+    <string name="theme_apply">Apply theme</string>
+    <string name="theme_applied">Applied</string>
+    <string name="theme_preset_ocean">Ocean</string>
+    <string name="theme_preset_purple">Mist</string>
+    <string name="theme_preset_pink">Peach</string>
+    <string name="theme_preset_sunset">Sunset</string>
+    <string name="theme_preset_forest">Forest</string>
+    <string name="theme_preset_graphite">Graphite</string>
+    <string name="theme_preset_celadon">Celadon</string>
+    <string name="theme_preset_indigo">Indigo</string>
+    <string name="theme_preset_rose">Rose</string>
+    <string name="theme_preset_coffee">Coffee</string>
+    <string name="about_entry">About Xiaoman Extra</string>
+    <string name="about_entry_hint">Version, project intro and source repository</string>
+    <string name="about_title">About</string>
+    <string name="about_version">Version %1$s (%2$d)</string>
+    <string name="about_intro_title">About the project</string>
+    <string name="about_intro">Xiaoman Extra is an open-source phone assistant: say one sentence and it works the phone for you, remembers your preferences, and combines skills and external services on demand. Chats and data stay on this device.</string>
+    <string name="about_repo_title">Source repository</string>
+    <string name="about_repo_hint">Source code, release notes and issue tracking live on GitHub</string>
+    <string name="about_license">This project is open source. Issues and pull requests are welcome.</string>
+</resources>

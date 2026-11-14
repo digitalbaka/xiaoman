@@ -46,6 +46,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.ViewModel
@@ -96,7 +97,7 @@ data class ShopState(
 class SkillsViewModel(
     private val repository: SkillRepository,
     private val installer: SkillInstaller,
-    private val skillHub: SkillHubClient,
+    private val skillHub: () -> SkillHubClient,
     private val skillsDir: File,
     private val ready: suspend () -> Unit,
     private val onReloaded: (Int, List<SkillProblem>) -> Unit,
@@ -190,7 +191,7 @@ class SkillsViewModel(
         }
         _shop.update { it.copy(loading = true, error = null, message = null) }
         viewModelScope.launch {
-            val loaded = runCatching { skillHub.search(query) }
+            val loaded = runCatching { skillHub().search(query) }
             loaded.onSuccess { items ->
                 _shop.update {
                     it.copy(
@@ -208,7 +209,7 @@ class SkillsViewModel(
     private fun loadHot() {
         _shop.update { it.copy(loading = true, error = null) }
         viewModelScope.launch {
-            val loaded = runCatching { skillHub.hot() }
+            val loaded = runCatching { skillHub().hot() }
             loaded.onSuccess { items ->
                 _shop.update {
                     it.copy(
@@ -228,7 +229,7 @@ class SkillsViewModel(
         _shop.update { it.copy(installing = item.slug, message = null) }
         viewModelScope.launch {
             val outcome = runCatching {
-                val bytes = skillHub.download(item.slug)
+                val bytes = skillHub().download(item.slug)
                 installer.installFromZip(bytes, item.slug)
             }
             outcome.onSuccess { result ->
@@ -267,7 +268,7 @@ fun SkillsScreen(graph: AppGraph) {
         SkillsViewModel(
             graph.skills,
             graph.skillInstaller,
-            graph.skillHub,
+            graph::skillHubClient,
             graph.skillsDir,
             { graph.startup.await() },
             graph::logSkillProblems,
@@ -275,6 +276,7 @@ fun SkillsScreen(graph: AppGraph) {
     }
     val state by vm.state.collectAsStateWithLifecycle()
     val shop by vm.shop.collectAsStateWithLifecycle()
+    val settings by graph.settings.settings.collectAsStateWithLifecycle()
     var showInstall by remember { mutableStateOf(false) }
     var deleting by remember { mutableStateOf<InstalledSkillInfo?>(null) }
     val context = LocalContext.current
@@ -284,6 +286,7 @@ fun SkillsScreen(graph: AppGraph) {
         SkillHubScreen(
             shop = shop,
             installed = state.installed,
+            sourceName = settings.selectedSkillSource.name,
             onBack = vm::closeShop,
             onSearch = vm::searchShop,
             onRefresh = { vm.searchShop(shop.query) },
@@ -439,6 +442,7 @@ private fun InstalledSkillCard(info: InstalledSkillInfo, origin: String?, onEnab
 private fun SkillHubScreen(
     shop: ShopState,
     installed: List<InstalledSkillInfo>,
+    sourceName: String,
     onBack: () -> Unit,
     onSearch: (String) -> Unit,
     onRefresh: () -> Unit,
@@ -521,7 +525,7 @@ private fun SkillHubScreen(
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                         if (item.summary.isNotBlank()) {
-                            Text(item.summary, style = MaterialTheme.typography.bodySmall, maxLines = 3)
+                            Text(item.summary, style = MaterialTheme.typography.bodySmall, maxLines = 3, overflow = TextOverflow.Ellipsis)
                         }
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
                             if (shop.installing == item.slug) {
@@ -540,7 +544,7 @@ private fun SkillHubScreen(
             }
             item {
                 Text(
-                    stringResource(R.string.skills_shop_footer),
+                    stringResource(R.string.skills_shop_footer, sourceName),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 8.dp),

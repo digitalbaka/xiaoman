@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">小滿Extra</string>
+    <string name="assistant_default_name">小滿Extra</string>
+
+    <!-- Navigation -->
+    <string name="nav_chat">聊天</string>
+    <string name="nav_skills">技能</string>
+    <string name="nav_memory">記憶</string>
+    <string name="nav_settings">設定</string>
+    <string name="close">關閉</string>
+    <string name="back">返回</string>
+
+    <!-- Chat -->
+    <string name="chat_input_hint">和小滿Extra說點什麼</string>
+    <string name="chat_answer_hint">回答小滿Extra的問題</string>
+    <string name="chat_send">傳送</string>
+    <string name="chat_stop">停止</string>
+    <string name="chat_busy">小滿Extra正在處理上一則訊息</string>
+    <string name="chat_empty">告訴我你想做什麼，例如「叫車回家」或「記住我家在台北市大安區」。</string>
+    <string name="chat_question_label">小滿Extra問</string>
+    <string name="chat_takeover_label">需要你接手</string>
+    <string name="chat_takeover_hint">請在手機上完成操作（登入、驗證碼或安全頁面），完成後在這裡回覆「好了」。</string>
+    <string name="chat_error_label">出錯了</string>
+    <string name="banner_accessibility">無障礙服務未開啟，%1$s還不能操作其他 App。</string>
+    <string name="banner_accessibility_action">去開啟</string>
+    <string name="banner_models">還沒有設定聊天模型和操作模型。</string>
+    <string name="banner_models_action">去設定</string>
+    <string name="banner_notifications">允許通知後，任務執行和需要確認時會提醒你。</string>
+    <string name="banner_notifications_action">允許</string>
+    <string name="chat_header_subtitle">你的手機小幫手</string>
+    <string name="chat_status_waiting">等你確認</string>
+    <string name="chat_status_busy">處理中</string>
+    <string name="chat_status_ready">已就緒</string>
+    <string name="chat_status_setup">待設定</string>
+    <string name="chat_status_no_accessibility">無障礙未開啟</string>
+    <string name="chat_welcome_title">今天想做點什麼？</string>
+    <string name="chat_welcome_subtitle">說一句，我來幫你動手。</string>
+    <string name="chat_welcome_more">也可以直接輸入你的想法</string>
+    <string name="example_notebook_title">選一本筆記本</string>
+    <string name="example_notebook_detail">20 元以內，先給我確認</string>
+    <string name="example_notebook_prompt">幫我在蝦皮挑一本 20 元以內的 A5 筆記本，選好後給我確認。</string>
+    <string name="example_water_title">提醒我喝水</string>
+    <string name="example_water_detail">10 分鐘後提醒</string>
+    <string name="example_water_prompt">10 分鐘後提醒我喝水。</string>
+    <string name="example_memory_title">記住我的偏好</string>
+    <string name="example_memory_detail">讓助手慢慢懂你</string>
+    <string name="example_memory_prompt">記住我買東西喜歡簡單實用。</string>
+    <string name="chat_placeholder">說說你想做什麼…</string>
+    <string name="chat_placeholder_answer">告訴我就好…</string>
+    <string name="chat_thinking">正在想辦法…</string>
+    <string name="chat_process_title">處理過程 · %1$d 條記錄</string>
+    <string name="chat_process_expand">展開處理過程</string>
+    <string name="chat_process_collapse">收合處理過程</string>
+    <string name="chat_notice_takeover">需要你幫一下</string>
+    <string name="chat_notice_followup">再告訴我一點</string>
+    <string name="chat_notice_error">這次沒完成</string>
+
+    <!-- Approvals -->
+    <string name="approval_title">需要你確認</string>
+    <string name="approval_once">允許一次</string>
+    <string name="approval_task">本次任務都允許</string>
+    <string name="approval_deny">拒絕</string>
+    <string name="approval_resolved_allowed">已允許：%1$s</string>
+    <string name="approval_resolved_task">本次任務都允許：%1$s</string>
+    <string name="approval_resolved_denied">已拒絕：%1$s</string>
+
+    <!-- Skills -->
+    <string name="skills_title">技能</string>
+    <string name="skills_reload">重新載入</string>
+    <string name="skills_empty">還沒有技能。把技能資料夾放到 %1$s 後點重新載入。</string>
+    <string name="skills_problems">載入問題</string>
+    <string name="skills_apps">App：%1$s</string>
+
+    <!-- Memory -->
+    <string name="memory_search_hint">搜尋記憶</string>
+    <string name="memory_empty">還沒有記憶。</string>
+    <string name="memory_no_hits">沒有找到相關筆記。</string>
+    <string name="memory_delete">刪除</string>
+    <string name="memory_delete_title">刪除這則筆記？</string>
+    <string name="memory_delete_message">「%1$s」會從手機永久刪除。</string>
+    <string name="memory_delete_confirm">刪除</string>
+    <string name="memory_not_found">這則筆記已不存在。</string>
+    <string name="cancel">取消</string>
+    <string name="clear">清除</string>
+
+    <!-- Settings -->
+    <string name="settings_title">設定</string>
+    <string name="settings_manage_models">管理模型</string>
+    <string name="settings_selected_model">目前預設：%1$s</string>
+    <string name="settings_no_model">還沒有新增聊天模型</string>
+    <string name="settings_personalize">個人化</string>
+    <string name="settings_assistant_name">助手名稱</string>
+    <string name="settings_avatar">助手頭像</string>
+    <string name="settings_avatar_pick">選擇圖片</string>
+    <string name="settings_avatar_reset">恢復預設</string>
+    <string name="settings_theme_color">主題色</string>
+    <string name="settings_background">聊天背景</string>
+    <string name="settings_background_pick">選擇圖片</string>
+    <string name="settings_background_reset">恢復預設</string>
+    <string name="settings_name_save">儲存名稱</string>
+    <string name="crop_title">裁剪圖片</string>
+    <string name="crop_use">使用</string>
+    <string name="crop_hint">雙指縮放、拖曳調整位置</string>
+    <string name="image_load_failed">圖片讀取失敗，請換一張試試</string>
+
+    <!-- Models -->
+    <string name="models_title">模型</string>
+    <string name="models_add">新增模型</string>
+    <string name="models_empty">還沒有新增模型。新增一個 OpenAI 相容介面就能在聊天裡使用。</string>
+    <string name="models_default">預設</string>
+    <string name="models_edit">編輯</string>
+    <string name="models_delete">刪除</string>
+    <string name="models_name">名稱</string>
+    <string name="models_name_hint">例如：火山方舟</string>
+    <string name="models_model_id">模型 ID</string>
+    <string name="models_max_tokens">最大輸出 Token（選填）</string>
+    <string name="models_test">測試連線</string>
+    <string name="models_testing">正在測試…</string>
+    <string name="models_test_ok">連線成功</string>
+    <string name="models_test_failed">連線失敗：%1$s</string>
+    <string name="models_delete_title">刪除模型？</string>
+    <string name="models_delete_message">「%1$s」將從清單移除，不影響其他模型。</string>
+    <string name="models_required">請填寫 Base URL 和模型 ID</string>
+    <string name="models_key_required">請填寫 API Key</string>
+    <string name="models_save_failed">儲存失敗，請檢查填寫內容</string>
+
+    <!-- Skills install -->
+    <string name="skills_install">安裝技能</string>
+    <string name="skills_install_title">安裝技能</string>
+    <string name="skills_install_url">從連結安裝</string>
+    <string name="skills_install_zip">從本機 zip 安裝</string>
+    <string name="skills_install_url_hint">https://example.com/skill.zip</string>
+    <string name="skills_install_hint">zip 裡需要包含 SKILL.md。可以是一個技能，也可以是包含多個技能的儲存庫壓縮檔。</string>
+    <string name="skills_install_action">安裝</string>
+    <string name="skills_installing">正在安裝…</string>
+    <string name="skills_install_ok">已安裝：%1$s</string>
+    <string name="skills_install_failed">安裝失敗：%1$s</string>
+    <string name="skills_pick_zip">選擇 zip 檔案</string>
+    <string name="skills_installed">已安裝</string>
+    <string name="skills_bundled">內建</string>
+    <string name="skills_enable">啟用</string>
+    <string name="skills_disable">停用</string>
+    <string name="skills_delete">刪除</string>
+    <string name="skills_delete_title">刪除技能？</string>
+    <string name="skills_delete_message">「%1$s」將從應用程式內刪除。</string>
+    <string name="skills_no_installed">還沒有安裝技能，內建技能仍然可用。</string>
+    <string name="skills_disabled">已停用</string>
+    <string name="skills_user_skills">已安裝</string>
+    <string name="skills_origin">來源：%1$s</string>
+    <string name="skills_shop_entry">商店</string>
+    <string name="skills_shop_back">返回</string>
+    <string name="skills_shop_title">技能商店</string>
+    <string name="skills_shop_search_hint">搜尋技能</string>
+    <string name="skills_shop_search">搜尋</string>
+    <string name="skills_shop_install">安裝</string>
+    <string name="skills_shop_installing">安裝中…</string>
+    <string name="skills_shop_downloads">下載 %1$d</string>
+    <string name="skills_shop_footer">技能來自 %1$s，安裝到應用程式內技能目錄；裝好後可在技能清單啟用、停用或刪除。</string>
+
+    <!-- Memory folders -->
+    <string name="memory_all">全部</string>
+    <string name="memory_subtitle">用資料夾整理你的記憶</string>
+    <string name="memory_notes">筆記</string>
+    <string name="memory_new_folder">新增資料夾</string>
+    <string name="memory_folder_name">資料夾名稱</string>
+    <string name="memory_create">新增</string>
+    <string name="memory_rename">重新命名</string>
+    <string name="memory_move">移動</string>
+    <string name="memory_move_note">移動筆記</string>
+    <string name="memory_move_to">移動到</string>
+    <string name="memory_root">根目錄</string>
+    <string name="memory_delete_folder_title">刪除資料夾？</string>
+    <string name="memory_delete_folder_message">「%1$s」及其中的筆記會永久刪除。</string>
+    <string name="memory_items">%1$d 項</string>
+    <string name="memory_back_root">全部記憶</string>
+    <string name="memory_empty_folder">這個資料夾還沒有筆記。</string>
+    <string name="memory_folder_exists">同名資料夾已存在</string>
+    <string name="memory_rename_folder">重新命名資料夾</string>
+    <string name="memory_name_empty">名稱不能為空</string>
+    <string name="memory_folder_error">操作失敗：%1$s</string>
+    <string name="memory_unfiled">未分類</string>
+
+    <string name="settings_chat_model">聊天模型</string>
+    <string name="settings_operator_model">操作模型（需支援圖片）</string>
+    <string name="settings_base_url">Base URL</string>
+    <string name="settings_model">模型名稱</string>
+    <string name="settings_api_key">API Key</string>
+    <string name="settings_show_key">顯示 API Key</string>
+    <string name="settings_hide_key">隱藏 API Key</string>
+    <string name="settings_temperature">Temperature（選填）</string>
+    <string name="settings_agent">任務</string>
+    <string name="settings_max_steps">最多步數</string>
+    <string name="settings_learn">成功後記住操作路徑</string>
+    <string name="settings_save">儲存</string>
+    <string name="settings_saved">已儲存</string>
+    <string name="settings_invalid_number">請輸入有效的數字</string>
+    <string name="settings_copy_chat">與聊天模型相同</string>
+    <string name="settings_same_as_chat_hint">勾選後直接使用聊天模型的 Base URL、模型名稱、Key 和參數，下方輸入框不可編輯</string>
+    <string name="settings_mcp_entry">外部服務 / MCP 服務</string>
+    <string name="settings_mcp_enabled">已啟用 %1$d 個</string>
+    <string name="settings_folders">資料夾</string>
+    <string name="settings_folder_skills">技能：%1$s</string>
+    <string name="settings_folder_memory">記憶：%1$s</string>
+    <string name="settings_folder_traces">軌跡：%1$s</string>
+
+    <!-- Service and notifications -->
+    <string name="channel_status">任務狀態</string>
+    <string name="channel_status_description">小滿Extra正在執行任務時顯示</string>
+    <string name="channel_attention">需要你處理</string>
+    <string name="channel_attention_description">小滿Extra需要你確認或回答問題時提醒</string>
+    <string name="channel_reminders">定時提醒</string>
+    <string name="channel_reminders_description">你設定的提醒到點時通知</string>
+    <string name="notification_running">小滿Extra正在工作</string>
+    <string name="notification_question">小滿Extra有問題要問你</string>
+    <string name="reminder_title">提醒</string>
+
+    <!-- Session messages -->
+    <string name="session_not_configured">還沒有設定模型，請先在設定裡填寫聊天模型和操作模型。</string>
+    <string name="session_busy">已有任務在執行，請稍後再試。</string>
+    <string name="session_stopped">已停止</string>
+
+    <!-- Conversation history -->
+    <string name="chat_history">歷史會話</string>
+    <string name="chat_history_new">新增對話</string>
+    <string name="chat_history_empty">還沒有歷史會話。聊過的內容會自動儲存在這裡。</string>
+    <string name="chat_history_open">開啟會話</string>
+    <string name="chat_history_delete">刪除會話</string>
+    <string name="chat_history_delete_title">刪除這個會話？</string>
+    <string name="chat_history_delete_message">「%1$s」會從手機永久刪除。</string>
+    <string name="chat_history_count">%1$d 則訊息</string>
+    <string name="chat_history_current">目前</string>
+    <string name="chat_history_busy">任務執行中，暫時不能切換或刪除會話</string>
+    <string name="chat_search">搜尋聊天記錄</string>
+    <string name="chat_search_hint">輸入關鍵字</string>
+    <string name="chat_search_scope_current">目前會話</string>
+    <string name="chat_search_scope_all">全部會話</string>
+    <string name="chat_search_tip">輸入關鍵字，可在目前會話或全部會話中尋找</string>
+    <string name="chat_search_empty">沒有找到相關內容</string>
+    <string name="chat_search_open">跳轉</string>
+    <string name="chat_actions_title">訊息操作</string>
+    <string name="chat_copy">複製</string>
+    <string name="chat_share">分享</string>
+    <string name="chat_quote">引用</string>
+    <string name="chat_copied">已複製</string>
+
+    <!-- Task suggestions -->
+    <string name="settings_show_suggestions">顯示任務推薦</string>
+    <string name="settings_show_suggestions_hint">首頁空白狀態顯示「選一本筆記本」等三張範例任務卡</string>
+
+    <string name="skill_store_title">技能商店來源</string>
+    <string name="skill_store_hint">商店需要相容 SkillHub 介面（/api/v1/search、/showcase/hot、/download）。切換後技能頁的商店會使用所選來源。</string>
+    <string name="skill_store_builtin">內建</string>
+    <string name="skill_store_add">新增自訂來源</string>
+    <string name="skill_store_name">名稱</string>
+    <string name="skill_store_url">介面位址（https://…）</string>
+    <string name="skill_store_add_button">新增並切換</string>
+    <string name="skill_store_delete">刪除這個來源</string>
+    <string name="skill_store_error_name">請填寫名稱</string>
+    <string name="skill_store_error_url">位址需要以 http:// 或 https:// 開頭</string>
+    <string name="settings_skill_store_entry">技能商店來源</string>
+    <string name="settings_skill_store_current">目前：%1$s</string>
+
+    <!-- Chat attachments -->
+    <string name="chat_attach">新增圖片或檔案</string>
+    <string name="chat_attach_image">圖片</string>
+    <string name="chat_attach_file">檔案</string>
+    <string name="chat_attachment_remove">移除附件</string>
+    <string name="chat_attachment_image">圖片</string>
+    <string name="chat_attachment_file">檔案</string>
+    <string name="chat_image_model_warning">目前模型可能不支援看圖，傳送後可能無法辨識圖片內容</string>
+    <string name="session_sent_attachments">請看這些附件。</string>
+
+    <!-- MCP store -->
+    <string name="mcp_store_entry">MCP 商店</string>
+    <string name="mcp_store_entry_hint">瀏覽並一鍵新增外部服務</string>
+
+    <!-- Conversational skill editing -->
+    <string name="skill_draft_title">技能草稿</string>
+    <string name="skill_delete_title">刪除技能</string>
+    <string name="skill_draft_hint">確認後才會寫入技能頁，也可以直接回覆「確認」</string>
+    <string name="skill_delete_hint">刪除後無法復原；內建技能不受影響</string>
+    <string name="skill_confirm_add">確認新增</string>
+    <string name="skill_confirm_delete">確認刪除</string>
+    <string name="skill_cancel">取消</string>
+    <string name="skill_change_cancelled">已取消技能修改</string>
+
+    <!-- Appearance -->
+    <string name="settings_language">語言 / Language</string>
+    <string name="language_system">跟隨系統</string>
+    <string name="settings_dark_mode">深色模式</string>
+    <string name="dark_mode_system">跟隨系統</string>
+    <string name="dark_mode_light">淺色</string>
+    <string name="dark_mode_dark">深色</string>
+    <string name="settings_font_size">字型大小</string>
+    <string name="settings_font_size_hint">調整後整個應用程式立即生效</string>
+    <string name="settings_speak_replies">朗讀回答</string>
+    <string name="settings_speak_replies_hint">使用手機內建語音朗讀回答，長回答會分段朗讀，可隨時停止</string>
+    <string name="settings_start_fresh">啟動時開啟新會話</string>
+    <string name="settings_start_fresh_hint">每次開啟小滿都從空白對話開始，歷史會話仍保留在列表中</string>
+    <string name="chat_speaking">正在朗讀…</string>
+    <string name="chat_stop_speaking">停止朗讀</string>
+    <string name="theme_entry">主題與配色</string>
+    <string name="theme_entry_hint">預設主題、自訂顏色、桌布取色</string>
+    <string name="theme_title">主題</string>
+    <string name="theme_subtitle">挑一個喜歡的配色，預覽後再套用</string>
+    <string name="theme_preview">預覽</string>
+    <string name="theme_preview_reply">今天的行程我幫你整理好了，看看還滿意嗎？</string>
+    <string name="theme_preview_user">好的，謝謝</string>
+    <string name="theme_presets">預設主題</string>
+    <string name="theme_wallpaper">跟隨桌布取色</string>
+    <string name="theme_wallpaper_hint">使用系統從桌布產生的配色，桌布變更後會跟著更新；此時自訂顏色不生效</string>
+    <string name="theme_wallpaper_unsupported">目前系統版本不支援桌布取色（需要 Android 12 以上）</string>
+    <string name="theme_custom">自訂顏色</string>
+    <string name="theme_custom_label">顏色值（#RRGGBB）</string>
+    <string name="theme_custom_invalid">請輸入 # 開頭的 6 位十六進位顏色</string>
+    <string name="theme_custom_use">使用此顏色</string>
+    <string name="theme_apply">套用主題</string>
+    <string name="theme_applied">已套用</string>
+    <string name="theme_preset_ocean">海藍</string>
+    <string name="theme_preset_purple">霧紫</string>
+    <string name="theme_preset_pink">桃粉</string>
+    <string name="theme_preset_sunset">落日</string>
+    <string name="theme_preset_forest">森綠</string>
+    <string name="theme_preset_graphite">石墨</string>
+    <string name="theme_preset_celadon">青瓷</string>
+    <string name="theme_preset_indigo">靛藍</string>
+    <string name="theme_preset_rose">玫瑰</string>
+    <string name="theme_preset_coffee">咖啡</string>
+    <string name="about_entry">關於小滿Extra</string>
+    <string name="about_entry_hint">版本號、專案簡介與開源倉庫</string>
+    <string name="about_title">關於</string>
+    <string name="about_version">版本 %1$s（%2$d）</string>
+    <string name="about_intro_title">專案簡介</string>
+    <string name="about_intro">小滿Extra 是一個開源的手機智慧助手：一句話就能讓手機替你動手，偏好會記進記憶，技能與外部服務按需組合，會話與資料都保存在本機。</string>
+    <string name="about_repo_title">開源倉庫</string>
+    <string name="about_repo_hint">專案原始碼、更新日誌與問題回報都在 GitHub 上</string>
+    <string name="about_license">本專案以開源協議開放，歡迎提交 Issue 與 Pull Request。</string>
+</resources>

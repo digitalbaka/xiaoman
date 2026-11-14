@@ -28,6 +28,33 @@
     <string name="banner_models_action">去设置</string>
     <string name="banner_notifications">允许通知后，任务运行和需要确认时会提醒你。</string>
     <string name="banner_notifications_action">允许</string>
+    <string name="chat_header_subtitle">你的手机小助手</string>
+    <string name="chat_status_waiting">等你确认</string>
+    <string name="chat_status_busy">处理中</string>
+    <string name="chat_status_ready">已就绪</string>
+    <string name="chat_status_setup">待设置</string>
+    <string name="chat_status_no_accessibility">无障碍未开启</string>
+    <string name="chat_welcome_title">今天想做点什么？</string>
+    <string name="chat_welcome_subtitle">说一句，我来帮你动手。</string>
+    <string name="chat_welcome_more">也可以直接输入你的想法</string>
+    <string name="example_notebook_title">选一本笔记本</string>
+    <string name="example_notebook_detail">20元以内，先给我确认</string>
+    <string name="example_notebook_prompt">帮我在淘宝挑一本20元以内的A5笔记本，选好后给我确认。</string>
+    <string name="example_water_title">提醒我喝水</string>
+    <string name="example_water_detail">10分钟后提醒</string>
+    <string name="example_water_prompt">10分钟后提醒我喝水。</string>
+    <string name="example_memory_title">记住我的偏好</string>
+    <string name="example_memory_detail">让助手慢慢懂你</string>
+    <string name="example_memory_prompt">记住我买东西喜欢简单实用。</string>
+    <string name="chat_placeholder">说说你想做什么…</string>
+    <string name="chat_placeholder_answer">告诉我就好…</string>
+    <string name="chat_thinking">正在想办法…</string>
+    <string name="chat_process_title">处理过程 · %1$d条记录</string>
+    <string name="chat_process_expand">展开处理过程</string>
+    <string name="chat_process_collapse">收起处理过程</string>
+    <string name="chat_notice_takeover">需要你帮一下</string>
+    <string name="chat_notice_followup">再告诉我一点</string>
+    <string name="chat_notice_error">这次没完成</string>
 
     <!-- Approvals -->
     <string name="approval_title">需要你确认</string>
@@ -123,13 +150,13 @@
     <string name="skills_origin">来源：%1$s</string>
     <string name="skills_shop_entry">商店</string>
     <string name="skills_shop_back">返回</string>
-    <string name="skills_shop_title">SkillHub 商店</string>
+    <string name="skills_shop_title">技能商店</string>
     <string name="skills_shop_search_hint">搜索技能</string>
     <string name="skills_shop_search">搜索</string>
     <string name="skills_shop_install">安装</string>
     <string name="skills_shop_installing">安装中…</string>
     <string name="skills_shop_downloads">下载 %1$d</string>
-    <string name="skills_shop_footer">技能来自 skillhub.cn，安装到应用内技能目录；装好后可在技能列表启用、停用或删除。</string>
+    <string name="skills_shop_footer">技能来自 %1$s，安装到应用内技能目录；装好后可在技能列表启用、停用或删除。</string>
 
     <!-- Memory folders -->
     <string name="memory_all">全部</string>
@@ -192,4 +219,121 @@
     <string name="session_not_configured">还没有配置模型，请先在设置里填写聊天模型和操作模型。</string>
     <string name="session_busy">已有任务在运行，请稍后再试。</string>
     <string name="session_stopped">已停止</string>
+
+    <!-- Conversation history -->
+    <string name="chat_history">历史会话</string>
+    <string name="chat_history_new">新建对话</string>
+    <string name="chat_history_empty">还没有历史会话。聊过的内容会自动保存在这里。</string>
+    <string name="chat_history_open">打开会话</string>
+    <string name="chat_history_delete">删除会话</string>
+    <string name="chat_history_delete_title">删除这个会话？</string>
+    <string name="chat_history_delete_message">「%1$s」会从手机上永久删除。</string>
+    <string name="chat_history_count">%1$d 条消息</string>
+    <string name="chat_history_current">当前</string>
+    <string name="chat_history_busy">任务运行中，暂时不能切换或删除会话</string>
+    <string name="chat_search">搜索聊天记录</string>
+    <string name="chat_search_hint">输入关键词</string>
+    <string name="chat_search_scope_current">当前会话</string>
+    <string name="chat_search_scope_all">全部会话</string>
+    <string name="chat_search_tip">输入关键词，可在当前会话或全部会话中查找</string>
+    <string name="chat_search_empty">没有找到相关内容</string>
+    <string name="chat_search_open">跳转</string>
+    <string name="chat_actions_title">消息操作</string>
+    <string name="chat_copy">复制</string>
+    <string name="chat_share">分享</string>
+    <string name="chat_quote">引用</string>
+    <string name="chat_copied">已复制</string>
+
+    <!-- Task suggestions -->
+    <string name="settings_show_suggestions">显示任务推荐</string>
+    <string name="settings_show_suggestions_hint">首页空状态显示「选一本笔记本」等三张示例任务卡</string>
+
+    <string name="skill_store_title">技能商店源</string>
+    <string name="skill_store_hint">商店需要兼容 SkillHub 接口（/api/v1/search、/showcase/hot、/download）。切换后技能页的商店会使用所选源。</string>
+    <string name="skill_store_builtin">内置</string>
+    <string name="skill_store_add">添加自定义源</string>
+    <string name="skill_store_name">名称</string>
+    <string name="skill_store_url">接口地址（https://…）</string>
+    <string name="skill_store_add_button">添加并切换</string>
+    <string name="skill_store_delete">删除这个源</string>
+    <string name="skill_store_error_name">请填写名称</string>
+    <string name="skill_store_error_url">地址需要以 http:// 或 https:// 开头</string>
+    <string name="settings_skill_store_entry">技能商店源</string>
+    <string name="settings_skill_store_current">当前：%1$s</string>
+
+    <!-- Chat attachments -->
+    <string name="chat_attach">添加图片或文件</string>
+    <string name="chat_attach_image">图片</string>
+    <string name="chat_attach_file">文件</string>
+    <string name="chat_attachment_remove">移除附件</string>
+    <string name="chat_attachment_image">图片</string>
+    <string name="chat_attachment_file">文件</string>
+    <string name="chat_image_model_warning">当前模型可能不支持看图，发送后可能无法识别图片内容</string>
+    <string name="session_sent_attachments">请看这些附件。</string>
+
+    <!-- MCP store -->
+    <string name="mcp_store_entry">MCP 商店</string>
+    <string name="mcp_store_entry_hint">浏览并一键添加外部服务</string>
+
+    <!-- Conversational skill editing -->
+    <string name="skill_draft_title">技能草稿</string>
+    <string name="skill_delete_title">删除技能</string>
+    <string name="skill_draft_hint">确认后才会写入技能页，也可以直接回复「确认」</string>
+    <string name="skill_delete_hint">删除后无法恢复；内置技能不受影响</string>
+    <string name="skill_confirm_add">确认添加</string>
+    <string name="skill_confirm_delete">确认删除</string>
+    <string name="skill_cancel">取消</string>
+    <string name="skill_change_cancelled">已取消技能修改</string>
+
+    <!-- Appearance -->
+    <string name="settings_language">语言 / Language</string>
+    <string name="language_system">跟随系统</string>
+    <string name="settings_dark_mode">深色模式</string>
+    <string name="dark_mode_system">跟随系统</string>
+    <string name="dark_mode_light">浅色</string>
+    <string name="dark_mode_dark">深色</string>
+    <string name="settings_font_size">字号大小</string>
+    <string name="settings_font_size_hint">调整后整个应用立即生效</string>
+    <string name="settings_speak_replies">朗读回答</string>
+    <string name="settings_speak_replies_hint">用手机自带的语音朗读回答，长回答会分段朗读，可随时停止</string>
+    <string name="settings_start_fresh">启动时打开新会话</string>
+    <string name="settings_start_fresh_hint">每次打开小满都从空白对话开始，历史会话仍在列表里</string>
+    <string name="chat_speaking">正在朗读…</string>
+    <string name="chat_stop_speaking">停止朗读</string>
+    <string name="theme_entry">主题与配色</string>
+    <string name="theme_entry_hint">预设主题、自定义颜色、壁纸取色</string>
+    <string name="theme_title">主题</string>
+    <string name="theme_subtitle">挑一个喜欢的配色，预览后再应用</string>
+    <string name="theme_preview">预览</string>
+    <string name="theme_preview_reply">今天的日程我帮你整理好了，看看还满意吗？</string>
+    <string name="theme_preview_user">好的，谢谢</string>
+    <string name="theme_presets">预设主题</string>
+    <string name="theme_wallpaper">跟随壁纸取色</string>
+    <string name="theme_wallpaper_hint">使用系统从壁纸生成的配色，壁纸变化后会跟着更新；此时自定义颜色不生效</string>
+    <string name="theme_wallpaper_unsupported">当前系统版本不支持壁纸取色（需要 Android 12 及以上）</string>
+    <string name="theme_custom">自定义颜色</string>
+    <string name="theme_custom_label">颜色值（#RRGGBB）</string>
+    <string name="theme_custom_invalid">请输入 # 开头的 6 位十六进制颜色</string>
+    <string name="theme_custom_use">使用此颜色</string>
+    <string name="theme_apply">应用主题</string>
+    <string name="theme_applied">已应用</string>
+    <string name="theme_preset_ocean">海蓝</string>
+    <string name="theme_preset_purple">雾紫</string>
+    <string name="theme_preset_pink">桃粉</string>
+    <string name="theme_preset_sunset">落日</string>
+    <string name="theme_preset_forest">森绿</string>
+    <string name="theme_preset_graphite">石墨</string>
+    <string name="theme_preset_celadon">青瓷</string>
+    <string name="theme_preset_indigo">靛蓝</string>
+    <string name="theme_preset_rose">玫瑰</string>
+    <string name="theme_preset_coffee">咖啡</string>
+    <string name="about_entry">关于小满Extra</string>
+    <string name="about_entry_hint">版本号、项目简介与开源仓库</string>
+    <string name="about_title">关于</string>
+    <string name="about_version">版本 %1$s（%2$d）</string>
+    <string name="about_intro_title">项目简介</string>
+    <string name="about_intro">小满Extra 是一个开源的手机智能助手：一句话就能让手机替你动手，偏好会记进记忆，技能与外部服务按需组合，会话与数据都保存在本机。</string>
+    <string name="about_repo_title">开源仓库</string>
+    <string name="about_repo_hint">项目源码、更新日志与问题反馈都在 GitHub 上</string>
+    <string name="about_license">本项目基于开源协议开放，欢迎提交 Issue 与 Pull Request。</string>
 </resources>
