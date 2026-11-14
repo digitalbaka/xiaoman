@@ -124,6 +124,22 @@
     <string name="models_required">請填寫 Base URL 和模型 ID</string>
     <string name="models_key_required">請填寫 API Key</string>
     <string name="models_save_failed">儲存失敗，請檢查填寫內容</string>
+    <string name="models_fetch">取得模型清單</string>
+    <string name="models_fetch_refresh">重新整理</string>
+    <string name="models_fetching">正在取得…</string>
+    <string name="models_fetch_ok">已取得 %1$d 個模型</string>
+    <string name="models_fetch_empty">該服務沒有回傳任何模型，可繼續手動填寫</string>
+    <string name="models_fetch_unauthorized">驗證失敗（HTTP %1$d），請檢查 API Key</string>
+    <string name="models_fetch_not_found">該位址沒有 /models 介面（HTTP %1$d），可繼續手動填寫</string>
+    <string name="models_fetch_timeout">請求逾時，請檢查網路或 Base URL</string>
+    <string name="models_fetch_network">網路請求失敗，請檢查網路或 Base URL</string>
+    <string name="models_fetch_malformed">回傳內容不是模型清單</string>
+    <string name="models_fetch_server">伺服器錯誤（HTTP %1$d）</string>
+    <string name="models_fetch_http">請求失敗（HTTP %1$d）</string>
+    <string name="models_fetch_stale">清單取得於 %1$d 天前，可重新整理</string>
+    <string name="models_pick_title">選擇模型</string>
+    <string name="models_pick_search">搜尋模型</string>
+    <string name="models_pick_no_match">沒有符合的模型</string>
 
     <!-- Skills install -->
     <string name="skills_install">安裝技能</string>

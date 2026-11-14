@@ -124,6 +124,22 @@
     <string name="models_required">Base URL とモデル ID を入力してください</string>
     <string name="models_key_required">API Key を入力してください</string>
     <string name="models_save_failed">保存に失敗しました。入力内容をご確認ください</string>
+    <string name="models_fetch">モデル一覧を取得</string>
+    <string name="models_fetch_refresh">一覧を更新</string>
+    <string name="models_fetching">取得中…</string>
+    <string name="models_fetch_ok">%1$d 件のモデルを取得しました</string>
+    <string name="models_fetch_empty">モデルが返されませんでした。手入力もできます</string>
+    <string name="models_fetch_unauthorized">認証に失敗しました（HTTP %1$d）。API Key をご確認ください</string>
+    <string name="models_fetch_not_found">このアドレスに /models はありません（HTTP %1$d）。手入力もできます</string>
+    <string name="models_fetch_timeout">タイムアウトしました。ネットワークまたは Base URL をご確認ください</string>
+    <string name="models_fetch_network">通信に失敗しました。ネットワークまたは Base URL をご確認ください</string>
+    <string name="models_fetch_malformed">応答がモデル一覧ではありません</string>
+    <string name="models_fetch_server">サーバーエラー（HTTP %1$d）</string>
+    <string name="models_fetch_http">リクエスト失敗（HTTP %1$d）</string>
+    <string name="models_fetch_stale">一覧は %1$d 日前に取得しました。更新できます</string>
+    <string name="models_pick_title">モデルを選択</string>
+    <string name="models_pick_search">モデルを検索</string>
+    <string name="models_pick_no_match">一致するモデルはありません</string>
 
     <!-- Skills install -->
     <string name="skills_install">スキルをインストール</string>

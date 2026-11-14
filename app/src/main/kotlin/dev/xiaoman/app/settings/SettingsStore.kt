@@ -7,6 +7,7 @@ import androidx.core.content.edit
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import dev.xiaoman.api.McpConfirmPolicy
+import dev.xiaoman.llm.ModelCatalog
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -76,6 +77,39 @@ class SettingsStore(private val plain: SharedPreferences, private val secret: Sh
         // migrated back into a new model entry on the next launch.
         val chat = selected?.toModelSettings() ?: ModelSettings()
         save(current.copy(chatModels = models, selectedChatModelId = selected?.id, chat = chat))
+    }
+
+    /** Models fetched earlier for [baseUrl], or null when this endpoint was never fetched. Holds no key. */
+    fun cachedModelList(baseUrl: String): CachedModelList? {
+        val key = ModelCatalog.normalizeBaseUrl(baseUrl)
+        if (key.isEmpty()) return null
+        return decodeModelLists(plain.getString(MODEL_LISTS, null)).firstOrNull { it.baseUrl == key }
+    }
+
+    /** Replaces the list cached for [baseUrl]; an empty result never wipes a usable list. */
+    @Synchronized
+    fun saveModelList(baseUrl: String, models: List<String>) {
+        val key = ModelCatalog.normalizeBaseUrl(baseUrl)
+        val ids = models.map { it.trim() }.filter { it.isNotEmpty() }.distinct()
+        if (key.isEmpty() || ids.isEmpty()) return
+        val entry = CachedModelList(key, ids, System.currentTimeMillis())
+        val capped = (decodeModelLists(plain.getString(MODEL_LISTS, null)).filterNot { it.baseUrl == key } + entry)
+            .sortedByDescending { it.fetchedAt }
+            .take(MAX_MODEL_LISTS)
+        plain.edit { putString(MODEL_LISTS, encodeModelLists(capped)) }
+    }
+
+    /** Keeps a hand-typed model id in the dropdown next time; never invents a list from nothing. */
+    @Synchronized
+    fun mergeModelIntoCache(baseUrl: String, model: String) {
+        val key = ModelCatalog.normalizeBaseUrl(baseUrl)
+        val name = model.trim()
+        if (key.isEmpty() || name.isEmpty()) return
+        val lists = decodeModelLists(plain.getString(MODEL_LISTS, null))
+        val entry = lists.firstOrNull { it.baseUrl == key } ?: return
+        if (name in entry.models) return
+        val updated = entry.copy(models = entry.models + name)
+        plain.edit { putString(MODEL_LISTS, encodeModelLists(lists.map { if (it.baseUrl == key) updated else it })) }
     }
 
     private fun load(): AppSettings {
@@ -284,6 +318,44 @@ class SettingsStore(private val plain: SharedPreferences, private val secret: Sh
         }.getOrDefault(emptyList())
     }
 
+    /**
+     * Fetched model ids per normalized BaseURL. Only the URL, the ids and a timestamp are kept —
+     * no key and nothing derived from one, so every entry is safe in plain preferences.
+     */
+    private fun encodeModelLists(lists: List<CachedModelList>): String = JSONArray().apply {
+        lists.forEach { c ->
+            put(
+                JSONObject().apply {
+                    put("baseUrl", c.baseUrl)
+                    put("models", JSONArray(c.models))
+                    put("fetchedAt", c.fetchedAt)
+                },
+            )
+        }
+    }.toString()
+
+    private fun decodeModelLists(raw: String?): List<CachedModelList> {
+        if (raw.isNullOrBlank()) return emptyList()
+        return runCatching {
+            val array = JSONArray(raw)
+            buildList {
+                for (i in 0 until array.length()) {
+                    val o = array.optJSONObject(i) ?: continue
+                    val url = o.optString("baseUrl").trim()
+                    if (url.isEmpty()) continue
+                    val array = o.optJSONArray("models") ?: continue
+                    val models = buildList {
+                        for (j in 0 until array.length()) {
+                            val id = array.optString(j).trim()
+                            if (id.isNotEmpty()) add(id)
+                        }
+                    }
+                    add(CachedModelList(url, models, o.optLong("fetchedAt")))
+                }
+            }
+        }.getOrDefault(emptyList())
+    }
+
     companion object {
         private const val TAG = "Xiaoman"
         private const val PLAIN_FILE = "settings"
@@ -303,6 +375,8 @@ class SettingsStore(private val plain: SharedPreferences, private val secret: Sh
         private const val THEME_COLOR = "custom.themeColor"
         private const val THEME_STYLE = "custom.themeStyle"
         private const val MODELS = "models.chat"
+        private const val MODEL_LISTS = "models.lists"
+        private const val MAX_MODEL_LISTS = 20
         private const val SELECTED_MODEL = "models.selected"
         private const val OPERATOR_SAME = "operator.sameAsChat"
         private const val MCP = "mcp.config"
@@ -347,3 +421,10 @@ class SettingsStore(private val plain: SharedPreferences, private val secret: Sh
         }
     }
 }
+
+/** Model ids fetched from one endpoint, keyed by its normalized BaseURL. Contains no key material. */
+data class CachedModelList(
+    val baseUrl: String,
+    val models: List<String>,
+    val fetchedAt: Long,
+)

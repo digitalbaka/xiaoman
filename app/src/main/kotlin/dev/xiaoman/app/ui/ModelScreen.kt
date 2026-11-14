@@ -1,6 +1,8 @@
 package dev.xiaoman.app.ui
 
+import android.content.Context
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +20,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -59,6 +62,8 @@ import dev.xiaoman.app.R
 import dev.xiaoman.app.settings.ModelSettings
 import dev.xiaoman.app.settings.SavedModel
 import dev.xiaoman.app.settings.SettingsForm
+import dev.xiaoman.llm.ModelCatalog
+import dev.xiaoman.llm.ModelCatalogException
 import kotlinx.coroutines.launch
 
 /** Card list of user-added OpenAI-compatible chat models, styled after the reference screenshot. */
@@ -226,10 +231,21 @@ private fun ModelEditorDialog(initial: SavedModel?, onDismiss: () -> Unit, onSav
     var testMessage by remember { mutableStateOf<String?>(null) }
     var testOk by remember { mutableStateOf(false) }
     var validationMessage by remember { mutableStateOf<String?>(null) }
+    // Fetched lists are keyed by baseUrl so typing another endpoint drops the stale result.
+    var fetched by remember(baseUrl) { mutableStateOf<List<String>?>(null) }
+    var fetching by remember(baseUrl) { mutableStateOf(false) }
+    var fetchMessage by remember(baseUrl) { mutableStateOf<String?>(null) }
+    var fetchOk by remember(baseUrl) { mutableStateOf(false) }
+    var cacheVersion by remember { mutableStateOf(0) }
+    var picking by remember { mutableStateOf(false) }
 
     val temperatureValid = temperature.isBlank() || SettingsForm.parseTemperature(temperature) != null
     val maxTokensValid = maxTokens.isBlank() || maxTokens.trim().toIntOrNull()?.let { it > 0 } == true
     val canSave = baseUrl.isNotBlank() && modelId.isNotBlank() && apiKey.isNotBlank() && temperatureValid && maxTokensValid
+
+    val cached = remember(baseUrl, cacheVersion) { appGraph.settings.cachedModelList(baseUrl) }
+    val suggestions = fetched ?: cached?.models.orEmpty()
+    val staleDays = cached?.let { ((System.currentTimeMillis() - it.fetchedAt) / DAY_MILLIS).toInt() } ?: 0
 
     Dialog(onDismissRequest = onDismiss) {
         Surface(shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp), tonalElevation = 4.dp) {
@@ -258,11 +274,78 @@ private fun ModelEditorDialog(initial: SavedModel?, onDismiss: () -> Unit, onSav
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
                     modifier = Modifier.fillMaxWidth(),
                 )
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    if (fetching) {
+                        CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
+                        Text(
+                            stringResource(R.string.models_fetching),
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(start = 8.dp),
+                        )
+                    } else {
+                        TextButton(
+                            enabled = baseUrl.isNotBlank() && apiKey.isNotBlank(),
+                            onClick = {
+                                val target = baseUrl
+                                fetching = true
+                                fetchMessage = null
+                                scope.launch {
+                                    val result = runCatching { ModelCatalog.listModels(target.trim(), apiKey.trim()) }
+                                    if (baseUrl != target) return@launch
+                                    fetching = false
+                                    result.fold(
+                                        onSuccess = { models ->
+                                            if (models.isEmpty()) {
+                                                fetchOk = false
+                                                fetchMessage = context.getString(R.string.models_fetch_empty)
+                                            } else {
+                                                appGraph.settings.saveModelList(target, models)
+                                                fetched = models
+                                                cacheVersion++
+                                                fetchOk = true
+                                                fetchMessage = context.getString(R.string.models_fetch_ok, models.size)
+                                            }
+                                        },
+                                        onFailure = {
+                                            fetchOk = false
+                                            fetchMessage = fetchError(context, it)
+                                        },
+                                    )
+                                }
+                            },
+                        ) {
+                            Text(
+                                stringResource(
+                                    if (suggestions.isEmpty()) R.string.models_fetch else R.string.models_fetch_refresh,
+                                ),
+                            )
+                        }
+                    }
+                }
+                if (fetched == null && cached != null && staleDays >= STALE_DAYS) {
+                    Text(
+                        stringResource(R.string.models_fetch_stale, staleDays),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
                 OutlinedTextField(
                     value = modelId,
                     onValueChange = { modelId = it },
                     label = { Text(stringResource(R.string.models_model_id)) },
                     singleLine = true,
+                    trailingIcon = if (suggestions.isEmpty()) {
+                        null
+                    } else {
+                        {
+                            IconButton(onClick = { picking = true }) {
+                                Icon(
+                                    Icons.Filled.ArrowDropDown,
+                                    contentDescription = stringResource(R.string.models_pick_title),
+                                )
+                            }
+                        }
+                    },
                     modifier = Modifier.fillMaxWidth(),
                 )
                 OutlinedTextField(
@@ -302,11 +385,13 @@ private fun ModelEditorDialog(initial: SavedModel?, onDismiss: () -> Unit, onSav
                         modifier = Modifier.weight(1f),
                     )
                 }
-                (testMessage ?: validationMessage)?.let { message ->
+                val inlineMessage = fetchMessage ?: testMessage ?: validationMessage
+                val inlineOk = if (fetchMessage != null) fetchOk else testMessage != null && testOk
+                inlineMessage?.let { message ->
                     Text(
                         message,
                         style = MaterialTheme.typography.bodySmall,
-                        color = if (testOk) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                        color = if (inlineOk) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
                     )
                 }
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -364,22 +449,115 @@ private fun ModelEditorDialog(initial: SavedModel?, onDismiss: () -> Unit, onSav
                             } else if (!apiKey.isNotBlank()) {
                                 validationMessage = context.getString(R.string.models_key_required)
                             } else {
-                                onSave(
-                                    SavedModel(
-                                        id = initial?.id ?: java.util.UUID.randomUUID().toString(),
-                                        name = name.trim().ifEmpty { modelId.trim() },
-                                        baseUrl = baseUrl.trim(),
-                                        model = modelId.trim(),
-                                        apiKey = apiKey.trim(),
-                                        temperature = SettingsForm.parseTemperature(temperature),
-                                        maxTokens = maxTokens.trim().toIntOrNull(),
-                                    ),
+                                val saved = SavedModel(
+                                    id = initial?.id ?: java.util.UUID.randomUUID().toString(),
+                                    name = name.trim().ifEmpty { modelId.trim() },
+                                    baseUrl = baseUrl.trim(),
+                                    model = modelId.trim(),
+                                    apiKey = apiKey.trim(),
+                                    temperature = SettingsForm.parseTemperature(temperature),
+                                    maxTokens = maxTokens.trim().toIntOrNull(),
                                 )
+                                // Keep a hand-typed id in the dropdown for next time.
+                                appGraph.settings.mergeModelIntoCache(saved.baseUrl, saved.model)
+                                onSave(saved)
                             }
                         },
                     ) { Text(stringResource(R.string.settings_save)) }
                 }
             }
         }
+    }
+
+    if (picking) {
+        ModelPickerDialog(
+            models = suggestions,
+            selected = modelId,
+            onDismiss = { picking = false },
+            onPick = {
+                modelId = it
+                picking = false
+            },
+        )
+    }
+}
+
+/** Searchable single-select list shown from the model id field's arrow; picking only fills the text. */
+@Composable
+private fun ModelPickerDialog(
+    models: List<String>,
+    selected: String,
+    onDismiss: () -> Unit,
+    onPick: (String) -> Unit,
+) {
+    var query by remember { mutableStateOf("") }
+    val filtered = remember(models, query) {
+        val needle = query.trim()
+        if (needle.isEmpty()) models else models.filter { it.contains(needle, ignoreCase = true) }
+    }
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp), tonalElevation = 4.dp) {
+            Column(
+                Modifier.fillMaxWidth().padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                Text(stringResource(R.string.models_pick_title), style = MaterialTheme.typography.titleMedium)
+                OutlinedTextField(
+                    value = query,
+                    onValueChange = { query = it },
+                    label = { Text(stringResource(R.string.models_pick_search)) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                if (filtered.isEmpty()) {
+                    Text(
+                        stringResource(R.string.models_pick_no_match),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(vertical = 12.dp),
+                    )
+                } else {
+                    LazyColumn(Modifier.fillMaxWidth().heightIn(max = 340.dp)) {
+                        items(filtered) { id ->
+                            Row(
+                                Modifier.fillMaxWidth().clickable { onPick(id) }.padding(vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                RadioButton(selected = id == selected, onClick = { onPick(id) })
+                                Text(
+                                    id,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    modifier = Modifier.padding(start = 4.dp),
+                                )
+                            }
+                        }
+                    }
+                }
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                    TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+                }
+            }
+        }
+    }
+}
+
+private const val STALE_DAYS = 7
+private const val DAY_MILLIS = 24L * 60 * 60 * 1000
+
+/** Maps a fetch failure to one short line; the text field itself stays editable either way. */
+private fun fetchError(context: Context, error: Throwable): String {
+    val catalog = error as? ModelCatalogException
+    return when (catalog?.kind) {
+        ModelCatalogException.Kind.UNAUTHORIZED, ModelCatalogException.Kind.FORBIDDEN ->
+            context.getString(R.string.models_fetch_unauthorized, catalog?.statusCode ?: 401)
+        ModelCatalogException.Kind.NOT_FOUND ->
+            context.getString(R.string.models_fetch_not_found, catalog?.statusCode ?: 404)
+        ModelCatalogException.Kind.TIMEOUT -> context.getString(R.string.models_fetch_timeout)
+        ModelCatalogException.Kind.MALFORMED -> context.getString(R.string.models_fetch_malformed)
+        ModelCatalogException.Kind.SERVER ->
+            context.getString(R.string.models_fetch_server, catalog?.statusCode ?: 500)
+        ModelCatalogException.Kind.HTTP ->
+            context.getString(R.string.models_fetch_http, catalog?.statusCode ?: 0)
+        else -> context.getString(R.string.models_fetch_network)
     }
 }

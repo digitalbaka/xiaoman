@@ -124,6 +124,22 @@
     <string name="models_required">Enter the Base URL and model ID</string>
     <string name="models_key_required">Enter an API Key</string>
     <string name="models_save_failed">Save failed, please check the fields</string>
+    <string name="models_fetch">Get model list</string>
+    <string name="models_fetch_refresh">Refresh list</string>
+    <string name="models_fetching">Fetching…</string>
+    <string name="models_fetch_ok">Fetched %1$d models</string>
+    <string name="models_fetch_empty">This service returned no models; you can still type one</string>
+    <string name="models_fetch_unauthorized">Authentication failed (HTTP %1$d), check the API Key</string>
+    <string name="models_fetch_not_found">This address has no /models endpoint (HTTP %1$d); you can still type one</string>
+    <string name="models_fetch_timeout">Request timed out; check the network or Base URL</string>
+    <string name="models_fetch_network">Network request failed; check the network or Base URL</string>
+    <string name="models_fetch_malformed">The response is not a model list</string>
+    <string name="models_fetch_server">Server error (HTTP %1$d)</string>
+    <string name="models_fetch_http">Request failed (HTTP %1$d)</string>
+    <string name="models_fetch_stale">List fetched %1$d days ago; you can refresh</string>
+    <string name="models_pick_title">Select model</string>
+    <string name="models_pick_search">Search models</string>
+    <string name="models_pick_no_match">No matching models</string>
 
     <!-- Skills install -->
     <string name="skills_install">Install skill</string>

@@ -124,6 +124,22 @@
     <string name="models_required">请填写 Base URL 和模型 ID</string>
     <string name="models_key_required">请填写 API Key</string>
     <string name="models_save_failed">保存失败，请检查填写内容</string>
+    <string name="models_fetch">获取模型列表</string>
+    <string name="models_fetch_refresh">刷新列表</string>
+    <string name="models_fetching">正在获取…</string>
+    <string name="models_fetch_ok">已获取 %1$d 个模型</string>
+    <string name="models_fetch_empty">该服务没有返回任何模型，可继续手动填写</string>
+    <string name="models_fetch_unauthorized">鉴权失败（HTTP %1$d），请检查 API Key</string>
+    <string name="models_fetch_not_found">该地址没有 /models 接口（HTTP %1$d），可继续手动填写</string>
+    <string name="models_fetch_timeout">请求超时，请检查网络或 Base URL</string>
+    <string name="models_fetch_network">网络请求失败，请检查网络或 Base URL</string>
+    <string name="models_fetch_malformed">返回内容不是模型列表</string>
+    <string name="models_fetch_server">服务端错误（HTTP %1$d）</string>
+    <string name="models_fetch_http">请求失败（HTTP %1$d）</string>
+    <string name="models_fetch_stale">列表获取于 %1$d 天前，可刷新</string>
+    <string name="models_pick_title">选择模型</string>
+    <string name="models_pick_search">搜索模型</string>
+    <string name="models_pick_no_match">没有匹配的模型</string>
 
     <!-- Skills install -->
     <string name="skills_install">安装技能</string>
