@@ -12,8 +12,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ArrowBack
-import androidx.compose.material.icons.outlined.OpenInNew
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.OpenInNew
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -41,7 +41,7 @@ internal fun AboutScreen(onBack: () -> Unit) {
             Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, contentDescription = null) }
+            IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = null) }
             Text(
                 stringResource(R.string.about_title),
                 style = MaterialTheme.typography.titleLarge,
@@ -91,7 +91,7 @@ internal fun AboutScreen(onBack: () -> Unit) {
                     runCatching { context.startActivity(intent) }
                 },
             ) {
-                Icon(Icons.Outlined.OpenInNew, contentDescription = null)
+                Icon(Icons.AutoMirrored.Outlined.OpenInNew, contentDescription = null)
                 Text(REPO_URL, Modifier.padding(start = 6.dp), style = MaterialTheme.typography.bodyMedium)
             }
             HorizontalDivider()

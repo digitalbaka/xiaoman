@@ -26,9 +26,12 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // The input field used to grab focus and pop the IME on launch; let the user tap instead.
-        window.setSoftInputMode(
-            WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE or WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN,
-        )
+        // ADJUST_RESIZE is deprecated on API 30+ (WindowInsets is preferred), but this flag pair is
+        // what keeps the IME hidden at launch; switching would change runtime behaviour.
+        @Suppress("DEPRECATION")
+        val softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE or
+            WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
+        window.setSoftInputMode(softInputMode)
         enableEdgeToEdge()
         val graph = (application as XiaomanApp).graph
         // Read settings here (not in AppGraph.start) so unit tests that only create the

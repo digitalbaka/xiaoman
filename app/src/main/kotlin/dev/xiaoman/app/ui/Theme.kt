@@ -1,10 +1,13 @@
 package dev.xiaoman.app.ui
 
+import android.app.WallpaperManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import androidx.annotation.StringRes
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
@@ -142,14 +145,26 @@ private fun SystemDynamicScheme(dark: Boolean): ColorScheme {
     val context = LocalContext.current
     var version by remember { mutableIntStateOf(0) }
     DisposableEffect(context) {
-        val receiver = object : BroadcastReceiver() {
-            override fun onReceive(incoming: Context?, intent: Intent?) {
-                version++
+        val unregister: () -> Unit
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            // The deprecated broadcast is replaced by the wallpaper colour listener on API 31+.
+            val manager = WallpaperManager.getInstance(context)
+            val listener = WallpaperManager.OnColorsChangedListener { _, _ -> version++ }
+            manager.addOnColorsChangedListener(listener, Handler(Looper.getMainLooper()))
+            unregister = { manager.removeOnColorsChangedListener(listener) }
+        } else {
+            // Below S the scheme ignores the wallpaper; keep the old refresh path unchanged.
+            val receiver = object : BroadcastReceiver() {
+                override fun onReceive(incoming: Context?, intent: Intent?) {
+                    version++
+                }
             }
+            @Suppress("DEPRECATION")
+            val filter = IntentFilter(Intent.ACTION_WALLPAPER_CHANGED)
+            ContextCompat.registerReceiver(context, receiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED)
+            unregister = { runCatching { context.unregisterReceiver(receiver) } }
         }
-        val filter = IntentFilter(Intent.ACTION_WALLPAPER_CHANGED)
-        ContextCompat.registerReceiver(context, receiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED)
-        onDispose { runCatching { context.unregisterReceiver(receiver) } }
+        onDispose { unregister() }
     }
     return remember(version, dark) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
