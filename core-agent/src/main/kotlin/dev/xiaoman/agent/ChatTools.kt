@@ -12,8 +12,10 @@ import dev.xiaoman.api.Observation
 import dev.xiaoman.api.Relation
 import dev.xiaoman.api.ReminderScheduler
 import dev.xiaoman.api.Skill
+import dev.xiaoman.api.SkillAction
 import dev.xiaoman.api.SkillInstaller
 import dev.xiaoman.api.SkillRepository
+import dev.xiaoman.api.SkillSafety
 import dev.xiaoman.api.ToolCall
 import dev.xiaoman.api.ToolSpec
 import dev.xiaoman.api.UserChannel
@@ -122,6 +124,8 @@ internal class ChatTools(
             call.name == AgentTools.MEMORY_FOLDER -> folder(args)
             call.name == AgentTools.LIST_SKILLS -> listSkills()
             call.name == AgentTools.SKILL_INSTALL -> installSkill(args)
+            call.name == AgentTools.SKILL_DRAFT -> draftSkill(args, taskId, emit)
+            call.name == AgentTools.SKILL_REMOVE -> removeSkill(args, taskId, emit)
             call.name == AgentTools.REMINDER_SET -> reminder(args)
             call.name == AgentTools.PHONE_TASK -> phone(args)
             else -> error("未知工具 ${call.name}")
@@ -336,8 +340,54 @@ internal class ChatTools(
         }.toString()
     }
 
-    private fun listSkillsJson(list: List<Skill>): String = buildJsonObject {
-        putJsonArray("skills") {
+    /** Shows a skill draft; nothing is written until the user confirms it in the chat. */
+    private fun draftSkill(args: JsonObject, taskId: String, emit: (AgentEvent) -> Unit): String {
+        val name = required(args, "name").trim()
+        val markdown = required(args, "skill_md")
+        val replace = (args["replace"] as? JsonPrimitive)?.booleanOrNull ?: false
+        if (!SKILL_NAME.matches(name)) throw ToolArgumentException("技能名只能用小写字母、数字和连字符，如 daily-review")
+        val secrets = SkillSafety.problems(markdown)
+        if (secrets.isNotEmpty()) {
+            throw ToolArgumentException("技能内容不能包含${secrets.joinToString("、")}，请删掉后重新提交")
+        }
+        if (!markdown.trimStart().startsWith("---")) throw ToolArgumentException("SKILL.md 必须以 --- 包裹的 frontmatter 开头")
+        if (!markdown.contains("name:") || !markdown.contains("description:")) {
+            throw ToolArgumentException("SKILL.md 的 frontmatter 需要 name 和 description")
+        }
+        emit(AgentEvent.SkillProposed(taskId, SkillAction.Save(name, markdown.trim(), replace)))
+        return buildJsonObject {
+            put("ok", true)
+            put("status", "草稿已展示，等待用户在界面上确认")
+            put("note", "用户确认前没有写入；现在不要声称已经保存成功")
+        }.toString()
+    }
+
+    /** Deletes only user-installed skills; bundled ones never reach this path. */
+    private suspend fun removeSkill(args: JsonObject, taskId: String, emit: (AgentEvent) -> Unit): String {
+        val name = required(args, "name").trim()
+        val installer = installer ?: return error("当前版本不支持删除技能")
+        val installed = installer.listInstalled().map { it.name }
+        if (name !in installed) {
+            val bundled = quietly { skills.get(name) != null } == true
+            return error(if (bundled) "「$name」是内置技能，不能删除" else "没有找到用户安装的技能「$name」")
+        }
+        emit(AgentEvent.SkillProposed(taskId, SkillAction.Delete(name)))
+        return buildJsonObject {
+            put("ok", true)
+            put("status", "等待用户在界面上确认删除")
+            put("note", "用户确认前没有删除")
+        }.toString()
+    }
+
+    private suspend fun <T> quietly(block: suspend () -> T): T? = try {
+        block()
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        null
+    }
+
+    private fun listSkillsJson(list: List<Skill>): String = buildJsonObject {        putJsonArray("skills") {
             list.forEach { s ->
                 addJsonObject {
                     put("name", s.name)
@@ -374,6 +424,9 @@ internal class ChatTools(
 
     companion object {
         const val MCP_PREFIX = "mcp_"
+
+        /** Skill folder names, shared with the parser. */
+        private val SKILL_NAME = Regex("^[a-z0-9-]+$")
 
         /** Tool-name fragments that usually mean the tool changes something on the server. */
         private val MUTATING_WORDS = listOf(

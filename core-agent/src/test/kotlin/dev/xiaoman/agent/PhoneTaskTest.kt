@@ -98,6 +98,50 @@ class PhoneTaskTest {
     }
 
     @Test
+    fun knowledgeSkillRunsWithoutAccessibility() = runTest {
+        val h = Harness(skills = FakeSkills(skill("multi-search-engine", "多引擎搜索", apps = emptyList())))
+        h.chat.reply("SM-G6000 参数：6 英寸屏幕、2GB 内存。")
+
+        val r = h.agent.runPhoneTask("搜一下 SM-G6000 机型参数", "multi-search-engine", h.events, h.stop)
+
+        assertTrue(r.success)
+        assertTrue("SM-G6000" in r.summary)
+        // No screen observation at all: the accessibility service is never touched.
+        assertEquals(0, h.device.observations)
+        assertTrue(h.device.performed.isEmpty())
+        assertTrue(h.operator.requests.isEmpty())
+        val request = h.chat.requests.single()
+        assertTrue("按步骤操作 multi-search-engine" in request.messages.first().text)
+        assertEquals(listOf(AgentTools.WEB_FETCH), request.tools.map { it.name })
+    }
+
+    @Test
+    fun knowledgeSkillCanFetchPagesBeforeAnswering() = runTest {
+        val h = Harness(skills = FakeSkills(skill("search", apps = emptyList())))
+        h.chat
+            .tools(ToolCall("w1", AgentTools.WEB_FETCH, """{"url": "not-a-url"}"""))
+            .reply("根据抓取结果，型号参数如下。")
+
+        val r = h.agent.runPhoneTask("查参数", "search", h.events, h.stop)
+
+        assertTrue(r.success)
+        val toolMessage = h.chat.requests[1].messages.last { it.role == ChatRole.TOOL }
+        assertEquals("w1", toolMessage.toolCallId)
+        assertTrue("抓取失败" in toolMessage.text || toolMessage.text.isNotBlank())
+        assertEquals(0, h.device.observations)
+    }
+
+    @Test
+    fun deviceTaskExplainsHowToEnableAccessibility() = runTest {
+        val h = Harness(device = FakeDevice(screen("com.android.launcher", "设置")).apply {
+            observeError = IllegalStateException("无障碍服务未开启")
+        })
+        val r = h.agent.runPhoneTask("打开设置", null, h.events, h.stop)
+        assertFalse(r.success)
+        assertTrue("设置 → 无障碍" in r.summary)
+    }
+
+    @Test
     fun blockedStepIsReportedAndToldToTheModel() = runTest {
         val deny = Decision.Deny("支付需要用户亲自操作")
         val h = Harness(
@@ -227,10 +271,10 @@ class PhoneTaskTest {
 
         h.agent.handle("打开设置", h.events, h.stop)
 
-        assertEquals("无障碍服务未开启", h.events.of<AgentEvent.Failed>().single().message)
+        assertEquals(Prompts.DEVICE_REQUIRED, h.events.of<AgentEvent.Failed>().single().message)
         val finished = h.events.of<AgentEvent.PhoneTaskFinished>().single()
         assertFalse(finished.success)
-        assertEquals("无障碍服务未开启", finished.summary)
+        assertEquals(Prompts.DEVICE_REQUIRED, finished.summary)
         assertTrue("\"success\":false" in h.chat.requests[1].messages.last().text)
         assertEquals("请先开启无障碍服务。", h.events.of<AgentEvent.Reply>().single().text)
     }

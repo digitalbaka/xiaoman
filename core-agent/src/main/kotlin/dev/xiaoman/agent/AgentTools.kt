@@ -17,8 +17,11 @@ object AgentTools {
     const val MEMORY_FOLDER = "memory_folder"
     const val LIST_SKILLS = "list_skills"
     const val SKILL_INSTALL = "skill_install"
+    const val SKILL_DRAFT = "skill_draft"
+    const val SKILL_REMOVE = "skill_remove"
     const val REMINDER_SET = "reminder_set"
     const val PHONE_TASK = "phone_task"
+    const val WEB_FETCH = "web_fetch"
 
     val specs: List<ToolSpec> = listOf(
         ToolSpec(
@@ -80,6 +83,25 @@ object AgentTools {
             schema(listOf("url"), "url" to str("技能 zip 包的 https 链接")),
         ),
         ToolSpec(
+            SKILL_DRAFT,
+            "新建或修改一个技能：写出完整的 SKILL.md，先在聊天里展示给用户，用户确认后才保存。" +
+                "用户要求「加一个技能」「改一下某个技能」时调用。技能内容不得包含密码、API Key、手机号等敏感信息。",
+            schema(
+                listOf("name", "skill_md"),
+                "name" to str("技能名，只能用小写字母、数字和连字符，如 daily-review"),
+                "skill_md" to str(
+                    "完整的 SKILL.md：以 --- 包裹的 frontmatter（name、description 必填，可选 apps、channel、" +
+                        "confirm_before、memory、deeplinks）加 Markdown 正文；name 必须与参数 name 一致",
+                ),
+                "replace" to bool("可选，覆盖同名的已有用户技能时传 true；默认 false"),
+            ),
+        ),
+        ToolSpec(
+            SKILL_REMOVE,
+            "删除一个用户安装的技能，同样需要用户在聊天里确认。内置技能不能删除。",
+            schema(listOf("name"), "name" to str("要删除的技能名")),
+        ),
+        ToolSpec(
             REMINDER_SET,
             "设置一条定时提醒：到点后小满Extra会在手机上弹出通知。",
             schema(
@@ -96,6 +118,13 @@ object AgentTools {
                 "skill" to str("可选，使用的技能名"),
             ),
         ),
+    )
+
+    /** Offered only while running a knowledge skill; reading a page needs no accessibility service. */
+    val webFetchSpec: ToolSpec = ToolSpec(
+        WEB_FETCH,
+        "抓取一个 http(s) 网页并返回正文纯文本（最多约 6000 字）。用于搜索类技能读取搜索结果页或资料页。",
+        schema(listOf("url"), "url" to str("网页地址，必须以 http:// 或 https:// 开头")),
     )
 
     private fun schema(required: List<String>, vararg props: Pair<String, JsonObject>): JsonObject = buildJsonObject {

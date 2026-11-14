@@ -22,6 +22,9 @@ sealed class AgentEvent {
 
     data class MemoryUpdated(override val taskId: String, val permalink: String) : AgentEvent()
 
+    /** A skill change waiting for the user's confirmation in the chat. */
+    data class SkillProposed(override val taskId: String, val action: SkillAction) : AgentEvent()
+
     data class PhoneTaskFinished(override val taskId: String, val success: Boolean, val summary: String, val steps: Int) : AgentEvent()
 
     data class Failed(override val taskId: String, val message: String) : AgentEvent()
@@ -53,10 +56,35 @@ interface StopSignal {
     val stopped: Boolean
 }
 
+/**
+ * A file the user attached to one chat turn. The app classifies files before handing them over:
+ * images arrive as PNG, text files as UTF-8, everything else as name + size only.
+ */
+sealed class ChatAttachment {
+    abstract val name: String
+
+    /** Re-encoded as PNG by the app, the format vision endpoints accept. */
+    data class Image(override val name: String, val png: ByteArray) : ChatAttachment()
+
+    /** Already decoded and truncated by the app. */
+    data class Text(override val name: String, val content: String) : ChatAttachment()
+
+    /** Unreadable binary: the model only learns that it was attached. */
+    data class File(override val name: String, val size: Long) : ChatAttachment()
+}
+
 interface Agent {
     /** Handles one chat turn: replies, memory tools, or a phone task. Suspends until the turn is done. */
     suspend fun handle(userMessage: String, listener: AgentListener, stop: StopSignal)
 
+    /** Same as [handle] with files attached; agents that cannot use them fall back to the text turn. */
+    suspend fun handle(userMessage: String, attachments: List<ChatAttachment>, listener: AgentListener, stop: StopSignal) {
+        handle(userMessage, listener, stop)
+    }
+
     /** Runs one phone task directly (used by the developer CLI and skill tests). */
     suspend fun runPhoneTask(goal: String, skillName: String?, listener: AgentListener, stop: StopSignal): AgentEvent.PhoneTaskFinished
+
+    /** Drops the in-memory chat history, e.g. after switching to another conversation. */
+    fun forgetHistory() {}
 }

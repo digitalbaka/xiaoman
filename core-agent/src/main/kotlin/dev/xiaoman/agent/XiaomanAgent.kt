@@ -7,6 +7,7 @@ import dev.xiaoman.api.AgentListener
 import dev.xiaoman.api.ChatMessage
 import dev.xiaoman.api.ChatRequest
 import dev.xiaoman.api.ChatRole
+import dev.xiaoman.api.ChatAttachment
 import dev.xiaoman.api.ContentPart
 import dev.xiaoman.api.Device
 import dev.xiaoman.api.LlmClient
@@ -27,6 +28,15 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.util.UUID
+
+/** Message thrown by the hands layer when accessibility is off; mapped to a user-facing hint. */
+private const val DEVICE_NOT_CONNECTED = "无障碍服务未开启"
+
+/** Rounds a knowledge skill may spend fetching pages before it must answer. */
+private const val TEXT_SKILL_ROUNDS = 4
+
+/** Characters of attached file text the model sees in one turn (per file budgets share it). */
+private const val MAX_ATTACHMENT_CHARS = 24_000
 
 /**
  * The Xiaoman agent: chat turns with memory and phone tools ([handle]), and phone tasks run by
@@ -56,7 +66,15 @@ class XiaomanAgent(
     private val historyLock = Mutex()
     private val history = ArrayDeque<ChatMessage>()
 
-    override suspend fun handle(userMessage: String, listener: AgentListener, stop: StopSignal) {
+    override suspend fun handle(userMessage: String, listener: AgentListener, stop: StopSignal) =
+        handle(userMessage, emptyList(), listener, stop)
+
+    override suspend fun handle(
+        userMessage: String,
+        attachments: List<ChatAttachment>,
+        listener: AgentListener,
+        stop: StopSignal,
+    ) {
         val taskId = idFactory()
         val emit: (AgentEvent) -> Unit = listener::onEvent
         val tools = ChatTools(memory, skills, clock, reminders, { goal, skill ->
@@ -66,7 +84,8 @@ class XiaomanAgent(
         try {
             val system = ChatMessage.system(systemPrompt(userMessage))
             val past = historyLock.withLock { history.toList() }
-            val turn = mutableListOf(ChatMessage.user(userMessage))
+            val userTurn = turnMessage(userMessage, attachments)
+            val turn = mutableListOf(userTurn)
             var lastText: String? = null
             var finalText: String? = null
             for (round in 0..MAX_TOOL_ROUNDS) {
@@ -90,10 +109,49 @@ class XiaomanAgent(
                 if (stop.stopped) break
             }
             if (!finalText.isNullOrEmpty()) emit(AgentEvent.Reply(taskId, finalText))
-            remember(userMessage, finalText?.takeIf { it.isNotEmpty() } ?: lastText)
+            remember(userTurn, finalText?.takeIf { it.isNotEmpty() } ?: lastText)
         } catch (e: LlmException) {
             emit(AgentEvent.Failed(taskId, Prompts.llmFailed(e)))
         }
+    }
+
+    /** One user message: typed text, readable file bodies, then the images as PNG parts. */
+    private fun turnMessage(userMessage: String, attachments: List<ChatAttachment>): ChatMessage {
+        val images = attachments.filterIsInstance<ChatAttachment.Image>()
+        var budget = MAX_ATTACHMENT_CHARS
+        val body = buildString {
+            if (userMessage.isNotBlank()) append(userMessage.trim())
+            for (a in attachments) {
+                when (a) {
+                    is ChatAttachment.Text -> {
+                        append("\n\n【文件：").append(a.name).append("】\n")
+                        val content = a.content.trim()
+                        val room = budget.coerceAtLeast(0)
+                        append(content.take(room))
+                        if (content.length > room) append("\n…（内容过长已截断）")
+                        budget -= content.length.coerceAtMost(room)
+                    }
+                    is ChatAttachment.File ->
+                        append("\n\n【文件：").append(a.name).append("（").append(fileSize(a.size)).append("，无法读取内容）】")
+                    is ChatAttachment.Image -> Unit
+                }
+            }
+            if (images.isNotEmpty()) {
+                if (isBlank()) append("请看看我发的图片。")
+                append("\n\n附图片：").append(images.joinToString("、") { it.name })
+            }
+        }.trim()
+        val parts = buildList {
+            if (body.isNotEmpty()) add(ContentPart.Text(body))
+            images.forEach { add(ContentPart.ImagePng(it.png)) }
+        }
+        return ChatMessage(ChatRole.USER, parts.ifEmpty { listOf(ContentPart.Text("（空消息）")) })
+    }
+
+    private fun fileSize(bytes: Long): String = when {
+        bytes >= 1024L * 1024L -> "%.1f MB".format(bytes / 1024.0 / 1024.0)
+        bytes >= 1024L -> "${bytes / 1024} KB"
+        else -> "$bytes B"
     }
 
     override suspend fun runPhoneTask(goal: String, skillName: String?, listener: AgentListener, stop: StopSignal): AgentEvent.PhoneTaskFinished {
@@ -106,6 +164,12 @@ class XiaomanAgent(
         if (skill != null) listener.onEvent(AgentEvent.SkillChosen(taskId, skill.name))
         listener.onEvent(AgentEvent.PhoneTaskStarted(taskId, goal, skill?.name))
         if (wanted != null && skill == null) return finish(false, "${Prompts.SKILL_NOT_FOUND}：$wanted", 0)
+        // Knowledge skills (search, research) only need the chat model and web_fetch, so they must
+        // not require the accessibility service. Only skills that really drive the UI do.
+        if (skill != null && !skill.needsDevice) {
+            val answer = runTextSkill(skill, goal, stop)
+            return finish(answer.isNotBlank(), answer.ifBlank { Prompts.TEXT_SKILL_EMPTY }, 0)
+        }
 
         val task = TaskRun(taskId, goal, skill, listener, stop)
         val outcome = try {
@@ -121,12 +185,48 @@ class XiaomanAgent(
             LoopOutcome(false, message)
         } catch (e: Exception) {
             // e.g. the accessibility service is not connected: device.observe() throws.
-            val message = e.message?.takeIf { it.isNotBlank() } ?: Prompts.UNEXPECTED_ERROR
+            val raw = e.message?.takeIf { it.isNotBlank() } ?: Prompts.UNEXPECTED_ERROR
+            val message = if (raw == DEVICE_NOT_CONNECTED) Prompts.DEVICE_REQUIRED else raw
             listener.onEvent(AgentEvent.Failed(taskId, message))
             LoopOutcome(false, message)
         }
         if (outcome.success && config.learnFromSuccess) quietly(Unit) { learn(task) }
         return finish(outcome.success, outcome.summary, task.steps)
+    }
+
+    /**
+     * Runs a knowledge skill (search / research) on the chat model with [AgentTools.WEB_FETCH].
+     * No screen is observed, so this path works with the accessibility service turned off.
+     */
+    private suspend fun runTextSkill(skill: Skill, goal: String, stop: StopSignal): String {
+        val fetch = WebFetch()
+        val messages = mutableListOf(
+            ChatMessage.system(Prompts.textSkillSystem(skill.name, skill.instructions)),
+            ChatMessage.user(goal),
+        )
+        var answer = ""
+        for (round in 0 until TEXT_SKILL_ROUNDS) {
+            if (stop.stopped) return Prompts.STOPPED
+            val response = try {
+                chat.complete(ChatRequest(messages.toList(), tools = listOf(AgentTools.webFetchSpec)))
+            } catch (e: LlmException) {
+                return Prompts.llmFailed(e)
+            }
+            answer = response.text.trim()
+            if (response.toolCalls.isEmpty()) return answer
+            messages += ChatMessage(ChatRole.ASSISTANT, listOf(ContentPart.Text(response.text)), toolCalls = response.toolCalls)
+            for (call in response.toolCalls) {
+                val result = if (call.name == AgentTools.WEB_FETCH) {
+                    val url = JsonText.firstObject(call.argumentsJson)?.let { JsonText.string(it, "url") }
+                    if (url.isNullOrBlank()) "参数错误：缺少 url" else fetch.fetch(url)
+                } else {
+                    "未知工具：${call.name}"
+                }
+                messages += ChatMessage.tool(call.id, result)
+            }
+        }
+        // Tool budget used up: ask once more without tools so the model has to answer.
+        return quietly(answer) { chat.complete(ChatRequest(messages.toList())).text.trim() }
     }
 
     private suspend fun systemPrompt(userMessage: String): String = buildString {
@@ -142,8 +242,19 @@ class XiaomanAgent(
         }
     }.trimEnd()
 
-    private suspend fun remember(userMessage: String, reply: String?) = historyLock.withLock {
-        history.addLast(ChatMessage.user(userMessage))
+    override fun forgetHistory() {
+        // Conversations are switched only while idle, so the lock is free; never block the UI.
+        if (!historyLock.tryLock()) return
+        try {
+            history.clear()
+        } finally {
+            historyLock.unlock()
+        }
+    }
+
+    private suspend fun remember(user: ChatMessage, reply: String?) = historyLock.withLock {
+        // Follow-up turns only need the text; resending image bytes would grow every request.
+        history.addLast(ChatMessage(ChatRole.USER, user.parts.filterIsInstance<ContentPart.Text>()))
         if (!reply.isNullOrBlank()) history.addLast(ChatMessage.assistant(reply))
         while (history.size > HISTORY_LIMIT) history.removeFirst()
         // Never start the window with an assistant message.

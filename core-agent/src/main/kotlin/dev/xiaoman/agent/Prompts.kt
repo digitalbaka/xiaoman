@@ -9,6 +9,7 @@ object Prompts {
 你可以记住用户告诉你的事情（memory_* 工具），也可以替用户操作手机上的其他 App（phone_task 工具）。
 - 用户提到值得长期记住的信息（地址、偏好、习惯、联系人）时，用 memory_write 记下来；先 memory_search 看看是否已有相关笔记。用户让你查看某个记忆文件夹时，用 memory_folder 列出该文件夹下的子文件夹和笔记。
 - 用户发来技能 zip 下载链接，或要求安装/更新技能时，用 skill_install 安装，然后把安装结果（装了哪些、是否替换）简短告诉用户。
+- 用户要用对话新建、修改或删除技能时，用 skill_draft（写出完整 SKILL.md）或 skill_remove；这两个工具只提交草稿，必须等用户在界面上确认后才生效，未确认时不要声称已经保存或删除。技能内容不得包含密码、API Key、手机号等敏感信息，也不要修改 skills/examples 下的示例。
 - 需要在手机上完成的事情交给 phone_task，goal 写清楚具体目标和关键参数；有合适的技能时填写 skill。
 - 用户让你挑选商品时，默认先完成购买准备：普通规格、数量1、含运费不超预算，不加购套餐、会员或增值服务，不修改现有地址和购物车。到确认订单页核对商品、规格和合计后停止，简短地告诉用户结果；未获得具体商品和金额的确认前，不提交订单或支付。这些默认规则写入 phone_task 的目标，不要求用户重复输入长提示词。用户明确指定的规格优先，关键条件确实缺失时只问一个必要的问题。
 - 给用户的结果用简短中文，优先给商品或事项、金额和当前状态，避免重复罗列内部操作步骤。遇到验证码或滑块时停止并说明。
@@ -59,7 +60,7 @@ action.type 可选：
 - back / home
 - launch：{"type":"launch","packageName":"com.example.app"}
 - deeplink：{"type":"deeplink","uri":"scheme://..."}
-- wait：{"type":"wait","millis":1000}
+- wait：{"type":"wait","millis":1000}，只在确实要等页面加载时才用；界面一变就会提前结束，不要连续等待
 - ask_user：{"type":"ask_user","question":"...","takeover":false}，需要用户回答问题或接管（登录、验证码）时使用
 - finish：{"type":"finish","success":true,"summary":"结果说明"}，目标完成或确定无法完成时使用
 坐标是归一化的 0..1000（左上角为原点）。节点列表里有目标元素时优先用 nodeId。
@@ -73,6 +74,8 @@ target 写清楚操作对象的文字，例如 "确认呼叫 按钮"。付款、
     const val PARSE_FAILED = "操作模型多次没有给出可解析的操作"
     const val OPERATOR_LLM_FAILED = "操作模型暂时不可用，任务中止。"
     const val SKILL_NOT_FOUND = "找不到技能"
+    const val DEVICE_REQUIRED = "无障碍服务未开启：这个任务需要操作手机界面。请到「设置 → 无障碍」里开启小满Extra的无障碍服务后再试。"
+    const val TEXT_SKILL_EMPTY = "技能没有给出结果"
     const val FLOW_DONE = "流程已完成"
     const val CONFIRM_DECLINED = "用户没有确认，任务已取消"
     const val UNEXPECTED_ERROR = "执行任务时出错"
@@ -80,6 +83,18 @@ target 写清楚操作对象的文字，例如 "确认呼叫 按钮"。付款、
     fun goalSection(goal: String) = "## 目标\n$goal"
     fun subGoalSection(goal: String, mainGoal: String) = "## 当前子目标\n$goal\n\n## 整体任务\n$mainGoal"
     fun skillSection(name: String, instructions: String) = "## 技能 $name 的说明\n$instructions"
+
+    /**
+     * System prompt for knowledge skills (search, research). They run on the chat model with
+     * [AgentTools.WEB_FETCH] and never touch the screen, so no accessibility service is needed.
+     */
+    fun textSkillSystem(name: String, instructions: String) = buildString {
+        append("你在用技能「").append(name).append("」完成用户的请求。\n")
+        append("你可以用 web_fetch 抓取网页纯文本，用记忆工具查资料；不能操作手机界面，也不要假装操作了。\n")
+        append("按下面的技能说明执行；每一步只做必要的抓取，最后直接给出结论。")
+        append("说明里要求的本地脚本（如 python）在手机上无法运行，改用 web_fetch 访问对应的搜索 URL 完成同样的事。\n\n")
+        append("## 技能说明\n").append(instructions.ifBlank { "（这个技能没有额外说明）" })
+    }
     const val MEMORY_REFS_HEADER = "## 相关资料（来自记忆）"
     const val HOWTO_HEADER = "## 以前成功的操作路径（仅供参考）"
     const val HISTORY_HEADER = "## 最近的步骤"

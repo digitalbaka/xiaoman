@@ -32,6 +32,7 @@ object TraceFormat {
         is AgentEvent.NeedsUser -> "NeedsUser"
         is AgentEvent.MemoryUpdated -> "MemoryUpdated"
         is AgentEvent.PhoneTaskFinished -> "PhoneTaskFinished"
+        is AgentEvent.SkillProposed -> "SkillProposed"
         is AgentEvent.Failed -> "Failed"
     }
 
@@ -79,6 +80,7 @@ object TraceFormat {
                 decision = decision(event.decision)
             }
             is AgentEvent.NeedsUser -> text = event.question
+            is AgentEvent.SkillProposed -> text = event.action.name
             is AgentEvent.MemoryUpdated -> text = event.permalink
             is AgentEvent.PhoneTaskFinished -> {
                 step = event.steps

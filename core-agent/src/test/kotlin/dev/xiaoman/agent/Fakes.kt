@@ -12,6 +12,7 @@ import dev.xiaoman.api.ChatResponse
 import dev.xiaoman.api.Decision
 import dev.xiaoman.api.Device
 import dev.xiaoman.api.GuardContext
+import dev.xiaoman.api.InstalledSkillInfo
 import dev.xiaoman.api.LlmClient
 import dev.xiaoman.api.LlmException
 import dev.xiaoman.api.MemoryStore
@@ -24,6 +25,8 @@ import dev.xiaoman.api.ScreenState
 import dev.xiaoman.api.SearchHit
 import dev.xiaoman.api.Sentinel
 import dev.xiaoman.api.Skill
+import dev.xiaoman.api.SkillInstallResult
+import dev.xiaoman.api.SkillInstaller
 import dev.xiaoman.api.SkillLoadResult
 import dev.xiaoman.api.SkillRepository
 import dev.xiaoman.api.StopSignal
@@ -112,8 +115,28 @@ class FakeSkills(vararg skills: Skill) : SkillRepository {
     override suspend fun get(name: String) = all.firstOrNull { it.name == name }
 }
 
-fun skill(name: String, description: String = name, flow: dev.xiaoman.api.Flow? = null, deeplinks: Map<String, String> = emptyMap(), memoryRefs: List<String> = emptyList()) =
-    Skill(name = name, description = description, apps = listOf("com.example.app"), deeplinks = deeplinks, memoryRefs = memoryRefs, instructions = "按步骤操作 $name", flow = flow, source = "test")
+/** Records skill writes/deletes instead of touching disk. */
+class FakeInstaller(val installed: MutableList<InstalledSkillInfo> = mutableListOf()) : SkillInstaller {
+    val written = mutableListOf<Triple<String, String, Boolean>>()
+    val deleted = mutableListOf<String>()
+
+    override suspend fun installFromZip(bytes: ByteArray, sourceName: String) = SkillInstallResult(true, "ok")
+    override suspend fun installFromUrl(url: String) = SkillInstallResult(true, "ok")
+    override suspend fun installFromMarkdown(name: String, markdown: String, replace: Boolean): SkillInstallResult {
+        written += Triple(name, markdown, replace)
+        return SkillInstallResult(true, "已添加技能 $name", listOf(name))
+    }
+    override suspend fun listInstalled(): List<InstalledSkillInfo> = installed.toList()
+    override suspend fun setEnabled(name: String, enabled: Boolean) = true
+    override suspend fun delete(name: String): Boolean {
+        val removed = installed.removeAll { it.name == name }
+        if (removed) deleted += name
+        return removed
+    }
+}
+
+fun skill(name: String, description: String = name, flow: dev.xiaoman.api.Flow? = null, deeplinks: Map<String, String> = emptyMap(), memoryRefs: List<String> = emptyList(), apps: List<String> = listOf("com.example.app")) =
+    Skill(name = name, description = description, apps = apps, deeplinks = deeplinks, memoryRefs = memoryRefs, instructions = "按步骤操作 $name", flow = flow, source = "test")
 
 /** Denies whatever [policy] returns a non-Allow decision for. */
 class FakeSentinel(private val policy: (Action) -> Decision = { Decision.Allow() }) : Sentinel {
@@ -169,11 +192,13 @@ class Harness(
     mcp: dev.xiaoman.api.McpHub? = null,
     mcpConfirm: dev.xiaoman.api.McpConfirmPolicy = dev.xiaoman.api.McpConfirmPolicy.MUTATING,
     val clock: () -> Long = { 1000L },
+    val installer: FakeInstaller? = null,
 ) {
     private var ids = 0
     val agent = XiaomanAgent(
         chat, operator, device, memory, skills, sentinel, users, reminders, config,
         mcp = mcp, mcpConfirm = mcpConfirm, clock = clock, idFactory = { "t${++ids}" },
+        installer = installer,
     )
     val events = Events()
     val stop = Stop()

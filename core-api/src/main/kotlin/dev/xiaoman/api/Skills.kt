@@ -31,7 +31,16 @@ data class Skill(
     val flow: Flow? = null,
     /** Where the skill was loaded from (folder path or URI), for display and reload. */
     val source: String,
-)
+) {
+    /**
+     * True when running the skill needs the screen (accessibility service): it has a fixed flow,
+     * names the apps it operates, or opens a deep link. Knowledge skills such as a search skill
+     * only need the chat model's tools, so they run without accessibility.
+     */
+    val needsDevice: Boolean
+        get() = flow != null || apps.isNotEmpty() ||
+            channel == SkillChannel.DEEPLINK || channel == SkillChannel.DEEPLINK_THEN_GUI || channel == SkillChannel.MIXED
+}
 
 enum class SkillChannel(val wire: String) {
     API("api"), CLI("cli"), DEEPLINK("deeplink"), GUI("gui"), DEEPLINK_THEN_GUI("deeplink-then-gui"), MIXED("mixed");
@@ -97,6 +106,36 @@ data class SkillInstallResult(
     val replaced: List<String> = emptyList(),
 )
 
+/** A skill change proposed by the chat model; it only happens after the user confirms. */
+sealed class SkillAction {
+    abstract val name: String
+
+    /** Create or overwrite a user skill with [markdown] (a complete `SKILL.md`). */
+    data class Save(override val name: String, val markdown: String, val replace: Boolean) : SkillAction()
+
+    /** Delete a user-installed skill; bundled skills are never touched. */
+    data class Delete(override val name: String) : SkillAction()
+}
+
+/**
+ * Rejects skill texts that carry secrets. The model must not copy passwords, API keys or phone
+ * numbers into a `SKILL.md`, so such drafts are refused instead of saved.
+ */
+object SkillSafety {
+    private val rules: List<Pair<String, Regex>> = listOf(
+        "疑似密码或口令" to Regex("(?i)(password|passwd|pwd|密码|口令)\\s*[:：=]\\s*\\S+"),
+        "疑似 API Key" to Regex("(?i)(api[_-]?key|secret[_-]?key|access[_-]?token|authorization)\\s*[:：=]\\s*\\S+"),
+        "疑似以 sk- 开头的密钥" to Regex("\\bsk-[A-Za-z0-9_-]{16,}"),
+        "疑似 Bearer 令牌" to Regex("(?i)bearer\\s+[A-Za-z0-9._-]{16,}"),
+        "疑似手机号" to Regex("(?<!\\d)1[3-9]\\d{9}(?!\\d)"),
+    )
+
+    /** Human-readable problems, empty when the text is clean. */
+    fun problems(text: String): List<String> = rules.filter { (_, regex) -> regex.containsMatchIn(text) }.map { it.first }
+
+    fun isSafe(text: String): Boolean = problems(text).isEmpty()
+}
+
 /**
  * Installs user skills from a zip (downloaded or picked locally) into the app's skills folder.
  * Implementations must reject zip-slip paths and folders without a valid `SKILL.md`.
@@ -106,10 +145,15 @@ interface SkillInstaller {
 
     suspend fun installFromUrl(url: String): SkillInstallResult
 
+    /** Writes one `SKILL.md` into the user's skills folder; refuses secrets and invalid skills. */
+    suspend fun installFromMarkdown(name: String, markdown: String, replace: Boolean = false): SkillInstallResult =
+        SkillInstallResult(false, "当前版本不支持写入技能")
+
     /** User-installed skills only; bundled skills are not listed here. */
     suspend fun listInstalled(): List<InstalledSkillInfo>
 
     suspend fun setEnabled(name: String, enabled: Boolean): Boolean
 
+    /** Deletes a user-installed skill; bundled skills are not affected. */
     suspend fun delete(name: String): Boolean
 }
