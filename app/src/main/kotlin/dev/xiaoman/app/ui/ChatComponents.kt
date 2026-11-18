@@ -46,6 +46,8 @@ internal fun ChatHeader(
     attention: Boolean,
     assistantName: String,
     avatarPath: String?,
+    incognito: Boolean = false,
+    onToggleIncognito: () -> Unit = {},
     onHistory: () -> Unit = {},
     onSearch: () -> Unit = {},
 ) {
@@ -79,6 +81,13 @@ internal fun ChatHeader(
             },
                 modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp), style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onPrimaryContainer)
+        }
+        IconButton(onClick = onToggleIncognito, enabled = !busy) {
+            Icon(
+                if (incognito) Icons.Outlined.VisibilityOff else Icons.Outlined.Visibility,
+                contentDescription = stringResource(if (incognito) R.string.incognito_exit else R.string.incognito_title),
+                tint = if (incognito) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
         IconButton(onClick = onSearch) {
             Icon(Icons.Outlined.Search, contentDescription = stringResource(R.string.chat_search), tint = MaterialTheme.colorScheme.onSurfaceVariant)

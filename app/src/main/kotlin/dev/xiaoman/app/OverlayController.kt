@@ -26,26 +26,37 @@ class OverlayController(
     private var overlay: StatusOverlay? = null
     private var owner: XiaomanAccessibilityService? = null
 
+    private data class OverlayState(
+        val service: XiaomanAccessibilityService?,
+        val busy: Boolean,
+        val status: String?,
+        val paused: Boolean,
+    )
+
     fun start(scope: CoroutineScope): Job = scope.launch(Dispatchers.Main.immediate) {
-        combine(services, session.busy, session.status, uiVisible) { service, busy, status, visible -> Triple(service, busy && !visible, status) }
-            .collect { (service, busy, status) ->
-                if (!busy || service == null) {
-                    remove()
-                    return@collect
-                }
-                if (owner !== service) {
-                    remove()
-                    overlay = StatusOverlay(service).also {
-                        it.onStop = { session.stop() }
-                        it.onOpen = { service.startActivity(Intent(service, MainActivity::class.java)
-                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)) }
-                        device.overlay = it
-                        it.show()
-                    }
-                    owner = service
-                }
-                overlay?.update(status ?: "小满Extra")
+        combine(services, session.busy, session.status, uiVisible, session.takeover.paused) { service, busy, status, visible, paused ->
+            OverlayState(service, busy && !visible, status, paused)
+        }.collect { state ->
+            val service = state.service
+            if (!state.busy || service == null) {
+                remove()
+                return@collect
             }
+            if (owner !== service) {
+                remove()
+                overlay = StatusOverlay(service).also {
+                    it.onStop = { session.stop() }
+                    it.onTakeover = { session.takeover.setPaused(!session.takeover.paused.value) }
+                    it.onOpen = { service.startActivity(Intent(service, MainActivity::class.java)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)) }
+                    device.overlay = it
+                    it.show()
+                }
+                owner = service
+            }
+            overlay?.setPaused(state.paused)
+            overlay?.update(if (state.paused) service.getString(R.string.overlay_taken_over) else state.status ?: "小满Extra")
+        }
     }
 
     private fun remove() {

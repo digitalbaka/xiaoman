@@ -8,7 +8,6 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Path
 import android.hardware.display.DisplayManager
-import android.net.Uri
 import android.os.Bundle
 import android.os.Build
 import android.os.SystemClock
@@ -44,6 +43,7 @@ class ServiceNotConnectedException : IllegalStateException(AccessibilityDevice.N
  * @param maxNodes cap of the compact node list.
  * @param settleDelayMs pause after every action so the UI can react before the next observation.
  * @param overlay when set, it is hidden during screenshots and dispatched touch gestures.
+ * @param takeover while paused by the user, actions wait here instead of touching the screen.
  */
 class AccessibilityDevice(
     private val serviceProvider: () -> XiaomanAccessibilityService?,
@@ -51,11 +51,13 @@ class AccessibilityDevice(
     private val maxNodes: Int = NodeCompactor.DEFAULT_MAX_NODES,
     private val settleDelayMs: Long = 600,
     var overlay: StatusOverlay? = null,
+    private val takeover: TakeoverControl = TakeoverControl(),
 ) : Device {
 
     private val appContext: Context = context.applicationContext ?: context
     private val compactor = NodeCompactor(maxNodes = maxNodes)
     private val mutex = Mutex()
+    private val deepLinks = DeepLinkDispatcher(appContext)
 
     /** id -> node of the latest observation, for actions that name a nodeId. Guarded by [mutex]. */
     private var latestNodes: List<CompactNode<AccessibilityNodeInfo>> = emptyList()
@@ -180,9 +182,15 @@ class AccessibilityDevice(
 
     override suspend fun perform(action: Action): ActionResult {
         if (action is Action.AskUser || action is Action.Finish) return ActionResult(false, "not a device action")
+        // The execution gate: while the user has taken over, queued actions wait here so none of
+        // them touches the screen. awaitResumed also returns when the task is stopped meanwhile.
+        if (!takeover.awaitResumed()) return ActionResult(false, "已停止")
         val service = serviceProvider() ?: return ActionResult(false, NOT_CONNECTED)
         val result = try {
-            mutex.withLock { execute(service, action) }
+            mutex.withLock {
+                // A takeover may land while this action waited for the mutex; never run it then.
+                if (takeover.paused.value) ActionResult(false, TAKEN_OVER) else execute(service, action)
+            }
         } catch (e: kotlinx.coroutines.CancellationException) {
             throw e
         } catch (e: Exception) {
@@ -333,13 +341,14 @@ class AccessibilityDevice(
         return start(service, intent, "launched $packageName")
     }
 
-    private fun deeplink(service: XiaomanAccessibilityService, action: Action.OpenDeeplink): ActionResult {
-        val uri = runCatching { Uri.parse(action.uri) }.getOrNull()
-        if (uri?.scheme.isNullOrEmpty()) return ActionResult(false, "invalid uri ${action.uri}")
-        val intent = Intent(Intent.ACTION_VIEW, uri).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        action.packageName?.let { intent.setPackage(it) }
-        return start(service, intent, "opened ${action.uri}")
-    }
+    /** Any scheme goes through the system, keeping the original URI; see [DeepLinkDispatcher]. */
+    private fun deeplink(service: XiaomanAccessibilityService, action: Action.OpenDeeplink): ActionResult =
+        when (val result = deepLinks.open(action.uri, action.packageName, service)) {
+            is DeepLinkResult.Opened -> ActionResult(true, "opened ${action.uri}")
+            is DeepLinkResult.Chooser -> ActionResult(true, "多个应用可以打开，已弹出选择器（${result.count} 个）：${action.uri}")
+            is DeepLinkResult.Fallback -> ActionResult(true, "已打开${result.target}：没有应用能直接处理 ${action.uri}")
+            is DeepLinkResult.Unsupported -> ActionResult(false, result.message)
+        }
 
     /** Starts from the service context: an app bound as an accessibility service may start activities from the background. */
     private fun start(service: Context, intent: Intent, ok: String): ActionResult = try {
@@ -368,6 +377,7 @@ class AccessibilityDevice(
 
     companion object {
         const val NOT_CONNECTED = "无障碍服务未开启"
+        private const val TAKEN_OVER = "已接管：小满已暂停操作"
         private const val TAG = "Xiaoman"
         private const val SCREENSHOT_INTERVAL_MS = 1050L
         private const val SCREENSHOT_ATTEMPTS = 3

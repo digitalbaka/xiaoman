@@ -1,5 +1,6 @@
 package dev.xiaoman.app
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
@@ -13,6 +14,12 @@ import dev.xiaoman.app.ui.XiaomanRoot
 import dev.xiaoman.app.ui.XiaomanTheme
 
 class MainActivity : ComponentActivity() {
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleLink(intent)
+    }
+
     override fun onStart() {
         super.onStart()
         (application as XiaomanApp).graph.uiVisible.value = true
@@ -48,5 +55,13 @@ class MainActivity : ComponentActivity() {
                 LocalizedApp(settings.language) { XiaomanRoot(graph) }
             }
         }
+        handleLink(intent)
+    }
+
+    /** Internal routes (alarm / yunhu) are parsed here; the UI shows them and clears the slot. */
+    private fun handleLink(intent: Intent?) {
+        if (intent?.action != Intent.ACTION_VIEW) return
+        val link = AppLink.parse(intent.data) ?: return
+        (application as XiaomanApp).graph.pendingLink.value = link
     }
 }

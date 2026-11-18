@@ -11,6 +11,7 @@ import dev.xiaoman.api.SkillAction
 import dev.xiaoman.api.UserChannel
 import dev.xiaoman.app.RunIds
 import dev.xiaoman.hands.MutableStopSignal
+import dev.xiaoman.hands.TakeoverControl
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -78,6 +79,8 @@ class AgentSession(
     private val agent: () -> Agent?,
     private val runIds: RunIds,
     val stopSignal: MutableStopSignal,
+    /** Shared with the accessibility device: a user takeover pauses every queued action. */
+    val takeover: TakeoverControl = TakeoverControl(),
     private val trace: AgentListener,
     private val onTaskEnd: (String) -> Unit = {},
     private val texts: SessionTexts = SessionTexts(),
@@ -103,9 +106,30 @@ class AgentSession(
     /** Id of the conversation shown now; changes on new / switch / delete. */
     val currentConversationId: StateFlow<String> = _currentConversationId.asStateFlow()
 
+    private val _incognito = MutableStateFlow(false)
+
+    /** True while chats are private: nothing is written to disk and leaving the mode drops the rows. */
+    val incognito: StateFlow<Boolean> = _incognito.asStateFlow()
+
+    /** Ids created while incognito, newest last; leaving the mode deletes every one of them. */
+    private val incognitoChats = LinkedHashSet<String>()
+
+    private val _incognitoChatCount = MutableStateFlow(0)
+
+    /** How many private conversations leaving incognito will delete; shown in the confirm dialog. */
+    val incognitoChatCount: StateFlow<Int> = _incognitoChatCount.asStateFlow()
+
+    /** Chat to come back to when incognito ends; null when it started from an unsaved, empty chat. */
+    private var chatBeforeIncognito: String? = null
+
+    /** External `yunhu://chat-add` conversations opened in this process, keyed by `type:id`. */
+    private val externalChats = mutableMapOf<String, String>()
+
     private val saveMutex = Mutex()
 
     init {
+        // Trash older than 30 days goes away at startup; no periodic job is needed for that.
+        runCatching { store?.purgeTrash() }
         restoreConversation()
     }
 
@@ -263,6 +287,8 @@ class AgentSession(
     fun stop() {
         if (!_busy.value) return
         stopSignal.stop()
+        // Wake an action waiting for the user to resume: it must not run after a stop.
+        takeover.interrupt()
         _approval.value?.answer?.complete(ApprovalAnswer(approved = false))
         _question.value?.answer?.complete(texts.stopped)
         _status.value = texts.stopped
@@ -310,6 +336,7 @@ class AgentSession(
     private fun launch(runId: String?, block: suspend () -> Unit): Boolean {
         if (!running.compareAndSet(false, true)) return false
         stopSignal.reset()
+        takeover.reset()
         if (runId != null) synchronized(openRuns) { openRuns += runId }
         _status.value = null
         _busy.value = true
@@ -351,16 +378,16 @@ class AgentSession(
     /** Starts an empty conversation. Refused while a task is running. */
     fun newConversation(): Boolean {
         if (_busy.value) return false
-        _currentConversationId.value = newConversationId()
-        _items.value = emptyList()
-        _pendingSkill.value = null
-        agent()?.forgetHistory()
+        startEmptyConversation()
         return true
     }
 
     /** Shows a saved conversation. Refused while a task is running. */
     fun switchConversation(id: String): Boolean {
-        if (_busy.value || id == _currentConversationId.value) return false
+        if (_busy.value) return false
+        // Opening a saved chat ends incognito; every private row is dropped without a trace.
+        if (_incognito.value) leaveIncognito()
+        if (id == _currentConversationId.value) return false
         val conversation = store?.load(id) ?: return false
         val restored = conversation.items.mapNotNull(::toChatItem).takeLast(MAX_ITEMS)
         _currentConversationId.value = id
@@ -371,23 +398,117 @@ class AgentSession(
         return true
     }
 
-    /** Deletes a saved conversation; deleting the open one starts a fresh empty chat. */
+    /**
+     * Enters or leaves incognito mode. Entering keeps the open chat on disk and continues in a fresh
+     * private conversation; leaving deletes every conversation created during the mode (see
+     * [incognitoChatCount]) and reopens the previous chat. Refused while a task is running.
+     */
+    fun setIncognito(enabled: Boolean): Boolean {
+        if (_busy.value || enabled == _incognito.value) return false
+        if (enabled) {
+            chatBeforeIncognito = _currentConversationId.value.takeIf { store?.load(it) != null }
+            incognitoChats.clear()
+            _incognitoChatCount.value = 0
+            _incognito.value = true
+            startEmptyConversation()
+            return true
+        }
+        val back = leaveIncognito()
+        startEmptyConversation()
+        if (back != null) switchConversation(back)
+        return true
+    }
+
+    /**
+     * Deletes every private conversation (files included, in case a save raced) and returns the chat
+     * to reopen afterwards. Chats from before incognito are never touched.
+     */
+    private fun leaveIncognito(): String? {
+        incognitoChats.forEach { id ->
+            store?.delete(id)
+            externalChats.entries.removeAll { it.value == id }
+        }
+        incognitoChats.clear()
+        _incognitoChatCount.value = 0
+        _incognito.value = false
+        val back = chatBeforeIncognito
+        chatBeforeIncognito = null
+        return back
+    }
+
+    /** Hides a conversation from the main history list (or puts it back). */
+    fun archiveConversation(id: String, archived: Boolean) {
+        if (_busy.value) return
+        store?.let { if (!it.setArchived(id, archived)) return }
+        _conversations.update { list -> list.map { if (it.id == id) it.copy(archived = archived) else it } }
+    }
+
+    /** Moves a saved conversation to the recycle bin; trashing the open one starts a fresh chat. */
+    fun trashConversation(id: String) {
+        if (_busy.value) return
+        val at = System.currentTimeMillis()
+        store?.let { if (!it.trash(id, at)) return }
+        _conversations.update { list -> list.map { if (it.id == id) it.copy(deletedAt = at) else it } }
+        if (id == _currentConversationId.value) startEmptyConversation()
+    }
+
+    /** Takes a conversation out of the recycle bin. */
+    fun restoreConversation(id: String) {
+        if (_busy.value) return
+        store?.let { if (!it.restore(id)) return }
+        _conversations.update { list -> list.map { if (it.id == id) it.copy(deletedAt = 0) else it } }
+    }
+
+    /** Permanently deletes one conversation (only reachable from the recycle bin). */
     fun deleteConversation(id: String) {
         if (_busy.value) return
         store?.delete(id)
         _conversations.update { list -> list.filterNot { it.id == id } }
-        if (id == _currentConversationId.value) {
-            _currentConversationId.value = newConversationId()
-            _items.value = emptyList()
-            agent()?.forgetHistory()
+        if (id == _currentConversationId.value) startEmptyConversation()
+    }
+
+    /** Permanently deletes everything in the recycle bin. */
+    fun emptyTrash() {
+        if (_busy.value) return
+        val trashed = _conversations.value.filter { it.deletedAt > 0 }
+        trashed.forEach { store?.delete(it.id) }
+        _conversations.update { list -> list.filterNot { it.deletedAt > 0 } }
+    }
+
+    /**
+     * Opens the local chat a `yunhu://chat-add` link points at: the one already opened for this
+     * `type:id` in this process, else a fresh conversation tagged with a visible row.
+     */
+    fun openExternalChat(typeKey: String, typeLabel: String, id: String): Boolean {
+        if (_busy.value) return false
+        val key = "$typeKey:$id"
+        val existing = externalChats[key]
+        if (existing != null && existing == _currentConversationId.value) return true
+        if (existing != null && store?.load(existing) != null) return switchConversation(existing)
+        if (!newConversation()) return false
+        externalChats[key] = _currentConversationId.value
+        // Not persisted on its own: it only becomes part of the chat once the user writes a message.
+        _items.update { it + ChatItem.Progress(ids.incrementAndGet(), "已打开${typeLabel}会话 $id") }
+        return true
+    }
+
+    private fun startEmptyConversation() {
+        _currentConversationId.value = newConversationId()
+        if (_incognito.value) {
+            // Every chat opened during incognito is remembered so leaving the mode clears all of them.
+            incognitoChats += _currentConversationId.value
+            _incognitoChatCount.value = incognitoChats.size
         }
+        _items.value = emptyList()
+        _pendingSkill.value = null
+        agent()?.forgetHistory()
     }
 
     private fun restoreConversation() {
         val store = store ?: return
         val all = runCatching { store.summaries() }.getOrDefault(emptyList())
         _conversations.value = all
-        val latest = all.firstOrNull()?.let { store.load(it.id) } ?: return
+        val latest = all.firstOrNull { it.deletedAt == 0L && !it.archived }?.let { store.load(it.id) } ?: return
         _items.value = latest.items.mapNotNull(::toChatItem).takeLast(MAX_ITEMS)
         _currentConversationId.value = latest.id
         ids.set(maxOf(ids.get(), latest.items.maxOfOrNull { it.id } ?: 0L))
@@ -395,6 +516,8 @@ class AgentSession(
 
     private fun persist() {
         val store = store ?: return
+        // Incognito chats exist in memory only; nothing may reach the disk.
+        if (_incognito.value) return
         val items = _items.value
         if (items.isEmpty()) return
         val conversation = StoredConversation(
@@ -403,9 +526,19 @@ class AgentSession(
             updatedAt = System.currentTimeMillis(),
             items = items.map(::toStored),
         )
+        // Keep archive / trash flags: a new message in an archived chat must not bring it back.
+        val known = _conversations.value.firstOrNull { it.id == conversation.id }
         _conversations.update { list ->
             (list.filterNot { it.id == conversation.id } +
-                ConversationSummary(conversation.id, conversation.title, conversation.updatedAt, previewOf(items), items.size))
+                ConversationSummary(
+                    conversation.id,
+                    conversation.title,
+                    conversation.updatedAt,
+                    previewOf(items),
+                    items.size,
+                    archived = known?.archived ?: false,
+                    deletedAt = known?.deletedAt ?: 0,
+                ))
                 .sortedByDescending { it.updatedAt }
         }
         scope.launch(Dispatchers.IO) {
@@ -435,7 +568,7 @@ class AgentSession(
         val saved = store
         if (all && saved != null) {
             val others = withContext(Dispatchers.IO) {
-                saved.summaries().mapNotNull { summary ->
+                saved.summaries().filter { it.deletedAt == 0L }.mapNotNull { summary ->
                     if (summary.id == currentId) null else saved.load(summary.id)
                 }
             }

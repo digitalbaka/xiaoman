@@ -24,6 +24,27 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!-- Internal routes: a prefilled reminder. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="xiaoman" android:host="alarm" android:pathPrefix="/set" />
+            </intent-filter>
+            <!-- Internal routes: open a group / user / bot chat. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="yunhu" android:host="chat-add" />
+            </intent-filter>
+            <!-- Internal routes: open a post detail. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="yunhu" android:host="post-detail" />
+            </intent-filter>
         </activity>
 
         <!-- Keeps the process in the foreground while the agent runs a chat turn or operates other apps. -->

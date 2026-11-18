@@ -86,6 +86,11 @@ fun ChatScreen(graph: AppGraph, speaker: Speaker, onOpenSettings: () -> Unit) {
     }
     val conversations by session.conversations.collectAsStateWithLifecycle()
     val currentConversationId by session.currentConversationId.collectAsStateWithLifecycle()
+    val incognito by session.incognito.collectAsStateWithLifecycle()
+    val incognitoCount by session.incognitoChatCount.collectAsStateWithLifecycle()
+    var confirmIncognitoExit by remember { mutableStateOf(false) }
+    // Leaving incognito deletes every chat opened during it, so it always asks first.
+    val requestIncognitoExit = { confirmIncognitoExit = true }
     var showHistory by rememberSaveable { mutableStateOf(false) }
     var showSearch by rememberSaveable { mutableStateOf(false) }
     // A search hit scrolls to this row once its conversation is on screen, then flashes it.
@@ -166,10 +171,15 @@ fun ChatScreen(graph: AppGraph, speaker: Speaker, onOpenSettings: () -> Unit) {
             conversations = conversations,
             currentId = currentConversationId,
             busy = busy,
+            incognito = incognito,
             onBack = { showHistory = false },
             onNew = { if (session.newConversation()) showHistory = false },
             onOpen = { if (session.switchConversation(it)) showHistory = false },
-            onDelete = { session.deleteConversation(it) },
+            onArchive = session::archiveConversation,
+            onTrash = session::trashConversation,
+            onRestore = session::restoreConversation,
+            onDeleteForever = session::deleteConversation,
+            onEmptyTrash = session::emptyTrash,
         )
         return
     }
@@ -177,8 +187,13 @@ fun ChatScreen(graph: AppGraph, speaker: Speaker, onOpenSettings: () -> Unit) {
         ChatHeader(modelsReady = settings.configured, deviceReady = service != null, busy = busy,
             attention = approval != null || question != null,
             assistantName = settings.assistantName, avatarPath = settings.avatarPath,
+            incognito = incognito,
+            onToggleIncognito = { if (incognito) requestIncognitoExit() else session.setIncognito(true) },
             onHistory = { showHistory = true },
             onSearch = { showSearch = true })
+        if (incognito) {
+            Banner(stringResource(R.string.incognito_banner), stringResource(R.string.incognito_exit), requestIncognitoExit)
+        }
         if (service == null) {
             Banner(stringResource(R.string.banner_accessibility, settings.assistantName), stringResource(R.string.banner_accessibility_action)) {
                 context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
@@ -273,6 +288,24 @@ fun ChatScreen(graph: AppGraph, speaker: Speaker, onOpenSettings: () -> Unit) {
             text = text,
             onDismiss = { actionItem = null },
             onQuote = { draft = "> " + text.replace('\n', ' ').take(60) + "\n" },
+        )
+    }
+    if (confirmIncognitoExit) {
+        AlertDialog(
+            onDismissRequest = { confirmIncognitoExit = false },
+            title = { Text(stringResource(R.string.incognito_exit_title)) },
+            text = { Text(stringResource(R.string.incognito_exit_message, incognitoCount)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        confirmIncognitoExit = false
+                        session.setIncognito(false)
+                    },
+                ) { Text(stringResource(R.string.incognito_exit_confirm)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmIncognitoExit = false }) { Text(stringResource(R.string.cancel)) }
+            },
         )
     }
 }

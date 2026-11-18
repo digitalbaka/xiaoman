@@ -28,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,7 +40,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import android.widget.Toast
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.xiaoman.app.AppGraph
+import dev.xiaoman.app.AppLink
 import dev.xiaoman.app.R
 import dev.xiaoman.app.speech.Speaker
 
@@ -59,6 +63,21 @@ fun XiaomanRoot(graph: AppGraph) {
     val context = LocalContext.current
     val speaker = remember { Speaker(context) }
     DisposableEffect(speaker) { onDispose { speaker.shutdown() } }
+    val pendingLink by graph.pendingLink.collectAsStateWithLifecycle()
+    LaunchedEffect(pendingLink) {
+        when (val link = pendingLink) {
+            is AppLink.ChatAdd -> {
+                if (graph.session.openExternalChat(link.type.key, link.type.label, link.id)) {
+                    tab = Tab.CHAT
+                } else {
+                    Toast.makeText(context, context.getString(R.string.link_busy), Toast.LENGTH_SHORT).show()
+                }
+                graph.pendingLink.value = null
+            }
+            is AppLink.AlarmSet, is AppLink.PostDetail -> tab = Tab.CHAT
+            null -> Unit
+        }
+    }
     val keyboardOpen = WindowInsets.ime.getBottom(LocalDensity.current) > 0
     Scaffold(
         bottomBar = {
@@ -90,5 +109,23 @@ fun XiaomanRoot(graph: AppGraph) {
                 Tab.SETTINGS -> SettingsScreen(graph)
             }
         }
+    }
+    (pendingLink as? AppLink.AlarmSet)?.let { request ->
+        AlarmSetupDialog(
+            request = request,
+            onDismiss = { graph.pendingLink.value = null },
+            onConfirm = { label, atMillis ->
+                graph.reminderScheduler.schedule(label, atMillis)
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.alarm_scheduled, label, formatTime(atMillis)),
+                    Toast.LENGTH_SHORT,
+                ).show()
+                graph.pendingLink.value = null
+            },
+        )
+    }
+    (pendingLink as? AppLink.PostDetail)?.let { link ->
+        PostDetailDialog(id = link.id, onDismiss = { graph.pendingLink.value = null })
     }
 }

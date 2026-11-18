@@ -34,9 +34,11 @@ class AgentService : LifecycleService() {
             watching = true
             val session = graph.session
             lifecycleScope.launch {
-                combine(session.busy, session.status) { busy, status -> busy to status }.collect { (busy, status) ->
+                combine(session.busy, session.status, session.takeover.paused) { busy, status, paused ->
+                    Triple(busy, status, paused)
+                }.collect { (busy, status, paused) ->
                     if (busy) {
-                        graph.notifier.updateStatus(status)
+                        graph.notifier.updateStatus(if (paused) getString(R.string.notification_taken_over) else status)
                     } else {
                         stopForeground(Service.STOP_FOREGROUND_REMOVE)
                         stopSelf(lastStartId)
@@ -48,7 +50,9 @@ class AgentService : LifecycleService() {
     }
 
     private fun enterForeground(): Boolean = try {
-        val notification = graph.notifier.status(graph.session.status.value)
+        val session = graph.session
+        val text = if (session.takeover.paused.value) getString(R.string.notification_taken_over) else session.status.value
+        val notification = graph.notifier.status(text)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             startForeground(Notifier.ID_STATUS, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
         } else {

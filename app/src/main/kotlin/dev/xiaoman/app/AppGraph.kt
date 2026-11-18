@@ -19,6 +19,7 @@ import dev.xiaoman.app.trace.RecordingDevice
 import dev.xiaoman.app.trace.TraceWriter
 import dev.xiaoman.hands.AccessibilityDevice
 import dev.xiaoman.hands.MutableStopSignal
+import dev.xiaoman.hands.TakeoverControl
 import dev.xiaoman.hands.XiaomanAccessibilityService
 import dev.xiaoman.llm.LlmClientFactory
 import dev.xiaoman.llm.LlmClients
@@ -83,6 +84,12 @@ class AppGraph(context: Context, val llm: LlmClientFactory = LlmClients.default)
     val runIds = RunIds()
     val uiVisible = MutableStateFlow(false)
 
+    /** User takeover state shared by the overlay, the session and the accessibility device. */
+    val takeover = TakeoverControl()
+
+    /** A link parsed from an incoming intent; the UI consumes it (internal routes) and clears it. */
+    val pendingLink = MutableStateFlow<AppLink?>(null)
+
     val traces by lazy {
         TraceWriter(
             root = tracesDir,
@@ -92,7 +99,9 @@ class AppGraph(context: Context, val llm: LlmClientFactory = LlmClients.default)
         )
     }
 
-    val accessibilityDevice by lazy { AccessibilityDevice({ XiaomanAccessibilityService.instance.value }, app) }
+    val accessibilityDevice by lazy {
+        AccessibilityDevice({ XiaomanAccessibilityService.instance.value }, app, takeover = takeover)
+    }
 
     private val device by lazy { RecordingDevice(accessibilityDevice, traces::saveScreenshot) }
 
@@ -104,6 +113,7 @@ class AppGraph(context: Context, val llm: LlmClientFactory = LlmClients.default)
             agent = ::agent,
             runIds = runIds,
             stopSignal = MutableStopSignal(),
+            takeover = takeover,
             trace = traces,
             onTaskEnd = { sentinel.endTask(it) },
             texts = SessionTexts(
