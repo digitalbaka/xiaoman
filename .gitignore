@@ -24,6 +24,7 @@ __pycache__/
 keystore/
 signing.properties
 key.properties
+signing.local.properties
 
 # 本地临时文件
 _tmp_mcp_server.log

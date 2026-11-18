@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -42,9 +44,39 @@ android {
         versionCode = 3
         versionName = "0.2.1"
     }
+    // Local fixed debug key, kept out of the repo: signing.local.properties (git-ignored) holds the
+    // keystore path and passwords, gradle.properties only names that file. Loading it on every build
+    // keeps one certificate on the device, so debug builds overwrite the installed app instead of
+    // forcing an uninstall that wipes the data. When the file is missing the stock debug signing stays.
+    val signingFile = rootProject.file(
+        (project.findProperty("xiaoman.signing.file") as String?) ?: "signing.local.properties",
+    )
+    val localSigning = Properties().apply {
+        if (signingFile.isFile) signingFile.inputStream().use { load(it) }
+    }
+    fun localSigningValue(name: String) = localSigning.getProperty(name)?.takeIf { it.isNotBlank() }
+    val localDebugKeystore = localSigningValue("storeFile")
+    val localDebugStorePassword = localSigningValue("storePassword")
+    val localDebugKeyAlias = localSigningValue("keyAlias")
+    val localDebugKeyPassword = localSigningValue("keyPassword")
+    signingConfigs {
+        if (localDebugKeystore != null && localDebugStorePassword != null &&
+            localDebugKeyAlias != null && localDebugKeyPassword != null
+        ) {
+            create("localDebug") {
+                storeFile = rootProject.file(localDebugKeystore)
+                storePassword = localDebugStorePassword
+                keyAlias = localDebugKeyAlias
+                keyPassword = localDebugKeyPassword
+            }
+        }
+    }
     buildTypes {
         release {
             isMinifyEnabled = false
+        }
+        debug {
+            signingConfigs.findByName("localDebug")?.let { signingConfig = it }
         }
     }
     compileOptions {
