@@ -41,8 +41,8 @@ android {
         applicationId = "dev.xiaoman.app"
         minSdk = 25
         targetSdk = 35
-        versionCode = 3
-        versionName = "0.2.1"
+        versionCode = 4
+        versionName = "0.3"
     }
     // Local fixed debug key, kept out of the repo: signing.local.properties (git-ignored) holds the
     // keystore path and passwords, gradle.properties only names that file. Loading it on every build
