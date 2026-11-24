@@ -31,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
@@ -38,6 +39,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.xiaoman.app.AppGraph
@@ -61,14 +63,16 @@ fun SettingsScreen(graph: AppGraph) {
     var showMcpStore by remember { mutableStateOf(false) }
     var showStores by remember { mutableStateOf(false) }
     var showTheme by remember { mutableStateOf(false) }
+    var showLanguage by remember { mutableStateOf(false) }
     var showAbout by remember { mutableStateOf(false) }
     // Inside a settings sub-page, back returns to the settings list instead of leaving the tab.
-    BackHandler(enabled = showModels || showMcp || showMcpStore || showStores || showTheme || showAbout) {
+    BackHandler(enabled = showModels || showMcp || showMcpStore || showStores || showTheme || showLanguage || showAbout) {
         showModels = false
         showMcp = false
         showMcpStore = false
         showStores = false
         showTheme = false
+        showLanguage = false
         showAbout = false
     }
     if (showAbout) {
@@ -77,6 +81,14 @@ fun SettingsScreen(graph: AppGraph) {
     }
     if (showTheme) {
         ThemeScreen(settings, onSave = { store.save(it) }, onBack = { showTheme = false })
+        return
+    }
+    if (showLanguage) {
+        LanguageScreen(
+            current = settings.language,
+            onSelect = { store.save(store.current.copy(language = it)) },
+            onBack = { showLanguage = false },
+        )
         return
     }
     if (showStores) {
@@ -119,7 +131,7 @@ fun SettingsScreen(graph: AppGraph) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            Text("›", style = MaterialTheme.typography.titleMedium)
+            EntryChevron()
         }
         TextButton(onClick = { showMcpStore = true }, modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.weight(1f), horizontalAlignment = Alignment.Start) {
@@ -130,7 +142,7 @@ fun SettingsScreen(graph: AppGraph) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            Text("›", style = MaterialTheme.typography.titleMedium)
+            EntryChevron()
         }
         TextButton(onClick = { showStores = true }, modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.weight(1f), horizontalAlignment = Alignment.Start) {
@@ -141,7 +153,7 @@ fun SettingsScreen(graph: AppGraph) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            Text("›", style = MaterialTheme.typography.titleMedium)
+            EntryChevron()
         }
         HorizontalDivider()
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
@@ -239,30 +251,16 @@ fun SettingsScreen(graph: AppGraph) {
             )
         }
 
-        Text(stringResource(R.string.settings_language), style = MaterialTheme.typography.titleMedium)
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            FilterChip(
-                selected = settings.language == AppSettings.LANGUAGE_SYSTEM,
-                onClick = { store.save(store.current.copy(language = AppSettings.LANGUAGE_SYSTEM)) },
-                label = { Text(stringResource(R.string.language_system)) },
-            )
-            FilterChip(
-                selected = settings.language == "zh-TW",
-                onClick = { store.save(store.current.copy(language = "zh-TW")) },
-                label = { Text("繁體中文") },
-            )
-        }
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            FilterChip(
-                selected = settings.language == "en",
-                onClick = { store.save(store.current.copy(language = "en")) },
-                label = { Text("English") },
-            )
-            FilterChip(
-                selected = settings.language == "ja",
-                onClick = { store.save(store.current.copy(language = "ja")) },
-                label = { Text("日本語") },
-            )
+        TextButton(onClick = { showLanguage = true }, modifier = Modifier.fillMaxWidth()) {
+            Column(Modifier.weight(1f), horizontalAlignment = Alignment.Start) {
+                Text(stringResource(R.string.settings_language))
+                Text(
+                    languageName(settings.language),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            EntryChevron()
         }
 
         Text(stringResource(R.string.settings_dark_mode), style = MaterialTheme.typography.titleMedium)
@@ -289,7 +287,7 @@ fun SettingsScreen(graph: AppGraph) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            Text("›", style = MaterialTheme.typography.titleMedium)
+            EntryChevron()
         }
 
         Text(stringResource(R.string.settings_font_size), style = MaterialTheme.typography.titleMedium)
@@ -346,7 +344,7 @@ fun SettingsScreen(graph: AppGraph) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            Text("›", style = MaterialTheme.typography.titleMedium)
+            EntryChevron()
         }
     }
 }
@@ -405,5 +403,14 @@ private fun ModelSection(
         singleLine = true,
         enabled = enabled,
         modifier = Modifier.fillMaxWidth(),
+    )
+}
+
+/** Row affordance that points to the reading direction's end, so it mirrors under RTL. */
+@Composable
+private fun EntryChevron() {
+    Text(
+        if (LocalLayoutDirection.current == LayoutDirection.Rtl) "‹" else "›",
+        style = MaterialTheme.typography.titleMedium,
     )
 }

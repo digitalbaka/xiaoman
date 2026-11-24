@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">小满Extra</string>
+    <string name="assistant_default_name">小满Extra</string>
+
+    <!-- Navigation -->
+    <string name="nav_chat">Chat</string>
+    <string name="nav_skills">Fähigkeiten</string>
+    <string name="nav_memory">Gedächtnis</string>
+    <string name="nav_settings">Einstellungen</string>
+    <string name="close">Schließen</string>
+    <string name="back">Zurück</string>
+
+    <!-- Chat -->
+    <string name="chat_input_hint">Schreib Xiaoman Extra eine Nachricht</string>
+    <string name="chat_answer_hint">Antworte Xiaoman Extra</string>
+    <string name="chat_send">Senden</string>
+    <string name="chat_stop">Stopp</string>
+    <string name="chat_busy">Xiaoman Extra verarbeitet noch die vorherige Nachricht</string>
+    <string name="chat_empty">Sag mir, was du tun möchtest, zum Beispiel „ein Taxi nach Hause rufen“ oder „merke dir, dass ich in Haidian, Peking, wohne“.</string>
+    <string name="chat_question_label">Xiaoman Extra fragt</string>
+    <string name="chat_takeover_label">Du musst übernehmen</string>
+    <string name="chat_takeover_hint">Bitte erledige den Schritt auf deinem Handy (Anmeldung, Bestätigungscode oder Sicherheitsseite) und antworte dann hier mit „Erledigt“.</string>
+    <string name="chat_error_label">Etwas ist schiefgelaufen</string>
+    <string name="banner_accessibility">Die Bedienungshilfen sind aus, deshalb kann %1$s noch keine anderen Apps bedienen.</string>
+    <string name="banner_accessibility_action">Einschalten</string>
+    <string name="banner_models">Es sind noch kein Chat-Modell und kein Aktionsmodell eingerichtet.</string>
+    <string name="banner_models_action">Zu den Einstellungen</string>
+    <string name="banner_notifications">Erlaube Benachrichtigungen, damit du bei laufenden Aufgaben und bei Bestätigungen erinnert wirst.</string>
+    <string name="banner_notifications_action">Erlauben</string>
+    <string name="chat_header_subtitle">Dein Handy-Assistent</string>
+    <string name="chat_status_waiting">Wartet auf dich</string>
+    <string name="chat_status_busy">In Arbeit</string>
+    <string name="chat_status_ready">Bereit</string>
+    <string name="chat_status_setup">Einrichtung nötig</string>
+    <string name="chat_status_no_accessibility">Bedienungshilfen aus</string>
+    <string name="chat_welcome_title">Was möchtest du heute machen?</string>
+    <string name="chat_welcome_subtitle">Sag es einfach, ich erledige es.</string>
+    <string name="chat_welcome_more">Oder tippe einfach deinen Wunsch ein</string>
+    <string name="example_notebook_title">Notizbuch auswählen</string>
+    <string name="example_notebook_detail">Unter 20 Yuan, vorher bestätigen</string>
+    <string name="example_notebook_prompt">Suche mir bei Taobao ein A5-Notizbuch für unter 20 Yuan und frage mich vor der Bestellung nach einer Bestätigung.</string>
+    <string name="example_water_title">Erinnere mich ans Wassertrinken</string>
+    <string name="example_water_detail">In 10 Minuten</string>
+    <string name="example_water_prompt">Erinnere mich in 10 Minuten daran, Wasser zu trinken.</string>
+    <string name="example_memory_title">Merke dir meine Vorlieben</string>
+    <string name="example_memory_detail">Damit der Assistent dich besser versteht</string>
+    <string name="example_memory_prompt">Merke dir, dass ich beim Einkaufen einfache und praktische Dinge mag.</string>
+    <string name="chat_placeholder">Sag mir, was du machen möchtest…</string>
+    <string name="chat_placeholder_answer">Sag es mir einfach…</string>
+    <string name="chat_thinking">Ich denke nach…</string>
+    <string name="chat_process_title">Verlauf · %1$d Einträge</string>
+    <string name="chat_process_expand">Verlauf anzeigen</string>
+    <string name="chat_process_collapse">Verlauf ausblenden</string>
+    <string name="chat_notice_takeover">Du wirst gebraucht</string>
+    <string name="chat_notice_followup">Erzähl mir etwas mehr</string>
+    <string name="chat_notice_error">Diesmal nicht abgeschlossen</string>
+
+    <!-- Approvals -->
+    <string name="approval_title">Bestätigung nötig</string>
+    <string name="approval_once">Einmal erlauben</string>
+    <string name="approval_task">Für diese Aufgabe erlauben</string>
+    <string name="approval_deny">Ablehnen</string>
+    <string name="approval_resolved_allowed">Erlaubt: %1$s</string>
+    <string name="approval_resolved_task">Für diese Aufgabe erlaubt: %1$s</string>
+    <string name="approval_resolved_denied">Abgelehnt: %1$s</string>
+
+    <!-- Skills -->
+    <string name="skills_title">Fähigkeiten</string>
+    <string name="skills_reload">Neu laden</string>
+    <string name="skills_empty">Noch keine Fähigkeiten. Lege einen Fähigkeiten-Ordner in %1$s ab und tippe auf Neu laden.</string>
+    <string name="skills_problems">Ladeprobleme</string>
+    <string name="skills_apps">Apps: %1$s</string>
+
+    <!-- Memory -->
+    <string name="memory_search_hint">Erinnerungen durchsuchen</string>
+    <string name="memory_empty">Noch keine Erinnerungen.</string>
+    <string name="memory_no_hits">Keine passenden Notizen gefunden.</string>
+    <string name="memory_delete">Löschen</string>
+    <string name="memory_delete_title">Diese Notiz löschen?</string>
+    <string name="memory_delete_message">„%1$s“ wird dauerhaft von diesem Handy gelöscht.</string>
+    <string name="memory_delete_confirm">Löschen</string>
+    <string name="memory_not_found">Diese Notiz existiert nicht mehr.</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="clear">Leeren</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Einstellungen</string>
+    <string name="settings_manage_models">Modelle verwalten</string>
+    <string name="settings_selected_model">Aktuell: %1$s</string>
+    <string name="settings_no_model">Noch kein Chat-Modell hinzugefügt</string>
+    <string name="settings_personalize">Personalisierung</string>
+    <string name="settings_assistant_name">Name des Assistenten</string>
+    <string name="settings_avatar">Bild des Assistenten</string>
+    <string name="settings_avatar_pick">Bild auswählen</string>
+    <string name="settings_avatar_reset">Zurücksetzen</string>
+    <string name="settings_theme_color">Themenfarbe</string>
+    <string name="settings_background">Chat-Hintergrund</string>
+    <string name="settings_background_pick">Bild auswählen</string>
+    <string name="settings_background_reset">Zurücksetzen</string>
+    <string name="settings_name_save">Namen speichern</string>
+    <string name="crop_title">Bild zuschneiden</string>
+    <string name="crop_use">Verwenden</string>
+    <string name="crop_hint">Mit zwei Fingern zoomen, durch Ziehen verschieben</string>
+    <string name="image_load_failed">Bild konnte nicht gelesen werden, bitte versuche ein anderes</string>
+
+    <!-- Models -->
+    <string name="models_title">Modelle</string>
+    <string name="models_add">Modell hinzufügen</string>
+    <string name="models_empty">Noch keine Modelle. Füge einen OpenAI-kompatiblen Endpunkt hinzu, um ihn im Chat zu nutzen.</string>
+    <string name="models_default">Standard</string>
+    <string name="models_edit">Bearbeiten</string>
+    <string name="models_delete">Löschen</string>
+    <string name="models_name">Name</string>
+    <string name="models_name_hint">Zum Beispiel: Volcano Ark</string>
+    <string name="models_model_id">Modell-ID</string>
+    <string name="models_max_tokens">Maximale Ausgabe-Token (optional)</string>
+    <string name="models_test">Verbindung testen</string>
+    <string name="models_testing">Wird getestet…</string>
+    <string name="models_test_ok">Verbunden</string>
+    <string name="models_test_failed">Verbindung fehlgeschlagen: %1$s</string>
+    <string name="models_delete_title">Modell löschen?</string>
+    <string name="models_delete_message">„%1$s“ wird aus der Liste entfernt, andere Modelle bleiben unberührt.</string>
+    <string name="models_required">Bitte Base URL und Modell-ID ausfüllen</string>
+    <string name="models_key_required">Bitte API Key ausfüllen</string>
+    <string name="models_save_failed">Speichern fehlgeschlagen, bitte Eingaben prüfen</string>
+    <string name="models_fetch">Modellliste abrufen</string>
+    <string name="models_fetch_refresh">Liste aktualisieren</string>
+    <string name="models_fetching">Wird abgerufen…</string>
+    <string name="models_fetch_ok">%1$d Modelle abgerufen</string>
+    <string name="models_fetch_empty">Dieser Dienst hat keine Modelle zurückgegeben, du kannst sie weiterhin manuell eintragen</string>
+    <string name="models_fetch_unauthorized">Authentifizierung fehlgeschlagen (HTTP %1$d), bitte API Key prüfen</string>
+    <string name="models_fetch_not_found">Diese Adresse hat keinen /models-Endpunkt (HTTP %1$d), du kannst weiterhin manuell eintragen</string>
+    <string name="models_fetch_timeout">Zeitüberschreitung, bitte Netzwerk oder Base URL prüfen</string>
+    <string name="models_fetch_network">Netzwerkanfrage fehlgeschlagen, bitte Netzwerk oder Base URL prüfen</string>
+    <string name="models_fetch_malformed">Die Antwort ist keine Modellliste</string>
+    <string name="models_fetch_server">Serverfehler (HTTP %1$d)</string>
+    <string name="models_fetch_http">Anfrage fehlgeschlagen (HTTP %1$d)</string>
+    <string name="models_fetch_stale">Liste vor %1$d Tagen abgerufen, du kannst aktualisieren</string>
+    <string name="models_pick_title">Modell auswählen</string>
+    <string name="models_pick_search">Modelle durchsuchen</string>
+    <string name="models_pick_no_match">Keine passenden Modelle</string>
+
+    <!-- Skills install -->
+    <string name="skills_install">Fähigkeit installieren</string>
+    <string name="skills_install_title">Fähigkeit installieren</string>
+    <string name="skills_install_url">Aus Link installieren</string>
+    <string name="skills_install_zip">Aus lokaler ZIP installieren</string>
+    <string name="skills_install_url_hint">https://example.com/skill.zip</string>
+    <string name="skills_install_hint">Die ZIP muss SKILL.md enthalten. Sie kann eine Fähigkeit oder ein Repository mit mehreren Fähigkeiten enthalten.</string>
+    <string name="skills_install_action">Installieren</string>
+    <string name="skills_installing">Wird installiert…</string>
+    <string name="skills_install_ok">Installiert: %1$s</string>
+    <string name="skills_install_failed">Installation fehlgeschlagen: %1$s</string>
+    <string name="skills_pick_zip">ZIP-Datei auswählen</string>
+    <string name="skills_installed">Installiert</string>
+    <string name="skills_bundled">Integriert</string>
+    <string name="skills_enable">Aktivieren</string>
+    <string name="skills_disable">Deaktivieren</string>
+    <string name="skills_delete">Löschen</string>
+    <string name="skills_delete_title">Fähigkeit löschen?</string>
+    <string name="skills_delete_message">„%1$s“ wird aus der App entfernt.</string>
+    <string name="skills_no_installed">Noch keine Fähigkeiten installiert. Integrierte Fähigkeiten bleiben verfügbar.</string>
+    <string name="skills_disabled">Deaktiviert</string>
+    <string name="skills_user_skills">Installiert</string>
+    <string name="skills_origin">Quelle: %1$s</string>
+    <string name="skills_shop_entry">Store</string>
+    <string name="skills_shop_back">Zurück</string>
+    <string name="skills_shop_title">Fähigkeiten-Store</string>
+    <string name="skills_shop_search_hint">Fähigkeiten durchsuchen</string>
+    <string name="skills_shop_search">Suchen</string>
+    <string name="skills_shop_install">Installieren</string>
+    <string name="skills_shop_installing">Wird installiert…</string>
+    <string name="skills_shop_downloads">%1$d Downloads</string>
+    <string name="skills_shop_footer">Fähigkeiten stammen von %1$s und werden in das Fähigkeiten-Verzeichnis der App installiert; danach kannst du sie in der Liste aktivieren, deaktivieren oder löschen.</string>
+
+    <!-- Memory folders -->
+    <string name="memory_all">Alle</string>
+    <string name="memory_subtitle">Organisiere deine Erinnerungen in Ordnern</string>
+    <string name="memory_notes">Notizen</string>
+    <string name="memory_new_folder">Neuer Ordner</string>
+    <string name="memory_folder_name">Ordnername</string>
+    <string name="memory_create">Erstellen</string>
+    <string name="memory_rename">Umbenennen</string>
+    <string name="memory_move">Verschieben</string>
+    <string name="memory_move_note">Notiz verschieben</string>
+    <string name="memory_move_to">Verschieben nach</string>
+    <string name="memory_root">Stammordner</string>
+    <string name="memory_delete_folder_title">Ordner löschen?</string>
+    <string name="memory_delete_folder_message">„%1$s“ und die darin enthaltenen Notizen werden dauerhaft gelöscht.</string>
+    <string name="memory_items">%1$d Einträge</string>
+    <string name="memory_back_root">Alle Erinnerungen</string>
+    <string name="memory_empty_folder">In diesem Ordner gibt es noch keine Notizen.</string>
+    <string name="memory_folder_exists">Ein Ordner mit diesem Namen existiert bereits</string>
+    <string name="memory_rename_folder">Ordner umbenennen</string>
+    <string name="memory_name_empty">Der Name darf nicht leer sein</string>
+    <string name="memory_folder_error">Vorgang fehlgeschlagen: %1$s</string>
+    <string name="memory_unfiled">Unsortiert</string>
+
+    <string name="settings_chat_model">Chat-Modell</string>
+    <string name="settings_operator_model">Aktionsmodell (Bildunterstützung erforderlich)</string>
+    <string name="settings_base_url">Base URL</string>
+    <string name="settings_model">Modellname</string>
+    <string name="settings_api_key">API Key</string>
+    <string name="settings_show_key">API Key anzeigen</string>
+    <string name="settings_hide_key">API Key ausblenden</string>
+    <string name="settings_temperature">Temperature (optional)</string>
+    <string name="settings_agent">Aufgaben</string>
+    <string name="settings_max_steps">Maximale Schritte</string>
+    <string name="settings_learn">Erfolgreiche Pfade merken</string>
+    <string name="settings_save">Speichern</string>
+    <string name="settings_saved">Gespeichert</string>
+    <string name="settings_invalid_number">Bitte eine gültige Zahl eingeben</string>
+    <string name="settings_copy_chat">Wie Chat-Modell</string>
+    <string name="settings_same_as_chat_hint">Wenn aktiviert, nutzt das Aktionsmodell Base URL, Modellname, Key und Parameter des Chat-Modells; die Felder unten sind dann nicht bearbeitbar</string>
+    <string name="settings_mcp_entry">Externe Dienste / MCP-Dienste</string>
+    <string name="settings_mcp_enabled">%1$d aktiviert</string>
+    <string name="settings_folders">Ordner</string>
+    <string name="settings_folder_skills">Fähigkeiten: %1$s</string>
+    <string name="settings_folder_memory">Erinnerungen: %1$s</string>
+    <string name="settings_folder_traces">Verläufe: %1$s</string>
+
+    <!-- Service and notifications -->
+    <string name="channel_status">Aufgabenstatus</string>
+    <string name="channel_status_description">Wird angezeigt, während Xiaoman Extra eine Aufgabe ausführt</string>
+    <string name="channel_attention">Du wirst gebraucht</string>
+    <string name="channel_attention_description">Erinnerung, wenn Xiaoman Extra deine Bestätigung oder Antwort braucht</string>
+    <string name="channel_reminders">Zeitgesteuerte Erinnerungen</string>
+    <string name="channel_reminders_description">Benachrichtigung, wenn deine Erinnerung fällig ist</string>
+    <string name="notification_running">Xiaoman Extra arbeitet</string>
+    <string name="notification_question">Xiaoman Extra hat eine Frage an dich</string>
+    <string name="reminder_title">Erinnerung</string>
+
+    <!-- Session messages -->
+    <string name="session_not_configured">Es ist noch kein Modell eingerichtet. Bitte trage in den Einstellungen Chat-Modell und Aktionsmodell ein.</string>
+    <string name="session_busy">Es läuft bereits eine Aufgabe, bitte später erneut versuchen.</string>
+    <string name="session_stopped">Gestoppt</string>
+
+    <!-- Conversation history -->
+    <string name="chat_history">Verlauf</string>
+    <string name="chat_history_new">Neue Unterhaltung</string>
+    <string name="chat_history_empty">Noch keine früheren Unterhaltungen. Alles, worüber du sprichst, wird hier automatisch gespeichert.</string>
+    <string name="chat_history_open">Unterhaltung öffnen</string>
+    <string name="chat_history_delete">Unterhaltung löschen</string>
+    <string name="chat_history_delete_title">Diese Unterhaltung löschen?</string>
+    <string name="chat_history_delete_message">„%1$s“ wird in den Papierkorb verschoben und kann jederzeit wiederhergestellt werden.</string>
+    <string name="chat_history_delete_forever_title">Diese Unterhaltung endgültig löschen?</string>
+    <string name="chat_history_delete_forever_message">„%1$s“ wird dauerhaft von diesem Handy gelöscht und kann nicht wiederhergestellt werden.</string>
+    <string name="chat_history_delete_forever">Endgültig löschen</string>
+    <string name="chat_history_restore">Wiederherstellen</string>
+    <string name="chat_history_archive">Archivieren</string>
+    <string name="chat_history_unarchive">Aus Archiv holen</string>
+    <string name="chat_history_tab_all">Alle</string>
+    <string name="chat_history_tab_archived">Archiviert</string>
+    <string name="chat_history_tab_trash">Papierkorb</string>
+    <string name="chat_history_archived_empty">Noch keine archivierten Unterhaltungen</string>
+    <string name="chat_history_trash_empty">Der Papierkorb ist leer</string>
+    <string name="chat_history_clear_trash">Papierkorb leeren</string>
+    <string name="chat_history_clear_trash_title">Papierkorb leeren?</string>
+    <string name="chat_history_clear_trash_message">Die %1$d Unterhaltungen im Papierkorb werden endgültig gelöscht und können nicht wiederhergestellt werden.</string>
+    <string name="chat_history_more">Weitere Aktionen</string>
+    <string name="chat_history_incognito">Inkognito aktiv: Öffnen einer gespeicherten Unterhaltung beendet den Inkognito-Modus</string>
+    <string name="chat_history_count">%1$d Nachrichten</string>
+    <string name="chat_history_current">Aktuell</string>
+    <string name="chat_history_busy">Eine Aufgabe läuft, Unterhaltungen können gerade nicht gewechselt oder verwaltet werden</string>
+    <string name="incognito_title">Inkognito-Modus</string>
+    <string name="incognito_banner">Inkognito aktiv: Diese Unterhaltung wird nicht gespeichert und hinterlässt beim Beenden keine Spuren</string>
+    <string name="incognito_exit">Beenden</string>
+    <string name="incognito_exit_title">Inkognito-Modus beenden?</string>
+    <string name="incognito_exit_message">Im Inkognito-Modus sind %1$d Unterhaltungen entstanden. Beim Beenden werden alle gelöscht und können nicht wiederhergestellt werden. Frühere Unterhaltungen bleiben unberührt.</string>
+    <string name="incognito_exit_confirm">Beenden und löschen</string>
+    <string name="overlay_taken_over">Übernommen: Bediene das Handy selbst und tippe auf „Fortsetzen“, um Xiaoman Extra wieder zu übergeben</string>
+    <string name="notification_taken_over">Übernommen: Xiaoman Extra ist pausiert. Tippe im Overlay auf „Fortsetzen“, um weiterzumachen</string>
+    <string name="alarm_dialog_title">Neue Erinnerung</string>
+    <string name="alarm_dialog_time">Uhrzeit (HH:mm)</string>
+    <string name="alarm_dialog_label">Erinnerungstext</string>
+    <string name="alarm_dialog_default_label">Wecker</string>
+    <string name="alarm_dialog_confirm">Festlegen</string>
+    <string name="alarm_dialog_invalid_time">Bitte eine Uhrzeit im Format HH:mm eingeben</string>
+    <string name="alarm_scheduled">Erinnerung gesetzt: %1$s (%2$s)</string>
+    <string name="post_detail_title">Beitragsdetails</string>
+    <string name="post_detail_message">Dieser Beitrag ist nicht verfügbar.\n\nBeitrags-ID: %1$s</string>
+    <string name="link_busy">Eine Aufgabe läuft; öffne den Link nach ihrem Ende</string>
+    <string name="chat_search">Chat-Verlauf durchsuchen</string>
+    <string name="chat_search_hint">Stichwort eingeben</string>
+    <string name="chat_search_scope_current">Diese Unterhaltung</string>
+    <string name="chat_search_scope_all">Alle Unterhaltungen</string>
+    <string name="chat_search_tip">Gib ein Stichwort ein, um in dieser oder in allen Unterhaltungen zu suchen</string>
+    <string name="chat_search_empty">Keine passenden Inhalte gefunden</string>
+    <string name="chat_search_open">Öffnen</string>
+    <string name="chat_actions_title">Nachrichtenaktionen</string>
+    <string name="chat_copy">Kopieren</string>
+    <string name="chat_share">Teilen</string>
+    <string name="chat_quote">Zitieren</string>
+    <string name="chat_copied">Kopiert</string>
+
+    <!-- Task suggestions -->
+    <string name="settings_show_suggestions">Aufgabenempfehlungen anzeigen</string>
+    <string name="settings_show_suggestions_hint">Zeigt im leeren Startbildschirm drei Beispielkarten wie „Notizbuch auswählen“</string>
+
+    <string name="skill_store_title">Fähigkeiten-Store-Quellen</string>
+    <string name="skill_store_hint">Eine Quelle muss die SkillHub-Schnittstelle unterstützen (/api/v1/search, /showcase/hot, /download). Nach dem Wechsel nutzt der Store-Tab die gewählte Quelle.</string>
+    <string name="skill_store_builtin">Integriert</string>
+    <string name="skill_store_add">Eigene Quelle hinzufügen</string>
+    <string name="skill_store_name">Name</string>
+    <string name="skill_store_url">Schnittstellenadresse (https://…)</string>
+    <string name="skill_store_add_button">Hinzufügen und wechseln</string>
+    <string name="skill_store_delete">Diese Quelle löschen</string>
+    <string name="skill_store_error_name">Bitte einen Namen eingeben</string>
+    <string name="skill_store_error_url">Die Adresse muss mit http:// oder https:// beginnen</string>
+    <string name="settings_skill_store_entry">Fähigkeiten-Store-Quelle</string>
+    <string name="settings_skill_store_current">Aktuell: %1$s</string>
+
+    <!-- Chat attachments -->
+    <string name="chat_attach">Bild oder Datei hinzufügen</string>
+    <string name="chat_attach_image">Bild</string>
+    <string name="chat_attach_file">Datei</string>
+    <string name="chat_attachment_remove">Anhang entfernen</string>
+    <string name="chat_attachment_image">Bild</string>
+    <string name="chat_attachment_file">Datei</string>
+    <string name="chat_image_model_warning">Das aktuelle Modell unterstützt möglicherweise keine Bilder; nach dem Senden kann der Bildinhalt eventuell nicht erkannt werden</string>
+    <string name="session_sent_attachments">Bitte sieh dir diese Anhänge an.</string>
+
+    <!-- MCP store -->
+    <string name="mcp_store_entry">MCP-Store</string>
+    <string name="mcp_store_entry_hint">Externe Dienste durchsuchen und mit einem Tipp hinzufügen</string>
+
+    <!-- Conversational skill editing -->
+    <string name="skill_draft_title">Fähigkeiten-Entwurf</string>
+    <string name="skill_delete_title">Fähigkeit löschen</string>
+    <string name="skill_draft_hint">Erst nach deiner Bestätigung wird es in die Fähigkeiten-Seite geschrieben; du kannst auch „Bestätigen“ antworten</string>
+    <string name="skill_delete_hint">Löschen kann nicht rückgängig gemacht werden; integrierte Fähigkeiten bleiben unberührt</string>
+    <string name="skill_confirm_add">Hinzufügen bestätigen</string>
+    <string name="skill_confirm_delete">Löschen bestätigen</string>
+    <string name="skill_cancel">Abbrechen</string>
+    <string name="skill_change_cancelled">Änderung der Fähigkeit abgebrochen</string>
+
+    <!-- Appearance -->
+    <string name="settings_language">Sprache / Language</string>
+    <string name="language_system">Systemsprache</string>
+    <string name="settings_dark_mode">Dunkelmodus</string>
+    <string name="dark_mode_system">Wie System</string>
+    <string name="dark_mode_light">Hell</string>
+    <string name="dark_mode_dark">Dunkel</string>
+    <string name="settings_font_size">Schriftgröße</string>
+    <string name="settings_font_size_hint">Gilt sofort für die gesamte App</string>
+    <string name="settings_speak_replies">Antworten vorlesen</string>
+    <string name="settings_speak_replies_hint">Liest Antworten mit der Sprachausgabe des Handys vor; lange Antworten werden abschnittsweise gelesen und können jederzeit gestoppt werden</string>
+    <string name="settings_start_fresh">Beim Start neue Unterhaltung öffnen</string>
+    <string name="settings_start_fresh_hint">Beginnt jedes Mal mit einer leeren Unterhaltung; gespeicherte Unterhaltungen bleiben in der Liste</string>
+    <string name="chat_speaking">Wird vorgelesen…</string>
+    <string name="chat_stop_speaking">Vorlesen stoppen</string>
+    <string name="theme_entry">Design &amp; Farben</string>
+    <string name="theme_entry_hint">Vorlagen, eigene Farbe, Farben aus dem Hintergrundbild</string>
+    <string name="theme_title">Design</string>
+    <string name="theme_subtitle">Wähle eine Farbpalette, sieh dir die Vorschau an und wende sie dann an</string>
+    <string name="theme_preview">Vorschau</string>
+    <string name="theme_preview_reply">Ich habe dir den heutigen Terminplan zusammengestellt, passt er so?</string>
+    <string name="theme_preview_user">Super, danke</string>
+    <string name="theme_presets">Design-Vorlagen</string>
+    <string name="theme_wallpaper">Farben aus dem Hintergrundbild</string>
+    <string name="theme_wallpaper_hint">Nutzt die vom System aus dem Hintergrundbild erzeugten Farben und aktualisiert sie bei Änderungen; die eigene Farbe gilt dann nicht</string>
+    <string name="theme_wallpaper_unsupported">Farben aus dem Hintergrundbild benötigen Android 12 oder neuer; diese Systemversion unterstützt das nicht</string>
+    <string name="theme_custom">Eigene Farbe</string>
+    <string name="theme_custom_label">Farbwert (#RRGGBB)</string>
+    <string name="theme_custom_invalid">Bitte eine 6-stellige Hexadezimalfarbe mit # am Anfang eingeben</string>
+    <string name="theme_custom_use">Diese Farbe verwenden</string>
+    <string name="theme_apply">Design anwenden</string>
+    <string name="theme_applied">Angewendet</string>
+    <string name="theme_preset_ocean">Ozean</string>
+    <string name="theme_preset_purple">Nebel</string>
+    <string name="theme_preset_pink">Pfirsich</string>
+    <string name="theme_preset_sunset">Sonnenuntergang</string>
+    <string name="theme_preset_forest">Wald</string>
+    <string name="theme_preset_graphite">Graphit</string>
+    <string name="theme_preset_celadon">Seladon</string>
+    <string name="theme_preset_indigo">Indigo</string>
+    <string name="theme_preset_rose">Rose</string>
+    <string name="theme_preset_coffee">Kaffee</string>
+    <string name="about_entry">Über Xiaoman Extra</string>
+    <string name="about_entry_hint">Versionsnummer, Projektvorstellung und Open-Source-Repository</string>
+    <string name="about_title">Über</string>
+    <string name="about_version">Version %1$s (%2$d)</string>
+    <string name="about_intro_title">Über das Projekt</string>
+    <string name="about_intro">Xiaoman Extra ist ein quelloffener Handy-Assistent: Ein Satz genügt, und er bedient dein Handy für dich, merkt sich deine Vorlieben und kombiniert Fähigkeiten und externe Dienste nach Bedarf. Unterhaltungen und Daten bleiben auf diesem Gerät.</string>
+    <string name="about_repo_title">Open-Source-Repository</string>
+    <string name="about_repo_hint">Quellcode, Änderungsprotokoll und Fehlerberichte findest du auf GitHub</string>
+    <string name="about_license">Dieses Projekt ist quelloffen. Issues und Pull Requests sind willkommen.</string>
+
+    <!-- Language -->
+    <string name="language_title">Sprache</string>
+    <string name="language_subtitle">Wähle eine Oberflächensprache, die Änderung wirkt sofort</string>
+    <string name="language_system_hint">Verwendet die aktuelle Systemsprache des Handys</string>
+
+    <!-- Appearance -->
+    <string name="appearance_title">Darstellung</string>
+    <string name="appearance_theme">Themenfarbe</string>
+    <string name="appearance_font_size">Schriftgröße</string>
+    <string name="appearance_brightness">Bildschirmhelligkeit</string>
+    <string name="appearance_brightness_follow">Wie die Systemhelligkeit</string>
+    <string name="appearance_background_dim">Hintergrundabdunkelung</string>
+    <string name="appearance_opacity">Oberflächentransparenz</string>
+    <string name="appearance_reset">Zurücksetzen</string>
+    <string name="theme_preset_sakura">Sakura</string>
+    <string name="theme_preset_lavender">Lavendel</string>
+    <string name="theme_preset_mint">Minze</string>
+
+    <!-- Skills page -->
+    <string name="skills_new">Neue Fähigkeit</string>
+    <string name="skills_modify_one_sentence">Mit einem Satz ändern</string>
+    <string name="skills_modify_title">Fähigkeit mit einem Satz ändern</string>
+    <string name="skills_modify_hint">Beschreibe die gewünschte Änderung, Xiaoman aktualisiert dann diese Fähigkeit.</string>
+    <string name="skills_modify_send">An Xiaoman senden</string>
+    <string name="skills_new_prompt">Hilf mir, eine neue Fähigkeit zu erstellen. Frag mich zuerst, was sie tun soll.</string>
+</resources>

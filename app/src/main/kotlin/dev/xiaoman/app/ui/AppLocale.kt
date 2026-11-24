@@ -30,22 +30,30 @@ private class LocalizedContext(base: Context, private val localized: Resources) 
     override fun getResources(): Resources = localized
 }
 
-/** Runs [content] with strings and configuration of [language]; no-op for "follow system". */
+/**
+ * Runs [content] with strings and configuration of [language]; for "follow system" the current
+ * context is passed through untouched. The provider is always emitted so that switching language
+ * keeps the composition tree (and the state of the page the user is on) intact.
+ */
 @Composable
 internal fun LocalizedContextProvider(language: String, content: @Composable () -> Unit) {
     val base = LocalContext.current
-    if (language == AppSettings.LANGUAGE_SYSTEM) {
-        content()
-        return
+    val currentConfig = LocalConfiguration.current
+    val config = if (language == AppSettings.LANGUAGE_SYSTEM) {
+        currentConfig
+    } else {
+        val locale = remember(language) { Locale.forLanguageTag(language) }
+        remember(locale) { Configuration(currentConfig).apply { setLocale(locale) } }
     }
-    val locale = remember(language) { Locale.forLanguageTag(language) }
-    val config = remember(locale) {
-        Configuration(base.resources.configuration).apply { setLocale(locale) }
+    val context = if (language == AppSettings.LANGUAGE_SYSTEM) {
+        base
+    } else {
+        remember(language, base, config) {
+            LocalizedContext(base, base.createConfigurationContext(config).resources)
+        }
     }
-    val resources = remember(language, base) { base.createConfigurationContext(config).resources }
-    val localized = remember(language, base) { LocalizedContext(base, resources) }
     CompositionLocalProvider(
-        LocalContext provides localized,
+        LocalContext provides context,
         LocalConfiguration provides config,
     ) { content() }
 }

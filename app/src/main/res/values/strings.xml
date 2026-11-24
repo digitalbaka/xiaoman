@@ -386,4 +386,30 @@
     <string name="about_repo_title">开源仓库</string>
     <string name="about_repo_hint">项目源码、更新日志与问题反馈都在 GitHub 上</string>
     <string name="about_license">本项目基于开源协议开放，欢迎提交 Issue 与 Pull Request。</string>
+
+    <!-- Language -->
+    <string name="language_title">语言</string>
+    <string name="language_subtitle">选一个界面语言，切换后立即生效</string>
+    <string name="language_system_hint">使用手机当前的系统语言</string>
+
+    <!-- Appearance -->
+    <string name="appearance_title">外观</string>
+    <string name="appearance_theme">主题色</string>
+    <string name="appearance_font_size">字体大小</string>
+    <string name="appearance_brightness">屏幕亮度</string>
+    <string name="appearance_brightness_follow">跟随系统亮度</string>
+    <string name="appearance_background_dim">背景明暗</string>
+    <string name="appearance_opacity">界面透明度</string>
+    <string name="appearance_reset">恢复默认</string>
+    <string name="theme_preset_sakura">樱粉</string>
+    <string name="theme_preset_lavender">薰衣草</string>
+    <string name="theme_preset_mint">薄荷</string>
+
+    <!-- Skills page -->
+    <string name="skills_new">新建技能</string>
+    <string name="skills_modify_one_sentence">用一句话修改</string>
+    <string name="skills_modify_title">用一句话修改技能</string>
+    <string name="skills_modify_hint">说说想怎么改，小满会更新这个技能。</string>
+    <string name="skills_modify_send">交给小满</string>
+    <string name="skills_new_prompt">帮我新建一个技能，先问我想让它做什么。</string>
 </resources>

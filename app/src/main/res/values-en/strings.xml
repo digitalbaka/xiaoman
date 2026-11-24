@@ -386,4 +386,30 @@
     <string name="about_repo_title">Source repository</string>
     <string name="about_repo_hint">Source code, release notes and issue tracking live on GitHub</string>
     <string name="about_license">This project is open source. Issues and pull requests are welcome.</string>
+
+    <!-- Language -->
+    <string name="language_title">Language</string>
+    <string name="language_subtitle">Pick the interface language. Changes apply immediately.</string>
+    <string name="language_system_hint">Use your phone\'s current language</string>
+
+    <!-- Appearance -->
+    <string name="appearance_title">Appearance</string>
+    <string name="appearance_theme">Theme color</string>
+    <string name="appearance_font_size">Font size</string>
+    <string name="appearance_brightness">Screen brightness</string>
+    <string name="appearance_brightness_follow">Follow system brightness</string>
+    <string name="appearance_background_dim">Background dim</string>
+    <string name="appearance_opacity">Interface opacity</string>
+    <string name="appearance_reset">Reset</string>
+    <string name="theme_preset_sakura">Sakura</string>
+    <string name="theme_preset_lavender">Lavender</string>
+    <string name="theme_preset_mint">Mint</string>
+
+    <!-- Skills page -->
+    <string name="skills_new">New skill</string>
+    <string name="skills_modify_one_sentence">Edit with one sentence</string>
+    <string name="skills_modify_title">Edit skill with one sentence</string>
+    <string name="skills_modify_hint">Describe the change and Xiaoman will update this skill.</string>
+    <string name="skills_modify_send">Send to Xiaoman</string>
+    <string name="skills_new_prompt">Help me create a new skill. Ask me what it should do first.</string>
 </resources>

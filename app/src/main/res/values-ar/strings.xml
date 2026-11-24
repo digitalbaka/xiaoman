@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">شياومان إكسترا</string>
+    <string name="assistant_default_name">شياومان إكسترا</string>
+
+    <!-- Navigation -->
+    <string name="nav_chat">المحادثة</string>
+    <string name="nav_skills">المهارات</string>
+    <string name="nav_memory">الذاكرة</string>
+    <string name="nav_settings">الإعدادات</string>
+    <string name="close">إغلاق</string>
+    <string name="back">رجوع</string>
+
+    <!-- Chat -->
+    <string name="chat_input_hint">اكتب رسالة إلى شياومان إكسترا</string>
+    <string name="chat_answer_hint">أجب عن سؤال شياومان إكسترا</string>
+    <string name="chat_send">إرسال</string>
+    <string name="chat_stop">إيقاف</string>
+    <string name="chat_busy">شياومان إكسترا لا يزال يعالج الرسالة السابقة</string>
+    <string name="chat_empty">أخبرني بما تريد فعله، مثل «اطلب سيارة إلى المنزل» أو «تذكّر أنني أسكن في حي هايديان ببكين».</string>
+    <string name="chat_question_label">يسأل شياومان إكسترا</string>
+    <string name="chat_takeover_label">تحتاج إلى التدخل</string>
+    <string name="chat_takeover_hint">أكمل الخطوة على هاتفك (تسجيل الدخول أو رمز التحقق أو صفحة الأمان)، ثم ارد هنا بـ«تم».</string>
+    <string name="chat_error_label">حدث خطأ</string>
+    <string name="banner_accessibility">خدمة إمكانية الوصول غير مفعّلة، لذا لا يستطيع %1$s تشغيل التطبيقات الأخرى بعد.</string>
+    <string name="banner_accessibility_action">تفعيل</string>
+    <string name="banner_models">لم يتم إعداد نموذج المحادثة ونموذج التشغيل بعد.</string>
+    <string name="banner_models_action">فتح الإعدادات</string>
+    <string name="banner_notifications">اسمح بالإشعارات ليتم تذكيرك عند تشغيل المهام أو عندما يلزم تأكيدك.</string>
+    <string name="banner_notifications_action">السماح</string>
+    <string name="chat_header_subtitle">مساعد هاتفك</string>
+    <string name="chat_status_waiting">بانتظارك</string>
+    <string name="chat_status_busy">قيد المعالجة</string>
+    <string name="chat_status_ready">جاهز</string>
+    <string name="chat_status_setup">يحتاج إلى إعداد</string>
+    <string name="chat_status_no_accessibility">إمكانية الوصول غير مفعّلة</string>
+    <string name="chat_welcome_title">ماذا تريد أن تفعل اليوم؟</string>
+    <string name="chat_welcome_subtitle">قل جملة واحدة وسأتولى العمل عنك.</string>
+    <string name="chat_welcome_more">أو اكتب فكرتك مباشرة</string>
+    <string name="example_notebook_title">اختر دفتراً</string>
+    <string name="example_notebook_detail">بأقل من 20 يواناً، أكّد لي أولاً</string>
+    <string name="example_notebook_prompt">ساعدني في اختيار دفتر A5 بأقل من 20 يواناً على تاوباو، وأكّد معي بعد الاختيار.</string>
+    <string name="example_water_title">ذكّرني بشرب الماء</string>
+    <string name="example_water_detail">بعد 10 دقائق</string>
+    <string name="example_water_prompt">ذكّرني بشرب الماء بعد 10 دقائق.</string>
+    <string name="example_memory_title">تذكّر تفضيلاتي</string>
+    <string name="example_memory_detail">دع المساعد يفهمك تدريجياً</string>
+    <string name="example_memory_prompt">تذكّر أنني أحب الأشياء البسيطة والعملية عند الشراء.</string>
+    <string name="chat_placeholder">أخبرني بما تريد فعله…</string>
+    <string name="chat_placeholder_answer">فقط أخبرني…</string>
+    <string name="chat_thinking">أفكر في الأمر…</string>
+    <string name="chat_process_title">سير المعالجة · %1$d سجلات</string>
+    <string name="chat_process_expand">إظهار سير المعالجة</string>
+    <string name="chat_process_collapse">إخفاء سير المعالجة</string>
+    <string name="chat_notice_takeover">أحتاج مساعدتك</string>
+    <string name="chat_notice_followup">أخبرني بمزيد</string>
+    <string name="chat_notice_error">لم تكتمل هذه المرة</string>
+
+    <!-- Approvals -->
+    <string name="approval_title">يحتاج إلى تأكيدك</string>
+    <string name="approval_once">السماح مرة واحدة</string>
+    <string name="approval_task">السماح لهذه المهمة</string>
+    <string name="approval_deny">رفض</string>
+    <string name="approval_resolved_allowed">تم السماح: %1$s</string>
+    <string name="approval_resolved_task">تم السماح لهذه المهمة: %1$s</string>
+    <string name="approval_resolved_denied">تم الرفض: %1$s</string>
+
+    <!-- Skills -->
+    <string name="skills_title">المهارات</string>
+    <string name="skills_reload">إعادة التحميل</string>
+    <string name="skills_empty">لا توجد مهارات بعد. ضع مجلد المهارة في %1$s ثم اضغط إعادة التحميل.</string>
+    <string name="skills_problems">مشكلات التحميل</string>
+    <string name="skills_apps">التطبيقات: %1$s</string>
+
+    <!-- Memory -->
+    <string name="memory_search_hint">البحث في الذاكرة</string>
+    <string name="memory_empty">لا توجد ذكريات بعد.</string>
+    <string name="memory_no_hits">لم يتم العثور على ملاحظات مطابقة.</string>
+    <string name="memory_delete">حذف</string>
+    <string name="memory_delete_title">حذف هذه الملاحظة؟</string>
+    <string name="memory_delete_message">سيُحذف «%1$s» نهائياً من الهاتف.</string>
+    <string name="memory_delete_confirm">حذف</string>
+    <string name="memory_not_found">هذه الملاحظة لم تعد موجودة.</string>
+    <string name="cancel">إلغاء</string>
+    <string name="clear">مسح</string>
+
+    <!-- Settings -->
+    <string name="settings_title">الإعدادات</string>
+    <string name="settings_manage_models">إدارة النماذج</string>
+    <string name="settings_selected_model">الافتراضي الحالي: %1$s</string>
+    <string name="settings_no_model">لم تتم إضافة نموذج محادثة بعد</string>
+    <string name="settings_personalize">التخصيص</string>
+    <string name="settings_assistant_name">اسم المساعد</string>
+    <string name="settings_avatar">صورة المساعد</string>
+    <string name="settings_avatar_pick">اختيار صورة</string>
+    <string name="settings_avatar_reset">استعادة الافتراضي</string>
+    <string name="settings_theme_color">لون المظهر</string>
+    <string name="settings_background">خلفية المحادثة</string>
+    <string name="settings_background_pick">اختيار صورة</string>
+    <string name="settings_background_reset">استعادة الافتراضي</string>
+    <string name="settings_name_save">حفظ الاسم</string>
+    <string name="crop_title">قص الصورة</string>
+    <string name="crop_use">استخدام</string>
+    <string name="crop_hint">قرّب بإصبعين واسحب لضبط الموضع</string>
+    <string name="image_load_failed">تعذرت قراءة الصورة، جرّب صورة أخرى</string>
+
+    <!-- Models -->
+    <string name="models_title">النماذج</string>
+    <string name="models_add">إضافة نموذج</string>
+    <string name="models_empty">لا توجد نماذج بعد. أضف واجهة متوافقة مع OpenAI لاستخدامها في المحادثة.</string>
+    <string name="models_default">افتراضي</string>
+    <string name="models_edit">تعديل</string>
+    <string name="models_delete">حذف</string>
+    <string name="models_name">الاسم</string>
+    <string name="models_name_hint">مثال: Volcano Ark</string>
+    <string name="models_model_id">معرّف النموذج</string>
+    <string name="models_max_tokens">الحد الأقصى لرموز الإخراج (اختياري)</string>
+    <string name="models_test">اختبار الاتصال</string>
+    <string name="models_testing">يجري الاختبار…</string>
+    <string name="models_test_ok">تم الاتصال بنجاح</string>
+    <string name="models_test_failed">فشل الاتصال: %1$s</string>
+    <string name="models_delete_title">حذف النموذج؟</string>
+    <string name="models_delete_message">سيُزال «%1$s» من القائمة دون التأثير على النماذج الأخرى.</string>
+    <string name="models_required">يرجى إدخال Base URL ومعرّف النموذج</string>
+    <string name="models_key_required">يرجى إدخال API Key</string>
+    <string name="models_save_failed">فشل الحفظ، يرجى التحقق من الحقول</string>
+    <string name="models_fetch">جلب قائمة النماذج</string>
+    <string name="models_fetch_refresh">تحديث القائمة</string>
+    <string name="models_fetching">يجري الجلب…</string>
+    <string name="models_fetch_ok">تم جلب %1$d نماذج</string>
+    <string name="models_fetch_empty">لم تُرجع هذه الخدمة أي نموذج، ويمكنك الإدخال يدوياً</string>
+    <string name="models_fetch_unauthorized">فشل المصادقة (HTTP %1$d)، تحقق من API Key</string>
+    <string name="models_fetch_not_found">لا تحتوي هذه العنوان على واجهة /models (HTTP %1$d)، ويمكنك الإدخال يدوياً</string>
+    <string name="models_fetch_timeout">انتهت مهلة الطلب، تحقق من الشبكة أو Base URL</string>
+    <string name="models_fetch_network">فشل طلب الشبكة، تحقق من الشبكة أو Base URL</string>
+    <string name="models_fetch_malformed">المحتوى المُعاد ليس قائمة نماذج</string>
+    <string name="models_fetch_server">خطأ في الخادم (HTTP %1$d)</string>
+    <string name="models_fetch_http">فشل الطلب (HTTP %1$d)</string>
+    <string name="models_fetch_stale">جُلبت القائمة قبل %1$d أيام، يمكنك التحديث</string>
+    <string name="models_pick_title">اختيار نموذج</string>
+    <string name="models_pick_search">البحث عن نموذج</string>
+    <string name="models_pick_no_match">لا توجد نماذج مطابقة</string>
+
+    <!-- Skills install -->
+    <string name="skills_install">تثبيت مهارة</string>
+    <string name="skills_install_title">تثبيت مهارة</string>
+    <string name="skills_install_url">التثبيت من رابط</string>
+    <string name="skills_install_zip">التثبيت من zip محلي</string>
+    <string name="skills_install_url_hint">https://example.com/skill.zip</string>
+    <string name="skills_install_hint">يجب أن يحتوي ملف zip على SKILL.md. يمكن أن يكون مهارة واحدة أو حزمة مستودع تضم عدة مهارات.</string>
+    <string name="skills_install_action">تثبيت</string>
+    <string name="skills_installing">يجري التثبيت…</string>
+    <string name="skills_install_ok">تم التثبيت: %1$s</string>
+    <string name="skills_install_failed">فشل التثبيت: %1$s</string>
+    <string name="skills_pick_zip">اختيار ملف zip</string>
+    <string name="skills_installed">مثبّتة</string>
+    <string name="skills_bundled">مضمنة</string>
+    <string name="skills_enable">تفعيل</string>
+    <string name="skills_disable">تعطيل</string>
+    <string name="skills_delete">حذف</string>
+    <string name="skills_delete_title">حذف المهارة؟</string>
+    <string name="skills_delete_message">سيُحذف «%1$s» من التطبيق.</string>
+    <string name="skills_no_installed">لم تُثبّت أي مهارة بعد، والمهارات المضمنة ما زالت متاحة.</string>
+    <string name="skills_disabled">معطّلة</string>
+    <string name="skills_user_skills">المثبّتة</string>
+    <string name="skills_origin">المصدر: %1$s</string>
+    <string name="skills_shop_entry">المتجر</string>
+    <string name="skills_shop_back">رجوع</string>
+    <string name="skills_shop_title">متجر المهارات</string>
+    <string name="skills_shop_search_hint">البحث عن مهارة</string>
+    <string name="skills_shop_search">بحث</string>
+    <string name="skills_shop_install">تثبيت</string>
+    <string name="skills_shop_installing">يجري التثبيت…</string>
+    <string name="skills_shop_downloads">%1$d تنزيل</string>
+    <string name="skills_shop_footer">تأتي المهارات من %1$s وتُثبّت في مجلد مهارات التطبيق؛ ويمكنك تفعيلها أو تعطيلها أو حذفها من قائمة المهارات.</string>
+
+    <!-- Memory folders -->
+    <string name="memory_all">الكل</string>
+    <string name="memory_subtitle">نظّم ذكرياتك حسب المجلدات</string>
+    <string name="memory_notes">الملاحظات</string>
+    <string name="memory_new_folder">مجلد جديد</string>
+    <string name="memory_folder_name">اسم المجلد</string>
+    <string name="memory_create">إنشاء</string>
+    <string name="memory_rename">إعادة تسمية</string>
+    <string name="memory_move">نقل</string>
+    <string name="memory_move_note">نقل الملاحظة</string>
+    <string name="memory_move_to">نقل إلى</string>
+    <string name="memory_root">الجذر</string>
+    <string name="memory_delete_folder_title">حذف المجلد؟</string>
+    <string name="memory_delete_folder_message">سيُحذف «%1$s» والملاحظات الموجودة بداخله نهائياً.</string>
+    <string name="memory_items">%1$d عناصر</string>
+    <string name="memory_back_root">كل الذكريات</string>
+    <string name="memory_empty_folder">لا توجد ملاحظات في هذا المجلد بعد.</string>
+    <string name="memory_folder_exists">يوجد مجلد بهذا الاسم بالفعل</string>
+    <string name="memory_rename_folder">إعادة تسمية المجلد</string>
+    <string name="memory_name_empty">لا يمكن أن يكون الاسم فارغاً</string>
+    <string name="memory_folder_error">فشلت العملية: %1$s</string>
+    <string name="memory_unfiled">غير مصنّف</string>
+
+    <string name="settings_chat_model">نموذج المحادثة</string>
+    <string name="settings_operator_model">نموذج التشغيل (يدعم الصور)</string>
+    <string name="settings_base_url">Base URL</string>
+    <string name="settings_model">اسم النموذج</string>
+    <string name="settings_api_key">API Key</string>
+    <string name="settings_show_key">إظهار API Key</string>
+    <string name="settings_hide_key">إخفاء API Key</string>
+    <string name="settings_temperature">Temperature (اختياري)</string>
+    <string name="settings_agent">المهام</string>
+    <string name="settings_max_steps">الحد الأقصى للخطوات</string>
+    <string name="settings_learn">تذكّر المسارات الناجحة</string>
+    <string name="settings_save">حفظ</string>
+    <string name="settings_saved">تم الحفظ</string>
+    <string name="settings_invalid_number">يرجى إدخال رقم صالح</string>
+    <string name="settings_copy_chat">نفس نموذج المحادثة</string>
+    <string name="settings_same_as_chat_hint">عند التحديد، يعيد نموذج التشغيل استخدام Base URL واسم النموذج والمفتاح والمعلمات من نموذج المحادثة، ولا يمكن تعديل الحقول أدناه</string>
+    <string name="settings_mcp_entry">الخدمات الخارجية / MCP</string>
+    <string name="settings_mcp_enabled">%1$d مفعّلة</string>
+    <string name="settings_folders">المجلدات</string>
+    <string name="settings_folder_skills">المهارات: %1$s</string>
+    <string name="settings_folder_memory">الذاكرة: %1$s</string>
+    <string name="settings_folder_traces">المسارات: %1$s</string>
+
+    <!-- Service and notifications -->
+    <string name="channel_status">حالة المهمة</string>
+    <string name="channel_status_description">تظهر أثناء تشغيل شياومان إكسترا لمهمة</string>
+    <string name="channel_attention">يحتاج إلى إجراء منك</string>
+    <string name="channel_attention_description">تنبيه عند حاجة شياومان إكسترا إلى تأكيدك أو إجابتك</string>
+    <string name="channel_reminders">تذكيرات مجدولة</string>
+    <string name="channel_reminders_description">إشعار عند حلول موعد تذكيراتك</string>
+    <string name="notification_running">شياومان إكسترا يعمل الآن</string>
+    <string name="notification_question">لدى شياومان إكسترا سؤال لك</string>
+    <string name="reminder_title">تذكير</string>
+
+    <!-- Session messages -->
+    <string name="session_not_configured">لم يتم إعداد نموذج بعد، يرجى إدخال نموذج المحادثة ونموذج التشغيل في الإعدادات أولاً.</string>
+    <string name="session_busy">هناك مهمة قيد التشغيل بالفعل، يرجى المحاولة لاحقاً.</string>
+    <string name="session_stopped">تم الإيقاف</string>
+
+    <!-- Conversation history -->
+    <string name="chat_history">المحادثات السابقة</string>
+    <string name="chat_history_new">محادثة جديدة</string>
+    <string name="chat_history_empty">لا توجد محادثات سابقة بعد. يُحفظ كل ما تتحدث عنه هنا تلقائياً.</string>
+    <string name="chat_history_open">فتح المحادثة</string>
+    <string name="chat_history_delete">حذف المحادثة</string>
+    <string name="chat_history_delete_title">حذف هذه المحادثة؟</string>
+    <string name="chat_history_delete_message">ستنتقل «%1$s» إلى سلة المحذوفات، ويمكنك استعادتها في أي وقت.</string>
+    <string name="chat_history_delete_forever_title">حذف هذه المحادثة نهائياً؟</string>
+    <string name="chat_history_delete_forever_message">ستُحذف «%1$s» نهائياً من الهاتف ولا يمكن استعادتها.</string>
+    <string name="chat_history_delete_forever">حذف نهائي</string>
+    <string name="chat_history_restore">استعادة</string>
+    <string name="chat_history_archive">أرشفة</string>
+    <string name="chat_history_unarchive">إلغاء الأرشفة</string>
+    <string name="chat_history_tab_all">الكل</string>
+    <string name="chat_history_tab_archived">المؤرشفة</string>
+    <string name="chat_history_tab_trash">سلة المحذوفات</string>
+    <string name="chat_history_archived_empty">لا توجد محادثات مؤرشفة بعد</string>
+    <string name="chat_history_trash_empty">سلة المحذوفات فارغة</string>
+    <string name="chat_history_clear_trash">تفريغ سلة المحذوفات</string>
+    <string name="chat_history_clear_trash_title">تفريغ سلة المحذوفات؟</string>
+    <string name="chat_history_clear_trash_message">ستُحذف %1$d محادثات في سلة المحذوفات نهائياً ولا يمكن استعادتها.</string>
+    <string name="chat_history_more">مزيد من الإجراءات</string>
+    <string name="chat_history_incognito">وضع التخفي مفعّل: فتح محادثة محفوظة سيخرجك من وضع التخفي</string>
+    <string name="chat_history_count">%1$d رسائل</string>
+    <string name="chat_history_current">الحالية</string>
+    <string name="chat_history_busy">هناك مهمة قيد التشغيل، لذا لا يمكن تبديل المحادثات أو إدارتها الآن</string>
+    <string name="incognito_title">وضع التخفي</string>
+    <string name="incognito_banner">وضع التخفي مفعّل: لن تُحفظ هذه المحادثة ولن تترك سجلاً بعد الخروج</string>
+    <string name="incognito_exit">خروج</string>
+    <string name="incognito_exit_title">الخروج من وضع التخفي؟</string>
+    <string name="incognito_exit_message">أنشأ وضع التخفي %1$d محادثات، وسيُمسح جميعها عند الخروج دون إمكانية الاستعادة. المحادثات السابقة لا تتأثر.</string>
+    <string name="incognito_exit_confirm">الخروج والمسح</string>
+    <string name="overlay_taken_over">تم التدخل: يرجى تشغيل الهاتف يدوياً واضغط «متابعة» لاستعادة شياومان</string>
+    <string name="notification_taken_over">تم التدخل: شياومان متوقف مؤقتاً، اضغط «متابعة» في النافذة العائمة للمتابعة</string>
+    <string name="alarm_dialog_title">تذكير جديد</string>
+    <string name="alarm_dialog_time">الوقت (HH:mm)</string>
+    <string name="alarm_dialog_label">محتوى التذكير</string>
+    <string name="alarm_dialog_default_label">منبّه</string>
+    <string name="alarm_dialog_confirm">تعيين</string>
+    <string name="alarm_dialog_invalid_time">يرجى إدخال وقت بصيغة HH:mm</string>
+    <string name="alarm_scheduled">تم تعيين التذكير: %1$s (%2$s)</string>
+    <string name="post_detail_title">تفاصيل المنشور</string>
+    <string name="post_detail_message">هذا المنشور غير متاح.\n\nمعرّف المنشور: %1$s</string>
+    <string name="link_busy">هناك مهمة قيد التشغيل، افتح الرابط بعد انتهائها</string>
+    <string name="chat_search">البحث في المحادثات</string>
+    <string name="chat_search_hint">أدخل كلمة مفتاحية</string>
+    <string name="chat_search_scope_current">هذه المحادثة</string>
+    <string name="chat_search_scope_all">كل المحادثات</string>
+    <string name="chat_search_tip">أدخل كلمة مفتاحية للبحث في هذه المحادثة أو في كل المحادثات</string>
+    <string name="chat_search_empty">لم يتم العثور على نتائج</string>
+    <string name="chat_search_open">انتقال</string>
+    <string name="chat_actions_title">إجراءات الرسالة</string>
+    <string name="chat_copy">نسخ</string>
+    <string name="chat_share">مشاركة</string>
+    <string name="chat_quote">اقتباس</string>
+    <string name="chat_copied">تم النسخ</string>
+
+    <!-- Task suggestions -->
+    <string name="settings_show_suggestions">إظهار اقتراحات المهام</string>
+    <string name="settings_show_suggestions_hint">إظهار ثلاث بطاقات مهام نموذجية مثل «اختر دفتراً» على الشاشة الرئيسية الفارغة</string>
+
+    <string name="skill_store_title">مصادر متجر المهارات</string>
+    <string name="skill_store_hint">يجب أن يكون المصدر متوافقاً مع واجهة SkillHub (/api/v1/search، /showcase/hot، /download). بعد التبديل، سيستخدم متجر صفحة المهارات المصدر المحدد.</string>
+    <string name="skill_store_builtin">مدمج</string>
+    <string name="skill_store_add">إضافة مصدر مخصص</string>
+    <string name="skill_store_name">الاسم</string>
+    <string name="skill_store_url">عنوان الواجهة (https://…)</string>
+    <string name="skill_store_add_button">إضافة وتبديل</string>
+    <string name="skill_store_delete">حذف هذا المصدر</string>
+    <string name="skill_store_error_name">يرجى إدخال اسم</string>
+    <string name="skill_store_error_url">يجب أن يبدأ العنوان بـ http:// أو https://</string>
+    <string name="settings_skill_store_entry">مصدر متجر المهارات</string>
+    <string name="settings_skill_store_current">الحالي: %1$s</string>
+
+    <!-- Chat attachments -->
+    <string name="chat_attach">إضافة صورة أو ملف</string>
+    <string name="chat_attach_image">صورة</string>
+    <string name="chat_attach_file">ملف</string>
+    <string name="chat_attachment_remove">إزالة المرفق</string>
+    <string name="chat_attachment_image">صورة</string>
+    <string name="chat_attachment_file">ملف</string>
+    <string name="chat_image_model_warning">قد لا يدعم النموذج الحالي الصور، وقد لا يتعرف على محتوى الصورة بعد الإرسال</string>
+    <string name="session_sent_attachments">يرجى الاطلاع على هذه المرفقات.</string>
+
+    <!-- MCP store -->
+    <string name="mcp_store_entry">متجر MCP</string>
+    <string name="mcp_store_entry_hint">تصفّح الخدمات الخارجية وأضفها بنقرة واحدة</string>
+
+    <!-- Conversational skill editing -->
+    <string name="skill_draft_title">مسودة المهارة</string>
+    <string name="skill_delete_title">حذف المهارة</string>
+    <string name="skill_draft_hint">لن يُكتب شيء إلى صفحة المهارات قبل التأكيد، ويمكنك أيضاً الرد بـ«تأكيد»</string>
+    <string name="skill_delete_hint">لا يمكن التراجع عن الحذف؛ والمهارات المضمنة غير متأثرة</string>
+    <string name="skill_confirm_add">تأكيد الإضافة</string>
+    <string name="skill_confirm_delete">تأكيد الحذف</string>
+    <string name="skill_cancel">إلغاء</string>
+    <string name="skill_change_cancelled">تم إلغاء تعديل المهارة</string>
+
+    <!-- Appearance -->
+    <string name="settings_language">اللغة / Language</string>
+    <string name="language_system">حسب النظام</string>
+    <string name="settings_dark_mode">الوضع الداكن</string>
+    <string name="dark_mode_system">حسب النظام</string>
+    <string name="dark_mode_light">فاتح</string>
+    <string name="dark_mode_dark">داكن</string>
+    <string name="settings_font_size">حجم الخط</string>
+    <string name="settings_font_size_hint">يسري على التطبيق بأكمله فوراً بعد التعديل</string>
+    <string name="settings_speak_replies">قراءة الردود بصوت عالٍ</string>
+    <string name="settings_speak_replies_hint">يستخدم محرك الصوت المدمج في الهاتف؛ تُقرأ الردود الطويلة على أجزاء ويمكن إيقافها في أي وقت</string>
+    <string name="settings_start_fresh">فتح محادثة جديدة عند البدء</string>
+    <string name="settings_start_fresh_hint">ابدأ دائماً من محادثة فارغة عند فتح شياومان، وتبقى المحادثات السابقة في القائمة</string>
+    <string name="chat_speaking">يجري القراءة…</string>
+    <string name="chat_stop_speaking">إيقاف القراءة</string>
+    <string name="theme_entry">المظهر والألوان</string>
+    <string name="theme_entry_hint">سمات جاهزة، ألوان مخصصة، ألوان من الخلفية</string>
+    <string name="theme_title">المظهر</string>
+    <string name="theme_subtitle">اختر لوحة ألوان تعجبك، وعاينها قبل التطبيق</string>
+    <string name="theme_preview">معاينة</string>
+    <string name="theme_preview_reply">رتّبت لك جدول اليوم، هل يبدو مناسباً؟</string>
+    <string name="theme_preview_user">حسناً، شكراً</string>
+    <string name="theme_presets">سمات جاهزة</string>
+    <string name="theme_wallpaper">ألوان من الخلفية</string>
+    <string name="theme_wallpaper_hint">يستخدم الألوان التي يولّدها النظام من خلفية الشاشة وتتحدث عند تغيرها؛ في هذه الحالة لا يُستخدم اللون المخصص</string>
+    <string name="theme_wallpaper_unsupported">إصدار النظام الحالي لا يدعم الألوان من الخلفية (يتطلب Android 12 أو أحدث)</string>
+    <string name="theme_custom">لون مخصص</string>
+    <string name="theme_custom_label">قيمة اللون (#RRGGBB)</string>
+    <string name="theme_custom_invalid">يرجى إدخال لون سداسي عشري من 6 خانات يبدأ بـ #</string>
+    <string name="theme_custom_use">استخدام هذا اللون</string>
+    <string name="theme_apply">تطبيق المظهر</string>
+    <string name="theme_applied">تم التطبيق</string>
+    <string name="theme_preset_ocean">أزرق محيطي</string>
+    <string name="theme_preset_purple">بنفسجي ضبابي</string>
+    <string name="theme_preset_pink">وردي خوخي</string>
+    <string name="theme_preset_sunset">غروب</string>
+    <string name="theme_preset_forest">أخضر غابة</string>
+    <string name="theme_preset_graphite">غرافيت</string>
+    <string name="theme_preset_celadon">سيلادون</string>
+    <string name="theme_preset_indigo">نيلي</string>
+    <string name="theme_preset_rose">وردة</string>
+    <string name="theme_preset_coffee">قهوة</string>
+    <string name="about_entry">حول شياومان إكسترا</string>
+    <string name="about_entry_hint">رقم الإصدار ونبذة المشروع ومستودع المصدر المفتوح</string>
+    <string name="about_title">حول</string>
+    <string name="about_version">الإصدار %1$s (%2$d)</string>
+    <string name="about_intro_title">نبذة عن المشروع</string>
+    <string name="about_intro">شياومان إكسترا مساعد ذكي مفتوح المصدر للهاتف: بجملة واحدة يمكنه تنفيذ المهام عنك، ويتذكر تفضيلاتك، ويجمع المهارات والخدمات الخارجية حسب الحاجة، وتبقى المحادثات والبيانات على هذا الجهاز.</string>
+    <string name="about_repo_title">مستودع المصدر المفتوح</string>
+    <string name="about_repo_hint">الشيفرة المصدرية وسجل التحديثات والإبلاغ عن المشكلات كلها على GitHub</string>
+    <string name="about_license">هذا المشروع مفتوح المصدر، ونرحب بإرسال Issue و Pull Request.</string>
+
+    <!-- Language -->
+    <string name="language_title">اللغة</string>
+    <string name="language_subtitle">اختر لغة الواجهة، وتُطبق التغييرات فوراً</string>
+    <string name="language_system_hint">استخدام لغة النظام الحالية لهاتفك</string>
+
+    <!-- Appearance -->
+    <string name="appearance_title">المظهر</string>
+    <string name="appearance_theme">لون المظهر</string>
+    <string name="appearance_font_size">حجم الخط</string>
+    <string name="appearance_brightness">سطوع الشاشة</string>
+    <string name="appearance_brightness_follow">حسب سطوع النظام</string>
+    <string name="appearance_background_dim">تعتيم الخلفية</string>
+    <string name="appearance_opacity">شفافية الواجهة</string>
+    <string name="appearance_reset">استعادة الافتراضي</string>
+    <string name="theme_preset_sakura">ساكورا</string>
+    <string name="theme_preset_lavender">لافندر</string>
+    <string name="theme_preset_mint">نعناع</string>
+
+    <!-- Skills page -->
+    <string name="skills_new">مهارة جديدة</string>
+    <string name="skills_modify_one_sentence">تعديل بجملة واحدة</string>
+    <string name="skills_modify_title">تعديل المهارة بجملة واحدة</string>
+    <string name="skills_modify_hint">اشرح كيف تريد التعديل، وسيحدّث شياومان هذه المهارة.</string>
+    <string name="skills_modify_send">إرسال إلى شياومان</string>
+    <string name="skills_new_prompt">ساعدني في إنشاء مهارة جديدة، واسألني أولاً عما تريدها أن تفعله.</string>
+</resources>

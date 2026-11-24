@@ -179,7 +179,7 @@ data class AppSettings(
         val supportsWallpaperTheme: Boolean get() = android.os.Build.VERSION.SDK_INT >= 31
 
         /** Languages the app ships translations for, besides the Chinese default. */
-        val LANGUAGES = listOf(LANGUAGE_SYSTEM, "zh-TW", "en", "ja")
+        val LANGUAGES = listOf(LANGUAGE_SYSTEM, "zh-CN", "zh-TW", "en", "ja", "ko", "ar", "de")
     }
 }
 
