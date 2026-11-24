@@ -415,4 +415,9 @@
     <string name="skills_modify_hint">どう変えたいか書いてください。小満がこのスキルを更新します。</string>
     <string name="skills_modify_send">小満に任せる</string>
     <string name="skills_new_prompt">新しいスキルを作りたいです。まず何ができるべきか聞いてください。</string>
+    <string name="skills_view_content">内容を見る</string>
+    <string name="skills_path">パス：%1$s</string>
+    <string name="skills_builtin_missing">内蔵スキルのファイルが見つかりません。「再読み込み」またはアプリの再インストール後にもう一度お試しください</string>
+    <string name="skills_modify_prompt">スキル「%1$s」を修正してください：%2$s。まず skill_draft で完全な SKILL.md の下書きを提出し、私が確認してから保存してください。元のスキルを直接書き換えないでください。</string>
+    <string name="skills_busy">実行中のタスクがあります。しばらくしてからお試しください</string>
 </resources>

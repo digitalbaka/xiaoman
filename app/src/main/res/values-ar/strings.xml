@@ -415,4 +415,9 @@
     <string name="skills_modify_hint">اشرح كيف تريد التعديل، وسيحدّث شياومان هذه المهارة.</string>
     <string name="skills_modify_send">إرسال إلى شياومان</string>
     <string name="skills_new_prompt">ساعدني في إنشاء مهارة جديدة، واسألني أولاً عما تريدها أن تفعله.</string>
+    <string name="skills_view_content">عرض المحتوى</string>
+    <string name="skills_path">المسار: %1$s</string>
+    <string name="skills_builtin_missing">ملف المهارة المدمجة مفقود. اضغط «إعادة التحميل» أو أعد تثبيت التطبيق ثم حاول مرة أخرى</string>
+    <string name="skills_modify_prompt">عدّل المهارة «%1$s»: %2$s. أرسل أولاً مسودة SKILL.md كاملة عبر skill_draft ولا تحفظ إلا بعد تأكيدي، ولا تغيّر المهارة الأصلية مباشرة.</string>
+    <string name="skills_busy">هناك مهمة قيد التشغيل. حاول مرة أخرى لاحقاً</string>
 </resources>

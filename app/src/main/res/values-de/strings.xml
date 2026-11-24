@@ -415,4 +415,9 @@
     <string name="skills_modify_hint">Beschreibe die gewünschte Änderung, Xiaoman aktualisiert dann diese Fähigkeit.</string>
     <string name="skills_modify_send">An Xiaoman senden</string>
     <string name="skills_new_prompt">Hilf mir, eine neue Fähigkeit zu erstellen. Frag mich zuerst, was sie tun soll.</string>
+    <string name="skills_view_content">Inhalt anzeigen</string>
+    <string name="skills_path">Pfad: %1$s</string>
+    <string name="skills_builtin_missing">Die Datei der integrierten Fähigkeit fehlt. Tippe auf „Neu laden“ oder installiere die App neu und versuche es erneut</string>
+    <string name="skills_modify_prompt">Ändere die Fähigkeit „%1$s“: %2$s. Reiche zuerst den vollständigen SKILL.md-Entwurf über skill_draft ein und speichere erst nach meiner Bestätigung; ändere die ursprüngliche Fähigkeit nicht direkt.</string>
+    <string name="skills_busy">Es läuft bereits eine Aufgabe. Versuche es später erneut</string>
 </resources>

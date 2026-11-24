@@ -415,4 +415,9 @@
     <string name="skills_modify_hint">Describe the change and Xiaoman will update this skill.</string>
     <string name="skills_modify_send">Send to Xiaoman</string>
     <string name="skills_new_prompt">Help me create a new skill. Ask me what it should do first.</string>
+    <string name="skills_view_content">View content</string>
+    <string name="skills_path">Path: %1$s</string>
+    <string name="skills_builtin_missing">The built-in skill file is missing. Tap Reload or reinstall the app, then try again.</string>
+    <string name="skills_modify_prompt">Modify the skill "%1$s": %2$s. Submit the complete SKILL.md as a skill_draft first and save only after my confirmation; do not change the original skill directly.</string>
+    <string name="skills_busy">A task is already running. Try again later.</string>
 </resources>

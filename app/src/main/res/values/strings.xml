@@ -415,4 +415,9 @@
     <string name="skills_modify_hint">说说想怎么改，小满会更新这个技能。</string>
     <string name="skills_modify_send">交给小满</string>
     <string name="skills_new_prompt">帮我新建一个技能，先问我想让它做什么。</string>
+    <string name="skills_view_content">查看内容</string>
+    <string name="skills_path">路径：%1$s</string>
+    <string name="skills_builtin_missing">内置技能文件缺失，点「重新加载」或重装应用后再试</string>
+    <string name="skills_modify_prompt">请修改技能「%1$s」：%2$s。先用 skill_draft 提交完整 SKILL.md 草稿，等我确认后再保存，不要直接改动原技能。</string>
+    <string name="skills_busy">已有任务在运行，稍后再试</string>
 </resources>

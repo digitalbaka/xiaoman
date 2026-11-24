@@ -1,6 +1,7 @@
 package dev.xiaoman.app.ui
 
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -35,6 +37,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,7 +50,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
@@ -59,6 +61,7 @@ import dev.xiaoman.api.SkillProblem
 import dev.xiaoman.api.SkillRepository
 import dev.xiaoman.app.AppGraph
 import dev.xiaoman.app.R
+import dev.xiaoman.app.session.AgentSession
 import dev.xiaoman.app.skills.SkillHubClient
 import dev.xiaoman.app.skills.SkillHubSkill
 import kotlinx.coroutines.Dispatchers
@@ -261,8 +264,18 @@ class SkillsViewModel(
     }.getOrNull()
 }
 
+/** A skill shipped in the APK; its card is listed even when the extracted files are missing. */
+private data class BuiltinSkill(val name: String, val description: String)
+
+/** Descriptions mirror the frontmatter of `skills/examples/<name>/SKILL.md`. */
+private val BUILTIN_SKILLS = listOf(
+    BuiltinSkill("ai-news-brief", "每天整理一份 AI 新闻简报：筛选重要动态，按主题归纳，给出要点与来源"),
+    BuiltinSkill("daily-quiz", "每天出一道小测验：按主题出题、给出选项与解析，适合碎片时间自测"),
+    BuiltinSkill("health-alarms", "用系统时钟设置健康提醒：喝水、久坐起身、按时休息，只新增不改动已有闹钟"),
+)
+
 @Composable
-fun SkillsScreen(graph: AppGraph) {
+fun SkillsScreen(graph: AppGraph, onOpenChat: () -> Unit) {
     val vm = viewModel {
         SkillsViewModel(
             graph.skills,
@@ -278,8 +291,20 @@ fun SkillsScreen(graph: AppGraph) {
     val settings by graph.settings.settings.collectAsStateWithLifecycle()
     var showInstall by remember { mutableStateOf(false) }
     var deleting by remember { mutableStateOf<InstalledSkillInfo?>(null) }
+    var modifyTarget by remember { mutableStateOf<String?>(null) }
+    var viewing by remember { mutableStateOf<File?>(null) }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+
+    // Skill creation / editing goes through the chat: the model answers or drafts in the existing
+    // confirm-in-chat flow, so nothing is written here.
+    fun sendToAgent(prompt: String) {
+        if (graph.session.submit(prompt) == AgentSession.Submit.Busy) {
+            Toast.makeText(context, context.getString(R.string.skills_busy), Toast.LENGTH_SHORT).show()
+        } else {
+            onOpenChat()
+        }
+    }
 
     if (shop.open) {
         SkillHubScreen(
@@ -297,6 +322,18 @@ fun SkillsScreen(graph: AppGraph) {
     Column(Modifier.fillMaxSize()) {
         Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp, top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(stringResource(R.string.skills_title), style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+            TextButton(onClick = { sendToAgent(context.getString(R.string.skills_new_prompt)) }) {
+                Text(stringResource(R.string.skills_new))
+            }
+            TextButton(onClick = vm::reload, enabled = !state.loading) {
+                Text(stringResource(R.string.skills_reload))
+            }
+        }
+        Row(
+            Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             TextButton(onClick = vm::openShop) {
                 Icon(Icons.Filled.Search, contentDescription = null)
                 Text(stringResource(R.string.skills_shop_entry), modifier = Modifier.padding(start = 2.dp))
@@ -305,15 +342,25 @@ fun SkillsScreen(graph: AppGraph) {
                 Icon(Icons.Filled.Add, contentDescription = null)
                 Text(stringResource(R.string.skills_install), modifier = Modifier.padding(start = 2.dp))
             }
-            TextButton(onClick = vm::reload, enabled = !state.loading) {
-                Icon(Icons.Filled.Refresh, contentDescription = null)
-            }
         }
         if (state.loading) LinearProgressIndicator(Modifier.fillMaxWidth())
         LazyColumn(
             contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
+            items(BUILTIN_SKILLS) { builtin ->
+                val file = File(File(graph.bundledSkillsDir, builtin.name), "SKILL.md")
+                BuiltinSkillCard(
+                    name = builtin.name,
+                    description = builtin.description,
+                    path = file.path,
+                    available = file.isFile,
+                    onView = { viewing = file },
+                    onModify = { modifyTarget = builtin.name },
+                )
+            }
+            item { HorizontalDivider(Modifier.padding(vertical = 2.dp)) }
+
             if (state.installed.isNotEmpty()) {
                 item {
                     Text(stringResource(R.string.skills_user_skills), style = MaterialTheme.typography.titleMedium)
@@ -325,6 +372,7 @@ fun SkillsScreen(graph: AppGraph) {
                         origin = state.origins[info.name],
                         onEnabled = { vm.setEnabled(info, it) },
                         onDelete = { deleting = info },
+                        onModify = { modifyTarget = info.name },
                     )
                 }
                 item { HorizontalDivider(Modifier.padding(vertical = 6.dp)) }
@@ -339,7 +387,10 @@ fun SkillsScreen(graph: AppGraph) {
             }
 
             val installedNames = state.installed.map { it.name }.toSet()
-            val bundled = state.skills.filterNot { it.source.startsWith(graph.skillsDir.path) || it.name in installedNames }
+            val builtinNames = BUILTIN_SKILLS.map { it.name }.toSet()
+            val bundled = state.skills.filterNot {
+                it.source.startsWith(graph.skillsDir.path) || it.name in installedNames || it.name in builtinNames
+            }
             if (!state.loading && bundled.isEmpty()) {
                 item { Text(stringResource(R.string.skills_empty, graph.skillsDir.path), style = MaterialTheme.typography.bodyMedium) }
             }
@@ -357,6 +408,14 @@ fun SkillsScreen(graph: AppGraph) {
                         Text(skill.description, style = MaterialTheme.typography.bodyMedium)
                         if (skill.apps.isNotEmpty()) {
                             Text(stringResource(R.string.skills_apps, skill.apps.joinToString()), style = MaterialTheme.typography.bodySmall)
+                        }
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                            TextButton(onClick = { modifyTarget = skill.name }) {
+                                Text(
+                                    stringResource(R.string.skills_modify_one_sentence),
+                                    style = MaterialTheme.typography.labelMedium,
+                                )
+                            }
                         }
                     }
                 }
@@ -401,10 +460,77 @@ fun SkillsScreen(graph: AppGraph) {
             dismissButton = { TextButton(onClick = { deleting = null }) { Text(stringResource(R.string.cancel)) } },
         )
     }
+    modifyTarget?.let { name ->
+        ModifySkillDialog(
+            name = name,
+            onDismiss = { modifyTarget = null },
+            onSubmit = { sentence ->
+                modifyTarget = null
+                sendToAgent(context.getString(R.string.skills_modify_prompt, name, sentence))
+            },
+        )
+    }
+    viewing?.let { file ->
+        SkillContentDialog(
+            name = file.parentFile?.name.orEmpty(),
+            file = file,
+            onDismiss = { viewing = null },
+        )
+    }
 }
 
 @Composable
-private fun InstalledSkillCard(info: InstalledSkillInfo, origin: String?, onEnabled: (Boolean) -> Unit, onDelete: () -> Unit) {
+private fun BuiltinSkillCard(
+    name: String,
+    description: String,
+    path: String,
+    available: Boolean,
+    onView: () -> Unit,
+    onModify: () -> Unit,
+) {
+    Card(Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(name, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                Text(
+                    stringResource(R.string.skills_bundled),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Text(description, style = MaterialTheme.typography.bodyMedium)
+            Text(
+                stringResource(R.string.skills_path, path),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            if (!available) {
+                Text(
+                    stringResource(R.string.skills_builtin_missing),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                TextButton(onClick = onView) {
+                    Text(stringResource(R.string.skills_view_content), style = MaterialTheme.typography.labelMedium)
+                }
+                TextButton(onClick = onModify) {
+                    Text(stringResource(R.string.skills_modify_one_sentence), style = MaterialTheme.typography.labelMedium)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun InstalledSkillCard(
+    info: InstalledSkillInfo,
+    origin: String?,
+    onEnabled: (Boolean) -> Unit,
+    onDelete: () -> Unit,
+    onModify: () -> Unit,
+) {
     Card(Modifier.fillMaxWidth()) {
         Row(Modifier.padding(start = 12.dp, end = 4.dp, top = 8.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -426,6 +552,12 @@ private fun InstalledSkillCard(info: InstalledSkillInfo, origin: String?, onEnab
                         stringResource(R.string.skills_origin, it),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.primary,
+                    )
+                }
+                TextButton(onClick = onModify, contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)) {
+                    Text(
+                        stringResource(R.string.skills_modify_one_sentence),
+                        style = MaterialTheme.typography.labelMedium,
                     )
                 }
             }
@@ -618,4 +750,77 @@ private fun InstallSkillDialog(
 
 private suspend fun readBytes(context: android.content.Context, uri: Uri): ByteArray = withContext(Dispatchers.IO) {
     context.contentResolver.openInputStream(uri)?.use { it.readBytes() } ?: ByteArray(0)
+}
+
+/** Collects the one-sentence change; the sentence is handed to the chat draft flow, never written here. */
+@Composable
+private fun ModifySkillDialog(name: String, onDismiss: () -> Unit, onSubmit: (String) -> Unit) {
+    var sentence by remember { mutableStateOf("") }
+    AppAlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.skills_modify_title)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    stringResource(R.string.skills_modify_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                OutlinedTextField(
+                    value = sentence,
+                    onValueChange = { sentence = it },
+                    placeholder = { Text(name) },
+                    minLines = 2,
+                    maxLines = 4,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(enabled = sentence.isNotBlank(), onClick = { onSubmit(sentence.trim()) }) {
+                Text(stringResource(R.string.skills_modify_send))
+            }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
+    )
+}
+
+/** Shows SKILL.md; a missing or unreadable file gets the same readable hint as its card. */
+@Composable
+private fun SkillContentDialog(name: String, file: File, onDismiss: () -> Unit) {
+    var content by remember(file) { mutableStateOf<String?>(null) }
+    var loaded by remember(file) { mutableStateOf(false) }
+    LaunchedEffect(file) {
+        content = withContext(Dispatchers.IO) {
+            runCatching { if (file.isFile) file.readText() else null }.getOrNull()
+        }
+        loaded = true
+    }
+    AppDialog(onDismissRequest = onDismiss) {
+        Surface(shape = RoundedCornerShape(20.dp), tonalElevation = 4.dp) {
+            Column(
+                Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                Text(name, style = MaterialTheme.typography.titleMedium)
+                Text(
+                    stringResource(R.string.skills_path, file.path),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                when {
+                    !loaded -> CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
+                    content == null -> Text(
+                        stringResource(R.string.skills_builtin_missing),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                    else -> Text(content.orEmpty(), style = MaterialTheme.typography.bodySmall)
+                }
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                    TextButton(onClick = onDismiss) { Text(stringResource(R.string.close)) }
+                }
+            }
+        }
+    }
 }

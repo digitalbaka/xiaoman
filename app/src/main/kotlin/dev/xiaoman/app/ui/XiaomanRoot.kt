@@ -104,7 +104,7 @@ fun XiaomanRoot(graph: AppGraph) {
         Box(Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).imePadding()) {
             when (tab) {
                 Tab.CHAT -> ChatScreen(graph, speaker = speaker, onOpenSettings = { tab = Tab.SETTINGS })
-                Tab.SKILLS -> SkillsScreen(graph)
+                Tab.SKILLS -> SkillsScreen(graph, onOpenChat = { tab = Tab.CHAT })
                 Tab.MEMORY -> MemoryScreen(graph)
                 Tab.SETTINGS -> SettingsScreen(graph)
             }
