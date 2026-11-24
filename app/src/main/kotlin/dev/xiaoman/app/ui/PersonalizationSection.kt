@@ -232,7 +232,7 @@ fun ImageCropDialog(bitmap: Bitmap, aspectRatio: Float, onCancel: () -> Unit, on
     var frameSize by remember { mutableStateOf(IntSize.Zero) }
     val density = LocalDensity.current
 
-    Dialog(onDismissRequest = onCancel) {
+    AppDialog(onDismissRequest = onCancel) {
         Surface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.surface) {
             Column(Modifier.fillMaxWidth().padding(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {

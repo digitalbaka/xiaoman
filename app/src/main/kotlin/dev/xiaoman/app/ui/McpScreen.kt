@@ -14,7 +14,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -232,7 +231,7 @@ fun McpScreen(graph: AppGraph, onBack: () -> Unit) {
     }
 
     results?.let { list ->
-        AlertDialog(
+        AppAlertDialog(
             onDismissRequest = { results = null },
             title = { Text("连接测试") },
             text = {

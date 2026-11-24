@@ -32,7 +32,6 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
@@ -482,7 +481,7 @@ private fun MemoryList(state: MemoryState, vm: MemoryViewModel) {
         )
     }
     deleting?.let { folder ->
-        AlertDialog(
+        AppAlertDialog(
             onDismissRequest = { deleting = null },
             title = { Text(stringResource(R.string.memory_delete_folder_title)) },
             text = { Text(stringResource(R.string.memory_delete_folder_message, folder.name)) },
@@ -574,7 +573,7 @@ private fun NoteRow(row: MemoryRow, cardColor: Color, onOpen: () -> Unit, onMove
 @Composable
 private fun NameDialog(title: String, initial: String, confirm: String, onDismiss: () -> Unit, onConfirm: (String) -> Unit) {
     var value by remember { mutableStateOf(initial) }
-    AlertDialog(
+    AppAlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
         text = {
@@ -603,7 +602,7 @@ private fun FolderPickerDialog(
     onDismiss: () -> Unit,
     onPick: (String?) -> Unit,
 ) {
-    AlertDialog(
+    AppAlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
         text = {
@@ -658,7 +657,7 @@ private fun NoteView(
         }
     }
     if (confirm) {
-        AlertDialog(
+        AppAlertDialog(
             onDismissRequest = { confirm = false },
             title = { Text(stringResource(R.string.memory_delete_title)) },
             text = { Text(stringResource(R.string.memory_delete_message, note.title)) },

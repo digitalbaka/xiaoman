@@ -20,7 +20,6 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.MoreVert
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
@@ -261,7 +260,7 @@ internal fun ChatHistory(
         }
     }
     pendingTrash?.let { conversation ->
-        AlertDialog(
+        AppAlertDialog(
             onDismissRequest = { pendingTrash = null },
             title = { Text(stringResource(R.string.chat_history_delete_title)) },
             text = { Text(stringResource(R.string.chat_history_delete_message, conversation.title)) },
@@ -277,7 +276,7 @@ internal fun ChatHistory(
         )
     }
     pendingDelete?.let { conversation ->
-        AlertDialog(
+        AppAlertDialog(
             onDismissRequest = { pendingDelete = null },
             title = { Text(stringResource(R.string.chat_history_delete_forever_title)) },
             text = { Text(stringResource(R.string.chat_history_delete_forever_message, conversation.title)) },
@@ -293,7 +292,7 @@ internal fun ChatHistory(
         )
     }
     if (pendingEmptyTrash) {
-        AlertDialog(
+        AppAlertDialog(
             onDismissRequest = { pendingEmptyTrash = false },
             title = { Text(stringResource(R.string.chat_history_clear_trash_title)) },
             text = { Text(stringResource(R.string.chat_history_clear_trash_message, trash.size)) },

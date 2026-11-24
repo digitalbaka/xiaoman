@@ -20,7 +20,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -390,7 +389,7 @@ fun SkillsScreen(graph: AppGraph) {
         )
     }
     deleting?.let { skill ->
-        AlertDialog(
+        AppAlertDialog(
             onDismissRequest = { deleting = null },
             title = { Text(stringResource(R.string.skills_delete_title)) },
             text = { Text(stringResource(R.string.skills_delete_message, skill.name)) },
@@ -565,7 +564,7 @@ private fun InstallSkillDialog(
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         if (uri != null) onPickZip(uri)
     }
-    Dialog(onDismissRequest = { if (!state.installing) onDismiss() }) {
+    AppDialog(onDismissRequest = { if (!state.installing) onDismiss() }) {
         Surface(shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp), tonalElevation = 4.dp) {
             Column(
                 Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(20.dp),

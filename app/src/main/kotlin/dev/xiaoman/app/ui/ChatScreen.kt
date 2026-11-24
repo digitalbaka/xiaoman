@@ -291,7 +291,7 @@ fun ChatScreen(graph: AppGraph, speaker: Speaker, onOpenSettings: () -> Unit) {
         )
     }
     if (confirmIncognitoExit) {
-        AlertDialog(
+        AppAlertDialog(
             onDismissRequest = { confirmIncognitoExit = false },
             title = { Text(stringResource(R.string.incognito_exit_title)) },
             text = { Text(stringResource(R.string.incognito_exit_message, incognitoCount)) },

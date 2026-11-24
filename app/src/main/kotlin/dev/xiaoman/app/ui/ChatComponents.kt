@@ -249,7 +249,7 @@ private fun BubbleTime(at: Long) {
 internal fun MessageActionsDialog(text: String, onDismiss: () -> Unit, onQuote: () -> Unit) {
     val context = LocalContext.current
     val clipboard = LocalClipboardManager.current
-    AlertDialog(
+    AppAlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.chat_actions_title)) },
         text = {

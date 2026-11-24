@@ -138,7 +138,7 @@ fun ModelScreen(graph: AppGraph, onBack: () -> Unit) {
     }
 
     deleting?.let { target ->
-        androidx.compose.material3.AlertDialog(
+        AppAlertDialog(
             onDismissRequest = { deleting = null },
             title = { Text(stringResource(R.string.models_delete_title)) },
             text = { Text(stringResource(R.string.models_delete_message, target.displayName)) },
@@ -247,7 +247,7 @@ private fun ModelEditorDialog(initial: SavedModel?, onDismiss: () -> Unit, onSav
     val suggestions = fetched ?: cached?.models.orEmpty()
     val staleDays = cached?.let { ((System.currentTimeMillis() - it.fetchedAt) / DAY_MILLIS).toInt() } ?: 0
 
-    Dialog(onDismissRequest = onDismiss) {
+    AppDialog(onDismissRequest = onDismiss) {
         Surface(shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp), tonalElevation = 4.dp) {
             Column(
                 Modifier.fillMaxWidth().heightIn(max = 560.dp).verticalScroll(rememberScrollState()).padding(20.dp),
@@ -495,7 +495,7 @@ private fun ModelPickerDialog(
         val needle = query.trim()
         if (needle.isEmpty()) models else models.filter { it.contains(needle, ignoreCase = true) }
     }
-    Dialog(onDismissRequest = onDismiss) {
+    AppDialog(onDismissRequest = onDismiss) {
         Surface(shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp), tonalElevation = 4.dp) {
             Column(
                 Modifier.fillMaxWidth().padding(20.dp),
