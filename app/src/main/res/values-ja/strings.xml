@@ -401,6 +401,9 @@
     <string name="appearance_background_dim">背景の暗さ</string>
     <string name="appearance_opacity">画面の透明度</string>
     <string name="appearance_reset">初期値に戻す</string>
+    <string name="appearance_subtitle">文字サイズ・明るさ・背景・透明度はすぐに反映されます</string>
+    <string name="appearance_entry_hint">配色・文字サイズ・明るさ・透明度</string>
+    <string name="appearance_note_pure">純白と純黒はテーマカラーに含まれません</string>
     <string name="theme_preset_sakura">さくら</string>
     <string name="theme_preset_lavender">ラベンダー</string>
     <string name="theme_preset_mint">ミント</string>

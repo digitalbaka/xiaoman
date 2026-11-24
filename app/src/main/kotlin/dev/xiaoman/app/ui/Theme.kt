@@ -25,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
@@ -51,14 +52,9 @@ val THEME_PRESETS = listOf(
     ThemePreset(R.string.theme_preset_indigo, "#4355B9"),
     ThemePreset(R.string.theme_preset_rose, "#C94F6D"),
     ThemePreset(R.string.theme_preset_coffee, "#7A5C46"),
-)
-
-/** Text size options in Settings: [second] is the extra multiplier on the system font scale. */
-val FONT_STEPS = listOf(
-    0.9f to "小",
-    1f to "标准",
-    1.15f to "大",
-    1.3f to "特大",
+    ThemePreset(R.string.theme_preset_sakura, "#C2557B"),
+    ThemePreset(R.string.theme_preset_lavender, "#7A66C4"),
+    ThemePreset(R.string.theme_preset_mint, "#2F8A75"),
 )
 
 /** Parses `#RRGGBB`; falls back to the default accent for anything malformed. */
@@ -105,7 +101,8 @@ fun XiaomanTheme(
         } else {
             lightColorScheme(
                 primary = accent,
-                onPrimary = Color.White,
+                // Very light accents (custom hex) need dark text; every preset stays on white.
+                onPrimary = if (accent.luminance() > 0.55f) Color(0xFF101614) else Color.White,
                 primaryContainer = lerp(accent, Color.White, 0.84f),
                 onPrimaryContainer = lerp(accent, Color.Black, 0.42f),
                 secondaryContainer = lerp(accent, Color.White, 0.90f),
@@ -124,7 +121,7 @@ fun XiaomanTheme(
     // so one setting covers Material text plus any explicit fontSize.
     val base = LocalDensity.current
     CompositionLocalProvider(
-        LocalDensity provides Density(density = base.density, fontScale = base.fontScale * fontScale.coerceIn(0.8f, 1.6f)),
+        LocalDensity provides Density(density = base.density, fontScale = base.fontScale * fontScale.coerceIn(AppSettings.FONT_SCALE_RANGE)),
     ) {
         MaterialTheme(colorScheme = scheme, typography = Typography(
             bodyMedium = TextStyle(fontSize = 14.sp, lineHeight = 22.sp),

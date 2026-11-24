@@ -49,6 +49,9 @@ class SettingsStore(private val plain: SharedPreferences, private val secret: Sh
             putString(SKILL_SOURCES, encodeSources(saved.skillSources))
             putString(SELECTED_SOURCE, saved.selectedSkillSourceId)
             putFloat(FONT_SCALE, saved.fontScale)
+            putFloat(BRIGHTNESS, saved.screenBrightness)
+            putFloat(BACKGROUND_DIM, saved.backgroundDim)
+            putFloat(UI_OPACITY, saved.uiOpacity)
             putString(DARK_MODE, saved.darkMode.name)
             putString(LANGUAGE, saved.language)
             putBoolean(SPEAK_REPLIES, saved.speakReplies)
@@ -155,7 +158,14 @@ class SettingsStore(private val plain: SharedPreferences, private val secret: Sh
             showTaskSuggestions = plain.getBoolean(SHOW_SUGGESTIONS, defaults.showTaskSuggestions),
             skillSources = decodeSources(plain.getString(SKILL_SOURCES, null)),
             selectedSkillSourceId = plain.getString(SELECTED_SOURCE, null) ?: defaults.selectedSkillSourceId,
-            fontScale = plain.getFloat(FONT_SCALE, defaults.fontScale).takeIf { it in FONT_SCALE_RANGE } ?: defaults.fontScale,
+            fontScale = plain.getFloat(FONT_SCALE, defaults.fontScale).takeIf { it in AppSettings.FONT_SCALE_RANGE } ?: defaults.fontScale,
+            screenBrightness = plain.getFloat(BRIGHTNESS, defaults.screenBrightness)
+                .takeIf { it == AppSettings.BRIGHTNESS_FOLLOW_SYSTEM || it in AppSettings.SCREEN_BRIGHTNESS_RANGE }
+                ?: defaults.screenBrightness,
+            backgroundDim = plain.getFloat(BACKGROUND_DIM, defaults.backgroundDim)
+                .takeIf { it in AppSettings.BACKGROUND_DIM_RANGE } ?: defaults.backgroundDim,
+            uiOpacity = plain.getFloat(UI_OPACITY, defaults.uiOpacity)
+                .takeIf { it in AppSettings.UI_OPACITY_RANGE } ?: defaults.uiOpacity,
             darkMode = runCatching { DarkMode.valueOf(plain.getString(DARK_MODE, null).orEmpty()) }
                 .getOrDefault(defaults.darkMode),
             language = plain.getString(LANGUAGE, null)?.takeIf { it in AppSettings.LANGUAGES } ?: defaults.language,
@@ -384,11 +394,13 @@ class SettingsStore(private val plain: SharedPreferences, private val secret: Sh
         private const val SKILL_SOURCES = "skills.sources"
         private const val SELECTED_SOURCE = "skills.selectedSource"
         private const val FONT_SCALE = "ui.fontScale"
+        private const val BRIGHTNESS = "ui.screenBrightness"
+        private const val BACKGROUND_DIM = "ui.backgroundDim"
+        private const val UI_OPACITY = "ui.uiOpacity"
         private const val DARK_MODE = "ui.darkMode"
         private const val LANGUAGE = "ui.language"
         private const val SPEAK_REPLIES = "ui.speakReplies"
         private const val START_FRESH = "ui.startFreshChat"
-        private val FONT_SCALE_RANGE = 0.8f..1.6f
         private const val LEGACY_ID = "legacy-chat"
         private val HEX = Regex("^#[0-9A-Fa-f]{6}$")
 

@@ -2,7 +2,6 @@ package dev.xiaoman.app.ui
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,22 +13,23 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.outlined.Wallpaper
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,18 +46,16 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dev.xiaoman.app.R
 import dev.xiaoman.app.settings.AppSettings
+import kotlin.math.roundToInt
 
 /**
- * Theme picker: preview on top, preset cards below, wallpaper colours as one more option.
- * Nothing is written until Apply, so users can compare palettes first.
+ * Appearance page: fonts, brightness, chat background and opacity plus the palette.
+ * Every control writes through immediately, so the change is visible on this page at once.
  */
 @Composable
-internal fun ThemeScreen(settings: AppSettings, onSave: (AppSettings) -> Unit, onBack: () -> Unit) {
-    var style by remember { mutableStateOf(settings.themeStyle) }
-    var hex by remember { mutableStateOf(settings.themeColor) }
+internal fun AppearanceScreen(settings: AppSettings, onSave: (AppSettings) -> Unit, onBack: () -> Unit) {
     var customText by remember { mutableStateOf(settings.themeColor) }
     val customValid = hexPattern.matches(customText.trim())
-    val changed = style != settings.themeStyle || !hex.equals(settings.themeColor, ignoreCase = true)
     val wallpaperOk = AppSettings.supportsWallpaperTheme
 
     Column(Modifier.fillMaxSize()) {
@@ -67,9 +65,9 @@ internal fun ThemeScreen(settings: AppSettings, onSave: (AppSettings) -> Unit, o
         ) {
             IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = null) }
             Column {
-                Text(stringResource(R.string.theme_title), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.appearance_title), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                 Text(
-                    stringResource(R.string.theme_subtitle),
+                    stringResource(R.string.appearance_subtitle),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -79,44 +77,90 @@ internal fun ThemeScreen(settings: AppSettings, onSave: (AppSettings) -> Unit, o
             Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
+            SliderRow(
+                title = stringResource(R.string.appearance_font_size),
+                valueText = percentText(settings.fontScale),                value = settings.fontScale,
+                range = AppSettings.FONT_SCALE_RANGE,
+                steps = 7,
+                onChange = { onSave(settings.copy(fontScale = it)) },
+            )
+            SliderRow(
+                title = stringResource(R.string.appearance_brightness),
+                valueText = if (settings.screenBrightness < 0f) {
+                    stringResource(R.string.appearance_brightness_follow)
+                } else {
+                    percentText(settings.screenBrightness)
+                },
+                value = if (settings.screenBrightness < 0f) 1f else settings.screenBrightness,
+                range = AppSettings.SCREEN_BRIGHTNESS_RANGE,
+                steps = 17,
+                onChange = { onSave(settings.copy(screenBrightness = it)) },
+            )
+            if (settings.screenBrightness >= 0f) {
+                TextButton(onClick = { onSave(settings.copy(screenBrightness = AppSettings.BRIGHTNESS_FOLLOW_SYSTEM)) }) {
+                    Text(stringResource(R.string.appearance_brightness_follow))
+                }
+            }
+            SliderRow(
+                title = stringResource(R.string.appearance_background_dim),
+                valueText = percentText(settings.backgroundDim),
+                value = settings.backgroundDim,
+                range = AppSettings.BACKGROUND_DIM_RANGE,
+                steps = 15,
+                onChange = { onSave(settings.copy(backgroundDim = it)) },
+            )
+            SliderRow(
+                title = stringResource(R.string.appearance_opacity),
+                valueText = percentText(settings.uiOpacity),
+                value = settings.uiOpacity,
+                range = AppSettings.UI_OPACITY_RANGE,
+                steps = 9,
+                onChange = { onSave(settings.copy(uiOpacity = it)) },
+            )
+
             Text(stringResource(R.string.theme_preview), style = MaterialTheme.typography.titleMedium)
-            // The preview is a real nested MaterialTheme, so the palette is exactly the applied one.
             XiaomanTheme(
-                accentHex = hex,
+                accentHex = settings.themeColor,
+                fontScale = settings.fontScale,
                 darkMode = settings.darkMode,
-                wallpaperColors = style == AppSettings.THEME_STYLE_WALLPAPER,
+                wallpaperColors = settings.themeStyle == AppSettings.THEME_STYLE_WALLPAPER,
             ) {
                 ThemePreview(settings.assistantName)
             }
 
-            Text(stringResource(R.string.theme_presets), style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.appearance_theme), style = MaterialTheme.typography.titleMedium)
             THEME_PRESETS.chunked(2).forEach { pair ->
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
                     pair.forEach { preset ->
                         PresetCard(
                             label = stringResource(preset.name),
                             color = themeAccent(preset.hex),
-                            selected = style == AppSettings.THEME_STYLE_ACCENT && hex.equals(preset.hex, ignoreCase = true),
+                            selected = settings.themeStyle == AppSettings.THEME_STYLE_ACCENT &&
+                                settings.themeColor.equals(preset.hex, ignoreCase = true),
                             enabled = true,
                             modifier = Modifier.weight(1f),
                         ) {
-                            style = AppSettings.THEME_STYLE_ACCENT
-                            hex = preset.hex
+                            onSave(settings.copy(themeStyle = AppSettings.THEME_STYLE_ACCENT, themeColor = preset.hex))
                             customText = preset.hex
                         }
                     }
                     if (pair.size == 1) Spacer(Modifier.weight(1f))
                 }
             }
+            Text(
+                stringResource(R.string.appearance_note_pure),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
             PresetCard(
                 label = stringResource(R.string.theme_wallpaper),
                 color = MaterialTheme.colorScheme.primary,
-                selected = style == AppSettings.THEME_STYLE_WALLPAPER,
+                selected = settings.themeStyle == AppSettings.THEME_STYLE_WALLPAPER,
                 enabled = wallpaperOk,
                 modifier = Modifier.fillMaxWidth(),
                 icon = true,
             ) {
-                if (wallpaperOk) style = AppSettings.THEME_STYLE_WALLPAPER
+                if (wallpaperOk) onSave(settings.copy(themeStyle = AppSettings.THEME_STYLE_WALLPAPER))
             }
             Text(
                 stringResource(if (wallpaperOk) R.string.theme_wallpaper_hint else R.string.theme_wallpaper_unsupported),
@@ -140,36 +184,62 @@ internal fun ThemeScreen(settings: AppSettings, onSave: (AppSettings) -> Unit, o
                 Button(
                     enabled = customValid,
                     onClick = {
-                        style = AppSettings.THEME_STYLE_ACCENT
-                        hex = customText.trim().uppercase()
+                        onSave(settings.copy(themeStyle = AppSettings.THEME_STYLE_ACCENT, themeColor = customText.trim().uppercase()))
                     },
                 ) { Text(stringResource(R.string.theme_custom_use)) }
             }
-        }
-        Row(
-            Modifier.fillMaxWidth().padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            Button(
-                enabled = changed,
+
+            TextButton(
                 onClick = {
-                    onSave(settings.copy(themeStyle = style, themeColor = hex.uppercase()))
+                    val initial = AppSettings()
+                    onSave(
+                        settings.copy(
+                            fontScale = initial.fontScale,
+                            screenBrightness = initial.screenBrightness,
+                            backgroundDim = initial.backgroundDim,
+                            uiOpacity = initial.uiOpacity,
+                            themeStyle = initial.themeStyle,
+                            themeColor = initial.themeColor,
+                        ),
+                    )
+                    customText = initial.themeColor
                 },
-                modifier = Modifier.weight(1f),
-            ) { Text(stringResource(R.string.theme_apply)) }
-            if (!changed) {
-                Text(
-                    stringResource(R.string.theme_applied),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
+            ) { Text(stringResource(R.string.appearance_reset)) }
+            Spacer(Modifier.height(8.dp))
         }
     }
 }
 
-/** Small chat mock so a palette can be judged before applying it. */
+/** One labelled slider with its current value on the trailing side. */
+@Composable
+private fun SliderRow(
+    title: String,
+    valueText: String,
+    value: Float,
+    range: ClosedFloatingPointRange<Float>,
+    steps: Int,
+    enabled: Boolean = true,
+    onChange: (Float) -> Unit,
+) {
+    Column(Modifier.fillMaxWidth()) {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Text(title, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
+            Text(valueText, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        Slider(
+            value = value.coerceIn(range.start, range.endInclusive),
+            onValueChange = onChange,
+            valueRange = range,
+            steps = steps,
+            enabled = enabled,
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
+}
+
+private fun percentText(value: Float): String = "${(value * 100).roundToInt()}%"
+
+/** Small chat mock so a palette can be judged without leaving the page. */
 @Composable
 private fun ThemePreview(assistantName: String) {
     Surface(

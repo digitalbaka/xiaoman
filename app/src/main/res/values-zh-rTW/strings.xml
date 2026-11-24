@@ -401,6 +401,9 @@
     <string name="appearance_background_dim">背景明暗</string>
     <string name="appearance_opacity">介面透明度</string>
     <string name="appearance_reset">恢復預設</string>
+    <string name="appearance_subtitle">字級、亮度、背景與透明度，調整即時生效</string>
+    <string name="appearance_entry_hint">配色、字級、亮度與透明度</string>
+    <string name="appearance_note_pure">純白與純黑不提供為主題色</string>
     <string name="theme_preset_sakura">櫻粉</string>
     <string name="theme_preset_lavender">薰衣草</string>
     <string name="theme_preset_mint">薄荷</string>

@@ -401,6 +401,9 @@
     <string name="appearance_background_dim">تعتيم الخلفية</string>
     <string name="appearance_opacity">شفافية الواجهة</string>
     <string name="appearance_reset">استعادة الافتراضي</string>
+    <string name="appearance_subtitle">حجم الخط والسطوع والخلفية والشفافية تُطبَّق فورًا</string>
+    <string name="appearance_entry_hint">الألوان وحجم الخط والسطوع والشفافية</string>
+    <string name="appearance_note_pure">الأبيض النقي والأسود النقي غير متاحين كألوان للسِمة</string>
     <string name="theme_preset_sakura">ساكورا</string>
     <string name="theme_preset_lavender">لافندر</string>
     <string name="theme_preset_mint">نعناع</string>

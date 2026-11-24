@@ -6,6 +6,8 @@ import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.xiaoman.app.settings.AppSettings
@@ -46,6 +48,23 @@ class MainActivity : ComponentActivity() {
         if (graph.settings.current.startFreshChat) graph.session.newConversation()
         setContent {
             val settings by graph.settings.settings.collectAsStateWithLifecycle()
+            // App brightness is a window attribute only; the system slider is never written.
+            LaunchedEffect(settings.screenBrightness) {
+                window.attributes = window.attributes.apply {
+                    screenBrightness = if (settings.screenBrightness < 0f) {
+                        WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
+                    } else {
+                        settings.screenBrightness
+                    }
+                }
+            }
+            DisposableEffect(Unit) {
+                onDispose {
+                    window.attributes = window.attributes.apply {
+                        screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
+                    }
+                }
+            }
             XiaomanTheme(
                 accentHex = settings.themeColor,
                 fontScale = settings.fontScale,

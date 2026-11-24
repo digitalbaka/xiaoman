@@ -117,6 +117,15 @@ data class AppSettings(
     /** Multiplies every text size in the app; see the 字号 options in Settings. */
     val fontScale: Float = 1f,
 
+    /** Window brightness while the app is in front; [BRIGHTNESS_FOLLOW_SYSTEM] keeps the system value. */
+    val screenBrightness: Float = BRIGHTNESS_FOLLOW_SYSTEM,
+
+    /** Alpha of the scrim drawn over a custom chat background. */
+    val backgroundDim: Float = DEFAULT_BACKGROUND_DIM,
+
+    /** Opacity of the chat bars (header and composer) over the background. */
+    val uiOpacity: Float = 1f,
+
     val darkMode: DarkMode = DarkMode.SYSTEM,
 
     /** BCP 47 tag, or [LANGUAGE_SYSTEM] to follow the phone. */
@@ -177,6 +186,18 @@ data class AppSettings(
 
         /** Whether this phone can do dynamic (wallpaper) colours. */
         val supportsWallpaperTheme: Boolean get() = android.os.Build.VERSION.SDK_INT >= 31
+
+        /** Window brightness meaning "leave the system slider alone". */
+        const val BRIGHTNESS_FOLLOW_SYSTEM = -1f
+
+        const val DEFAULT_BACKGROUND_DIM = 0.45f
+
+        val SCREEN_BRIGHTNESS_RANGE = 0.1f..1f
+        val BACKGROUND_DIM_RANGE = 0f..0.8f
+        val UI_OPACITY_RANGE = 0.5f..1f
+
+        /** Text scale offered on the appearance page: 85%–125% in 5% steps. */
+        val FONT_SCALE_RANGE = 0.85f..1.25f
 
         /** Languages the app ships translations for, besides the Chinese default. */
         val LANGUAGES = listOf(LANGUAGE_SYSTEM, "zh-CN", "zh-TW", "en", "ja", "ko", "ar", "de")

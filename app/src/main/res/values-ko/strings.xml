@@ -401,6 +401,9 @@
     <string name="appearance_background_dim">배경 명암</string>
     <string name="appearance_opacity">인터페이스 투명도</string>
     <string name="appearance_reset">기본값으로 복원</string>
+    <string name="appearance_subtitle">글자 크기, 밝기, 배경, 투명도는 즉시 적용됩니다</string>
+    <string name="appearance_entry_hint">색상, 글자 크기, 밝기, 투명도</string>
+    <string name="appearance_note_pure">순백색과 순흑색은 테마 색상으로 제공되지 않습니다</string>
     <string name="theme_preset_sakura">사쿠라 핑크</string>
     <string name="theme_preset_lavender">라벤더</string>
     <string name="theme_preset_mint">민트</string>

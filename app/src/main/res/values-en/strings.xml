@@ -401,6 +401,9 @@
     <string name="appearance_background_dim">Background dim</string>
     <string name="appearance_opacity">Interface opacity</string>
     <string name="appearance_reset">Reset</string>
+    <string name="appearance_subtitle">Type size, brightness, background and opacity take effect immediately</string>
+    <string name="appearance_entry_hint">Colours, text size, brightness and opacity</string>
+    <string name="appearance_note_pure">Pure white and pure black are not offered as theme colours</string>
     <string name="theme_preset_sakura">Sakura</string>
     <string name="theme_preset_lavender">Lavender</string>
     <string name="theme_preset_mint">Mint</string>

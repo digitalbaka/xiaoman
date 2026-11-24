@@ -210,7 +210,7 @@ fun ChatScreen(graph: AppGraph, speaker: Speaker, onOpenSettings: () -> Unit) {
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize(),
                 )
-                Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background.copy(alpha = 0.45f)))
+                Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background.copy(alpha = settings.backgroundDim)))
             }
             LazyColumn(
                 state = listState,
@@ -272,6 +272,7 @@ fun ChatScreen(graph: AppGraph, speaker: Speaker, onOpenSettings: () -> Unit) {
                 answering = question != null,
                 attachments = attachments,
                 supportsImages = settings.chatSupportsImages,
+                barOpacity = settings.uiOpacity,
                 interactionSource = inputInteractions,
                 onAttach = { images -> picker.launch(if (images) "image/*" else "*/*") },
                 onRemove = { index -> attachments = attachments.filterIndexed { i, _ -> i != index } },
@@ -319,6 +320,7 @@ private fun ChatInput(
     answering: Boolean,
     attachments: List<PickedAttachment>,
     supportsImages: Boolean,
+    barOpacity: Float,
     interactionSource: MutableInteractionSource,
     onAttach: (images: Boolean) -> Unit,
     onRemove: (Int) -> Unit,
@@ -345,7 +347,7 @@ private fun ChatInput(
             }
         }
     }
-    Surface(color = MaterialTheme.colorScheme.surface, tonalElevation = 0.dp) {
+    Surface(color = MaterialTheme.colorScheme.surface.copy(alpha = barOpacity), tonalElevation = 0.dp) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 10.dp)) {
             if (attachments.isNotEmpty()) {
                 Row(

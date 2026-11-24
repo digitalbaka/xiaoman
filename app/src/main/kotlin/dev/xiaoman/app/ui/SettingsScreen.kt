@@ -62,16 +62,16 @@ fun SettingsScreen(graph: AppGraph) {
     var showMcp by remember { mutableStateOf(false) }
     var showMcpStore by remember { mutableStateOf(false) }
     var showStores by remember { mutableStateOf(false) }
-    var showTheme by remember { mutableStateOf(false) }
+    var showAppearance by remember { mutableStateOf(false) }
     var showLanguage by remember { mutableStateOf(false) }
     var showAbout by remember { mutableStateOf(false) }
     // Inside a settings sub-page, back returns to the settings list instead of leaving the tab.
-    BackHandler(enabled = showModels || showMcp || showMcpStore || showStores || showTheme || showLanguage || showAbout) {
+    BackHandler(enabled = showModels || showMcp || showMcpStore || showStores || showAppearance || showLanguage || showAbout) {
         showModels = false
         showMcp = false
         showMcpStore = false
         showStores = false
-        showTheme = false
+        showAppearance = false
         showLanguage = false
         showAbout = false
     }
@@ -79,8 +79,8 @@ fun SettingsScreen(graph: AppGraph) {
         AboutScreen(onBack = { showAbout = false })
         return
     }
-    if (showTheme) {
-        ThemeScreen(settings, onSave = { store.save(it) }, onBack = { showTheme = false })
+    if (showAppearance) {
+        AppearanceScreen(settings, onSave = { store.save(it) }, onBack = { showAppearance = false })
         return
     }
     if (showLanguage) {
@@ -278,32 +278,16 @@ fun SettingsScreen(graph: AppGraph) {
             }
         }
 
-        TextButton(onClick = { showTheme = true }, modifier = Modifier.fillMaxWidth()) {
+        TextButton(onClick = { showAppearance = true }, modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.weight(1f), horizontalAlignment = Alignment.Start) {
-                Text(stringResource(R.string.theme_entry))
+                Text(stringResource(R.string.appearance_title))
                 Text(
-                    stringResource(R.string.theme_entry_hint),
+                    stringResource(R.string.appearance_entry_hint),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
             EntryChevron()
-        }
-
-        Text(stringResource(R.string.settings_font_size), style = MaterialTheme.typography.titleMedium)
-        Text(
-            stringResource(R.string.settings_font_size_hint),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            FONT_STEPS.forEach { (scale, label) ->
-                FilterChip(
-                    selected = kotlin.math.abs(settings.fontScale - scale) < 0.01f,
-                    onClick = { store.save(store.current.copy(fontScale = scale)) },
-                    label = { Text(label) },
-                )
-            }
         }
 
         Row(verticalAlignment = Alignment.CenterVertically) {

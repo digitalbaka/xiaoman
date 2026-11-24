@@ -401,6 +401,9 @@
     <string name="appearance_background_dim">Hintergrundabdunkelung</string>
     <string name="appearance_opacity">Oberflächentransparenz</string>
     <string name="appearance_reset">Zurücksetzen</string>
+    <string name="appearance_subtitle">Schriftgröße, Helligkeit, Hintergrund und Deckkraft wirken sofort</string>
+    <string name="appearance_entry_hint">Farben, Schriftgröße, Helligkeit und Deckkraft</string>
+    <string name="appearance_note_pure">Reinweiß und Tiefschwarz gibt es nicht als Designfarbe</string>
     <string name="theme_preset_sakura">Sakura</string>
     <string name="theme_preset_lavender">Lavendel</string>
     <string name="theme_preset_mint">Minze</string>
