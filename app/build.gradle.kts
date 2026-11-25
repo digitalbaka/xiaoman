@@ -42,7 +42,7 @@ android {
         minSdk = 25
         targetSdk = 35
         versionCode = 4
-        versionName = "0.3"
+        versionName = "0.3.1"
     }
     // Local fixed debug key, kept out of the repo: signing.local.properties (git-ignored) holds the
     // keystore path and passwords, gradle.properties only names that file. Loading it on every build
